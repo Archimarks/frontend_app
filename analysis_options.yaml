@@ -1,0 +1,90 @@
+include: package:flutter_lints/flutter.yaml
+
+linter:
+  rules:
+
+    # ✅ Buenas prácticas generales
+    - avoid_catches_without_on_clauses               # Captura errores específicos, no genéricos
+    - avoid_classes_with_only_static_members         # Usa mixins o funciones top-level si no hay estado
+    - avoid_dynamic_calls                            # Evita errores difíciles de depurar con llamadas dinámicas
+    - avoid_empty_else                               # Evita bloques else vacíos innecesarios
+    - avoid_implementing_value_types                 # Evita implementar tipos de valor (como int, String) directamente 
+    - avoid_positional_boolean_parameters            # Usa parámetros nombrados para mayor claridad
+    - avoid_print                                    # Usa Logger o debugPrint en lugar de print()
+    - avoid_redundant_argument_values                # No pases argumentos con valores por defecto redundantes
+    - avoid_returning_null_for_future                # Siempre devuelve Future válidos, no null
+    - avoid_returning_this                           # Considera si es necesario retornar 'this' para fluidez
+    - avoid_setters_without_getters                  # Siempre declara getters si defines setters
+    - avoid_slow_async_io                            # Evita operaciones IO lentas que pueden bloquear la UI
+    - cancel_subscriptions                           # Cancela StreamSubscriptions para evitar fugas
+    - cascade_invocations                            # Fomenta el uso del operador en cascada (..)
+    - close_sinks                                    # Cierra streams correctamente
+    - constant_identifier_names                      # Asegura nombres de identificadores const con convenciones
+
+    # 📏 Estilo y legibilidad
+    - annotate_overrides                             # Marca claramente métodos sobrescritos
+    - avoid_init_to_null                             # No inicialices con null innecesariamente
+    - avoid_multiple_declarations_per_line           # Declara una variable por línea para mejor legibilidad
+    - curly_braces_in_flow_control_structures        # Usa llaves en estructuras de control (if, for, etc.)
+    - prefer_adjacent_string_concatenation           # Usa `+` para concatenar cadenas adyacentes
+    - prefer_collection_literals                     # Usa `[]` y `{}` en vez de List() y Map()
+    - prefer_const_constructors_in_immutables        # Usa `const` en clases inmutables
+    - prefer_const_declarations                      # Usa `const` cuando el valor no cambia
+    - prefer_expression_function_bodies              # Usa `=>` para funciones simples
+    - prefer_final_fields                            # Usa `final` si el campo no cambia
+    - prefer_final_in_for_each                       # Usa `final` en bucles forEach
+    - prefer_final_locals                            # Usa `final` si la variable no cambia
+    - prefer_final_parameters                        # Parámetros inmutables ayudan a evitar errores
+    - prefer_interpolation_to_compose_strings        # Usa "$var" en vez de 'Hola ' + nombre
+    - prefer_is_empty                                # Usa `isEmpty` en vez de `length == 0`
+    - prefer_is_not_empty                            # Usa `isNotEmpty` en vez de `length > 0`
+    - prefer_mixin                                   # Considera usar mixins si no necesitas estado
+    - prefer_null_aware_method_calls                 # Usa `?.` para evitar null checks explícitos
+    - prefer_relative_imports                        # Prefiere rutas relativas en vez de `package:`
+    - prefer_single_quotes                           # Usa comillas simples por consistencia
+    - prefer_typing_uninitialized_variables          # Evita usar `var` para claridad
+    - require_trailing_commas                        # Mejora diffs de git y legibilidad
+    - sized_box_for_whitespace                       # Usa SizedBox para espacios en blanco
+    - sort_child_properties_last                     # En widgets, `child:` al final
+    - sort_constructors_first                        # Primero los constructores en clases
+    - sort_unnamed_constructors_first                # Ordena constructores sin nombre antes que otros
+    - unnecessary_lambdas                            # Evita lambdas innecesarias al pasar funciones
+    - unnecessary_new                                # Evita `new`, ya no es necesario
+    - unnecessary_this                               # Elimina `this.` si no es necesario
+
+    # 🚀 Rendimiento y optimización
+    - avoid_returning_null                           # Evita retornar null innecesariamente
+    - avoid_unnecessary_containers                   # Usa widgets más simples si no necesitas `Container`
+    - prefer_const_constructors                      # Usa `const` cuando sea posible
+    - prefer_const_literals_to_create_immutables     # Usa `const` en listas y mapas inmutables
+    - prefer_foreach                                 # Usa `forEach` si mejora la legibilidad
+    - prefer_spread_collections                      # Usa `...` para combinar listas/mapas eficientemente
+
+    # 🧱 Organización del código
+    - always_declare_return_types                    # Mejora autocompletado y comprensión del código
+    - depend_on_referenced_packages                  # Asegura que un paquete solo importe lo que necesita
+    - file_names                                     # Usa snake_case para nombres de archivos
+    - library_prefixes                               # Usa alias para imports externos (por claridad)
+    #- sort_pub_dependencies                          # Ordena las dependencias del pubspec.yaml alfabéticamente
+
+    # 🐛 Errores comunes evitables
+    - avoid_returning_null_for_void                  # No uses `return null` en funciones void
+    - exhaustive_cases                               # Obliga a cubrir todos los casos en un switch (útil con sealed classes/enums)
+    - no_duplicate_case_values                       # Evita duplicados en switch/case
+    - no_logic_in_create_state                       # Lógica debe ir en `initState`, no en `createState`
+    - prefer_asserts_with_message                    # Proporciona mensajes en asserts para facilitar depuración
+    - use_build_context_synchronously                # ¡Importante! Detecta BuildContext después de un await
+    - use_super_parameters                           # Usa `super.param` en constructores si aplica
+
+    # 🧼 Seguridad y robustez
+    - avoid_types_as_parameter_names                 # No uses tipos como nombres de parámetros
+    - secure_pubspec_urls                            # Usa URLs seguras (https) en pubspec.yaml
+
+    # 📚 Documentación
+    - comment_references                             # Verifica que referencias `[Clase]` sean válidas en comentarios
+    - package_api_docs                               # Documenta todas las APIs públicas exportadas
+    - slash_for_doc_comments                         # Usa `///` en lugar de `/* */` para documentación
+
+    # 🧪 Test
+    - always_put_control_body_on_new_line            # Mejora legibilidad en `test()` y `group()`
+    - test_types_in_equals                           # Evita fallas silenciosas por tipos diferentes
