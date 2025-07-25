@@ -97,7 +97,7 @@ BLoC significa Business Logic Component. Es un patrón que ayuda a manejar el es
 
 - Streams: Canal por el cual se comunica el cambio de estado.
 
-#### 📌 Características
+#### 📌 Características BloC
 
 - Maneja eventos y emite estados.
 
@@ -109,7 +109,7 @@ BLoC significa Business Logic Component. Es un patrón que ayuda a manejar el es
 
 Cubit es una versión más simple de BloC. También se basa en Streams, pero no usa eventos, lo que lo hace más directo y fácil de escribir para casos menos complejos.
 
-#### 📌 Características
+#### 📌 Características Cubit
 
 - Solo define estados, no eventos.
 
