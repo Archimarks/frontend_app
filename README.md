@@ -82,9 +82,38 @@ Este proyecto Flutter está organizado con una arquitectura modular que facilita
     ├── Elements/        # Pruebas de Elements (widgets)
     └── Integration/   # Pruebas de integración
 ```
+## Patrones de gestión usados
 
- ¿Qué significa usar BLoC + Cubit juntos?
+BloC y Cubit son patrones de gestión del estado (state management) que provienen de la librería flutter_bloc, diseñada para ayudar a separar la lógica de negocio de la interfaz de usuario de forma clara y mantenible.
 
-BLoC: Lo usas para features con flujos de eventos complejos, múltiples acciones que modifican el estado (ej: login con validación, loading, success, failure).
+### 🔷 ¿Qué es BloC?
+BLoC significa Business Logic Component. Es un patrón que ayuda a manejar el estado de una aplicación usando:
 
-ubit: Lo usas para casos más simples o localizados, como mostrar/ocultar contraseña, cambiar un índice de tab, abrir un modal, etc.
+- Eventos (Events): Lo que ocurre (acciones del usuario, llamadas, etc.).
+
+- Estados (States): Cómo se ve la UI en un momento dado.
+
+- Streams: Canal por el cual se comunica el cambio de estado.
+
+#### 📌 Características:
+- Maneja eventos y emite estados.
+
+- Ideal para lógica compleja.
+
+- Es más detallado, pero también más verboso.
+
+### 🟦 ¿Qué es Cubit?
+Cubit es una versión más simple de BloC. También se basa en Streams, pero no usa eventos, lo que lo hace más directo y fácil de escribir para casos menos complejos.
+
+#### 📌 Características:
+- Solo define estados, no eventos.
+
+- Es más simple y directo.
+
+- Ideal para lógicas más sencillas y rápidas.
+
+### Explicación del uso de BloC y Cubit en esta app:
+
+BLoC: Se usa para features con flujos de eventos complejos, múltiples acciones que modifican el estado (ej: login con validación, loading, success, failure).
+
+Cubit: Se usa para casos más simples o localizados, como mostrar/ocultar contraseña, cambiar un índice de tab, abrir un modal, etc.
