@@ -11,9 +11,9 @@ import '../../Utils/Enums/list_color.dart';
 
 typedef _ButtonContent = ({Widget? child, String semanticLabel});
 
-class Button extends StatelessWidget {
+class CustomButton extends StatelessWidget {
 
-  const Button({
+  const CustomButton({
     super.key,
     required this.color,
     this.text,

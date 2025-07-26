@@ -14,8 +14,12 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../Shared/Widgets/banner.dart';
+import '../../../../Shared/Widgets/button.dart';
+import '../../../../Shared/Widgets/text_field.dart';
 import '../../../../Utils/Base/Cubit/Connectivity/connectivity_cubit.dart';
 import '../../../../Utils/Base/Cubit/Database/database_connection_cubit.dart';
+import '../../../../Utils/Enums/list_color.dart';
 
 /// Vista principal del Login.
 class LoginView extends StatelessWidget {
@@ -33,9 +37,9 @@ class LoginView extends StatelessWidget {
             connected: hasInternet,
           );
         },
-        child: const Scaffold(
-          backgroundColor: Color(0xFFF5F5F5),
-          body: Center(child: _LoginCard()),
+        child: Scaffold(
+          backgroundColor: TipoColores.seasalt.value,
+          body: const Center(child: _LoginCard()),
         ),
       );
 }
@@ -49,7 +53,7 @@ class _LoginCard extends StatelessWidget {
     elevation: 4,
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(16),
-      side: const BorderSide(color: Colors.green, width: 1.5),
+      side: BorderSide(color: TipoColores.pantone356C.value, width: 1.5),
     ),
     margin: const EdgeInsets.symmetric(horizontal: 24),
     child: const Padding(
@@ -62,7 +66,10 @@ class _LoginCard extends StatelessWidget {
           SizedBox(height: 8),
           _Header(),
           SizedBox(height: 24),
-          _UsernameField(),
+          CustomTextField(
+            labelText: 'Nombre de usuario',
+            prefixIcon: Icons.person_outline,
+          ),
           SizedBox(height: 32),
           _LoginButton(),
         ],
@@ -76,17 +83,17 @@ class _Header extends StatelessWidget {
   const _Header();
 
   @override
-  Widget build(final BuildContext context) => const Column(
+  Widget build(final BuildContext context) => Column(
     children: [
-      Text(
+      const Text(
         'Iniciar sesión',
         style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
       ),
-      SizedBox(height: 8),
+      const SizedBox(height: 8),
       Text(
         'Diligenciar los datos solicitados para iniciar sesión',
         textAlign: TextAlign.center,
-        style: TextStyle(fontSize: 14, color: Colors.black54),
+        style: TextStyle(fontSize: 14, color: TipoColores.pantoneBlackC.value),
       ),
     ],
   );
@@ -103,10 +110,10 @@ class _ConnectionStatusBanner extends StatelessWidget {
         builder: (final context, final isDisconnected) => AnimatedSwitcher(
           duration: const Duration(milliseconds: 300),
           child: isDisconnected
-              ? _buildBanner(
+              ? CustomBanner(
                   icon: Icons.wifi_off,
                   text: 'Sin conexión a internet',
-                  color: Colors.red,
+                  color: TipoColores.gris.value,
                 )
               : const SizedBox.shrink(),
         ),
@@ -124,28 +131,14 @@ class _DatabaseStatusBanner extends StatelessWidget {
         builder: (final context, final isDisconnected) => AnimatedSwitcher(
           duration: const Duration(milliseconds: 300),
           child: isDisconnected
-              ? _buildBanner(
+              ? CustomBanner(
                   icon: Icons.cloud_off,
                   text: 'Fallo al conectar a la base de datos',
-                  color: Colors.orange,
+                  color: TipoColores.pantone7621C.value,
                 )
               : const SizedBox.shrink(),
         ),
       );
-}
-
-/// Campo de texto para ingresar el nombre de usuario.
-class _UsernameField extends StatelessWidget {
-  const _UsernameField();
-
-  @override
-  Widget build(final BuildContext context) => const TextField(
-    decoration: InputDecoration(
-      labelText: 'Nombre de usuario',
-      prefixIcon: Icon(Icons.person_outline),
-      border: UnderlineInputBorder(),
-    ),
-  );
 }
 
 /// Botón de login, habilitado solo si hay internet y conexión a la base de datos.
@@ -165,49 +158,15 @@ class _LoginButton extends StatelessWidget {
 
             return SizedBox(
               width: double.infinity,
-              child: ElevatedButton(
-                onPressed: canLogin ? () => debugPrint('Iniciar sesión...') : null,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.deepOrange,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                ),
-                child: const Text(
-                  'Ingresar',
-                  style: TextStyle(fontSize: 16, color: Colors.white),
-                ),
+              child: CustomButton(
+                onPressed: canLogin
+                    ? () => debugPrint('Iniciar sesión...')
+                    : null,
+                text: 'Ingresar',
+                color: TipoColores.pantone158C,
               ),
             );
           },
         ),
   );
 }
-
-/// Banner reutilizable para mostrar mensajes informativos o de error.
-Widget _buildBanner({
-  required final IconData icon,
-  required final String text,
-  required final Color color,
-}) => Container(
-  width: double.infinity,
-  padding: const EdgeInsets.all(12),
-  margin: const EdgeInsets.only(bottom: 16),
-  decoration: BoxDecoration(
-    color: color.withAlpha((0.1 * 255).toInt()),
-    borderRadius: BorderRadius.circular(8),
-    border: Border.all(color: color),
-  ),
-  child: Row(
-    mainAxisAlignment: MainAxisAlignment.center,
-    children: [
-      Icon(icon, color: color),
-      const SizedBox(width: 8),
-      Text(
-        text,
-        style: TextStyle(color: color, fontWeight: FontWeight.bold),
-      ),
-    ],
-  ),
-);

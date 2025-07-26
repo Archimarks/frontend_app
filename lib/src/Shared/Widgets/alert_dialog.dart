@@ -115,7 +115,7 @@ class _CustomAlertDialogState extends State<CustomAlertDialog> {
   Widget _buildButtons() => Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        Button(
+      CustomButton(
           color: widget.colorButtonConfirm,
           text: widget.confirmButtonText,
           width: 100,
@@ -130,7 +130,7 @@ class _CustomAlertDialogState extends State<CustomAlertDialog> {
                 }
               : null,
         ),
-        Button(
+      CustomButton(
           color: TipoColores.pantoneCool,
           text: widget.cancelButtonText, // Usamos widget.cancelButtonText
           width: 100,
