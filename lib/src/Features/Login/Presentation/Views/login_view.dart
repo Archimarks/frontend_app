@@ -14,12 +14,9 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../Shared/Widgets/banner.dart';
-import '../../../../Shared/Widgets/button.dart';
-import '../../../../Shared/Widgets/text_field.dart';
-import '../../../../Utils/Base/Cubit/Connectivity/connectivity_cubit.dart';
-import '../../../../Utils/Base/Cubit/Database/database_connection_cubit.dart';
-import '../../../../Utils/Enums/list_color.dart';
+import '../../../../Core/Barrels/base_cubit_barrel.dart';
+import '../../../../Core/Barrels/enums_barrel.dart';
+import '../../../../Core/Barrels/widgets_shared_barrel.dart';
 
 /// Vista principal del Login.
 class LoginView extends StatelessWidget {

@@ -11,8 +11,8 @@ library;
 
 import 'package:flutter/material.dart';
 
-import '../../Utils/Enums/list_color.dart';
-import '../Widgets/button.dart';
+import '../../Core/Barrels/enums_barrel.dart';
+import '../../Core/Barrels/widgets_shared_barrel.dart';
 
 class CustomAlertDialog extends StatefulWidget {
 

@@ -7,7 +7,7 @@ library;
 
 import 'package:flutter/material.dart';
 
-import '../../Shared/Themes/Colors/colors_app.dart';
+import '../../Shared/Themes/colors_app.dart';
 
 enum TipoColores {
   // Principales
