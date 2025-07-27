@@ -7,7 +7,7 @@ library;
 
 import 'package:flutter/material.dart';
 
-import '../../Utils/Enums/list_color.dart';
+import '../../Core/Barrels/enums_barrel.dart';
 
 typedef _ButtonContent = ({Widget? child, String semanticLabel});
 

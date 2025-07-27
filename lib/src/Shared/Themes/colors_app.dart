@@ -7,7 +7,7 @@ library;
 
 import 'package:flutter/material.dart';
 
-import '../../../Utils/Enums/list_color.dart';
+import '../../Utils/Enums/list_color.dart';
 
 // ignore: avoid_classes_with_only_static_members
 class ColorsApp {
