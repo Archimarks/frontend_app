@@ -16,8 +16,7 @@ class CustomMainCard extends StatelessWidget {
     required this.title,
     required this.description,
     this.actionIcon,
-    required this.onActionPressed,
-    this.onTap,
+    required this.actionCard,
     this.backgroundColor = TipoColores.seasalt, // Color de fondo predeterminado
     this.titleColor = TipoColores.pantone634C, // Color del título predeterminado
     this.descriptionColor = TipoColores.airBlue, // Color de la descripción predeterminado
@@ -32,11 +31,8 @@ class CustomMainCard extends StatelessWidget {
   /// El icono que se muestra en la parte derecha de la tarjeta.
   final IconData? actionIcon;
 
-  /// La función que se ejecuta cuando se presiona el icono de acción.
-  final VoidCallback? onActionPressed;
-
   /// La función que se ejecuta cuando se toca cualquier parte de la tarjeta.
-  final VoidCallback? onTap;
+  final VoidCallback? actionCard;
 
   /// El color de fondo de la tarjeta.
   final TipoColores backgroundColor;
@@ -52,9 +48,9 @@ class CustomMainCard extends StatelessWidget {
       color: backgroundColor.value,
       margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
       elevation: 2.0,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
       child: InkWell(
-        onTap: onTap,
+      onTap: actionCard,
         borderRadius: BorderRadius.circular(
           8.0,
         ), // Para que el InkWell respete el borde del Card
@@ -92,9 +88,10 @@ class CustomMainCard extends StatelessWidget {
                   child: IconButton(
                     icon: Icon(
                       actionIcon,
+                      size: 30,
                       color: TipoColores.airBlue.value,
                     ), // Color del icono de acción
-                    onPressed: onActionPressed,
+                  onPressed: actionCard,
                   ),
                 ),
             ],

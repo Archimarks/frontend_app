@@ -38,7 +38,7 @@ class _MeetOptionsState extends State<MeetOptions> {
             Align(
               alignment: Alignment.topCenter,
               child: Padding(
-                padding: const EdgeInsets.all(20.0),
+                padding: const EdgeInsets.all(15.0),
                 child: _portraitLayout(),
               ),
             ),
@@ -54,8 +54,8 @@ class _MeetOptionsState extends State<MeetOptions> {
       CustomMainCard(
         title: 'Crear encuentro',
         description: 'Invitar personas, definir horario y fecha.',
-        actionIcon: Icons.add,
-        onActionPressed: () {},
+        actionIcon: Icons.list,
+        actionCard: () {},
       ),
     ],
   );
