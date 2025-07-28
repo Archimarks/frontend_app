@@ -11,10 +11,14 @@
 /// **********************************************************************************************
 library;
 
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:http/http.dart' as http;
 
 import '../../../../Core/Barrels/base_cubit_barrel.dart';
+import '../../../../Core/Barrels/configs_barrel.dart';
 import '../../../../Core/Barrels/enums_barrel.dart';
 import '../../../../Core/Barrels/widgets_shared_barrel.dart';
 
@@ -42,8 +46,27 @@ class LoginView extends StatelessWidget {
 }
 
 /// Contenedor principal del formulario de login (estilizado con Card).
-class _LoginCard extends StatelessWidget {
+class _LoginCard extends StatefulWidget {
   const _LoginCard();
+
+  @override
+  State<_LoginCard> createState() => _LoginCardState();
+}
+
+class _LoginCardState extends State<_LoginCard> {
+  late final TextEditingController _usernameController;
+
+  @override
+  void initState() {
+    super.initState();
+    _usernameController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _usernameController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(final BuildContext context) => Card(
@@ -53,22 +76,23 @@ class _LoginCard extends StatelessWidget {
       side: BorderSide(color: TipoColores.pantone356C.value, width: 1.5),
     ),
     margin: const EdgeInsets.symmetric(horizontal: 24),
-    child: const Padding(
-      padding: EdgeInsets.all(24.0),
+    child: Padding(
+      padding: const EdgeInsets.all(24.0),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          _ConnectionStatusBanner(), // Banner si no hay internet
-          _DatabaseStatusBanner(), // Banner si falla la conexión con BD
-          SizedBox(height: 8),
-          _Header(),
-          SizedBox(height: 24),
+          const _ConnectionStatusBanner(),
+          const _DatabaseStatusBanner(),
+          const SizedBox(height: 8),
+          const _Header(),
+          const SizedBox(height: 24),
           CustomTextField(
             labelText: 'Nombre de usuario',
             prefixIcon: Icons.person_outline,
+            controller: _usernameController,
           ),
-          SizedBox(height: 32),
-          _LoginButton(),
+          const SizedBox(height: 32),
+          _LoginButton(controller: _usernameController),
         ],
       ),
     ),
@@ -140,7 +164,9 @@ class _DatabaseStatusBanner extends StatelessWidget {
 
 /// Botón de login, habilitado solo si hay internet y conexión a la base de datos.
 class _LoginButton extends StatelessWidget {
-  const _LoginButton();
+  const _LoginButton({required this.controller});
+
+  final TextEditingController controller;
 
   @override
   Widget build(
@@ -157,7 +183,33 @@ class _LoginButton extends StatelessWidget {
               width: double.infinity,
               child: CustomButton(
                 onPressed: canLogin
-                    ? () => debugPrint('Iniciar sesión...')
+                    ? () async {
+                        final username = controller.text.trim();
+                        if (username.isEmpty) {
+                          debugPrint('El campo de usuario está vacío');
+                          return;
+                        }
+
+                        try {
+                          final url = ApiConfig.instance.usuarioPorCorreo(
+                            username,
+                          );
+                          final response = await http.get(Uri.parse(url));
+
+                          if (response.statusCode == 200) {
+                            final data = jsonDecode(response.body);
+                            debugPrint('Usuario encontrado: $data');
+                          } else if (response.statusCode == 404) {
+                            debugPrint('Usuario no encontrado para: $username');
+                          } else {
+                            debugPrint(
+                              'Error al obtener usuario. Código: ${response.statusCode}',
+                            );
+                          }
+                        } catch (e) {
+                          debugPrint('Error en la solicitud HTTP: $e');
+                        }
+                      }
                     : null,
                 text: 'Ingresar',
                 color: TipoColores.pantone158C,
