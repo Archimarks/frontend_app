@@ -15,6 +15,7 @@ library;
 import 'package:go_router/go_router.dart';
 
 import '../../Features/Login/Presentation/Views/login_view.dart';
+import '../../Features/Meet_options/Presentation/Views/meet_options_view.dart';
 import 'route_names.dart';
 
 /// Lista de rutas disponibles en la aplicación.
@@ -24,6 +25,12 @@ final List<GoRoute> appRoutes = [
     path: '/login',
     name: RouteNames.login,
     builder: (final context, final state) => const LoginView(),
+  ),
+
+GoRoute(
+    path: '/meetOptions',
+    name: RouteNames.meetOptions,
+    builder: (final context, final state) => const MeetOptions(),
   ),
 
   // Ruta comentada de ejemplo para futuras implementaciones:

@@ -49,10 +49,18 @@ class CustomTextField extends StatelessWidget {
     style: TextStyle(color: textColor.value),
     decoration: InputDecoration(
       labelText: labelText,
-
+      labelStyle: TextStyle(color: textColor.value),
       prefixIcon: prefixIcon != null
           ? Icon(prefixIcon, color: colorIcon.value)
           : null,
+      // Color de la barra inferior cuando el campo NO está enfocado
+      enabledBorder: UnderlineInputBorder(
+        borderSide: BorderSide(color: textColor.value),
+      ),
+      // Color de la barra inferior cuando el campo SÍ está enfocado
+      focusedBorder: UnderlineInputBorder(
+        borderSide: BorderSide(color: textColor.value),
+      ),
       border: const UnderlineInputBorder(),
     ),
   );

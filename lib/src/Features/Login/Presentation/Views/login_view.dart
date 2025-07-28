@@ -212,6 +212,7 @@ class _LoginButton extends StatelessWidget {
                       }
                     : null,
                 text: 'Ingresar',
+                showDecoration: false,
                 color: TipoColores.pantone158C,
               ),
             );

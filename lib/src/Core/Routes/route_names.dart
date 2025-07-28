@@ -21,4 +21,7 @@ abstract class RouteNames {
 
   /// Nombre de la ruta para la vista Splash o de carga inicial.
   static const splash = 'splash';
+
+  /// Nombre de la ruta para la vista inicial.
+  static const meetOptions = 'meetOptions';
 }
