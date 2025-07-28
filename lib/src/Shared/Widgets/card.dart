@@ -8,7 +8,7 @@ library;
 
 import 'package:flutter/material.dart';
 
-import '../../Utils/Enums/list_color.dart';
+import '../../Core/Barrels/enums_barrel.dart';
 
 class CustomCard extends StatelessWidget { // Para los botones en la parte inferior
 

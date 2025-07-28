@@ -7,7 +7,7 @@ library;
 
 import 'package:flutter/material.dart';
 
-import '../../Utils/Enums/list_color.dart'; // Asegúrate de que esta ruta sea correcta
+import '../../Core/Barrels/enums_barrel.dart';
 
 AppBar customAppBar({
   required final BuildContext context,
