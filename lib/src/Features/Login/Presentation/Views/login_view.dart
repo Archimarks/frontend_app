@@ -206,6 +206,7 @@ class _LoginButton extends StatelessWidget {
                               'Error al obtener usuario. Código: ${response.statusCode}',
                             );
                           }
+                          // ignore: avoid_catches_without_on_clauses
                         } catch (e) {
                           debugPrint('Error en la solicitud HTTP: $e');
                         }

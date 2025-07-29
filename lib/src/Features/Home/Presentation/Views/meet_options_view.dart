@@ -3,26 +3,30 @@ import 'package:flutter/material.dart';
 import '../../../../Core/Barrels/enums_barrel.dart';
 import '../../../../Core/Barrels/widgets_shared_barrel.dart';
 
-class MeetOptions extends StatefulWidget {
-  const MeetOptions({super.key});
+class Home extends StatefulWidget {
+  const Home({super.key});
 
   @override
-  State<MeetOptions> createState() => _MeetOptionsState();
+  State<Home> createState() => _HomeState();
 }
 
-class _MeetOptionsState extends State<MeetOptions> {
+class _HomeState extends State<Home> {
   @override
   // ignore: prefer_expression_function_bodies
   Widget build(final BuildContext context) {
     // Envuelve el Scaffold con PopScope para interceptar el botón de retroceso del hardware
     return PopScope(
       canPop: false, // Evita que la ruta se "popee" automáticamente
+      // ignore: deprecated_member_use
       onPopInvoked: (final bool didPop) {
         if (didPop) {
-          return; // Si el pop ya fue manejado por el sistema, no hacemos nada.
+          return; // Si el pop ya fue manejado por el sistema, no se hace nada.
         }
       },
       child: Scaffold(
+        backgroundColor: TipoColores
+            .seasalt
+            .value, // Color de fondo para toda la vista
         appBar: customAppBar(
           context: context,
           title: 'Encuentros',
@@ -54,7 +58,30 @@ class _MeetOptionsState extends State<MeetOptions> {
       CustomMainCard(
         title: 'Crear encuentro',
         description: 'Invitar personas, definir horario y fecha.',
-        actionIcon: Icons.list,
+        actionCard: () {},
+      ),
+      const SizedBox(height: 20),
+      CustomMainCard(
+        title: 'Registrar asistencia',
+        description: 'Activar escaneo del QR de los invitados o registro manual de asistencia.',
+        actionCard: () {},
+      ),
+      const SizedBox(height: 20),
+      CustomMainCard(
+        title: 'Asistir a un encuentro',
+        description: 'Generar mi QR para registro de mi asistencia.',
+        actionCard: () {},
+      ),
+      const SizedBox(height: 20),
+      CustomMainCard(
+        title: 'Reportes',
+        description: 'Reportes de los encuentros.',
+        actionCard: () {},
+      ),
+      const SizedBox(height: 20),
+      CustomMainCard(
+        title: 'Encuentros',
+        description: 'Encuentros informales a los que se puede unir.',
         actionCard: () {},
       ),
     ],

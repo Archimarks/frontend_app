@@ -53,11 +53,11 @@ class CustomButton extends StatelessWidget {
               boxShadow: enabled
                   ? [
                       BoxShadow(
-                      color: TipoColores.gris.value.withAlpha(
+                      color: TipoColores.pantone663C.value.withAlpha(
                         (0.4 * 255).toInt(),
                       ),
                         blurRadius: 10,
-                        spreadRadius: 2,
+                      spreadRadius: 1,
                         offset: const Offset(0, 3),
                       ),
                     ]
