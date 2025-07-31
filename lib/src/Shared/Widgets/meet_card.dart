@@ -78,8 +78,8 @@ class CustomMeetCard extends StatelessWidget {
       boxShadow: [
         BoxShadow(
           color: TipoColores.pantoneCool.value,
-          offset: const Offset(4, 4),
-          blurRadius: 8,
+          offset: const Offset(2, 2),
+          blurRadius: 10,
           spreadRadius: 1,
         ),
       ],
@@ -141,7 +141,7 @@ class CustomMeetCard extends StatelessWidget {
       return InkWell(
         onTap: onDeletePressed,
         child: Container(
-          width: 50,
+          width: 40,
           color: buttonColor.value,
           child: Center(
             child: Icon(actionIcon, color: iconColor.value, size: 30),

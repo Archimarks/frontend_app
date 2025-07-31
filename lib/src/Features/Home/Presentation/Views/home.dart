@@ -122,32 +122,74 @@ class _HomeState extends State<Home> {
   Widget _portraitLayout() => Column(
     crossAxisAlignment: CrossAxisAlignment.stretch,
     children: [
-      ...filteredCards
-          .map(
-            (final card) => Column(
-              children: [
-                CustomMainCard(
-                  title: card.titulo,
-                  description: card.descripcion,
-                  actionCard: () {
-                    debugPrint('Se hizo clic en: ${card.titulo}');
-                  },
-                ),
-                const SizedBox(height: 15),
-              ],
-              // ignore: unnecessary_to_list_in_spreads
+      ...filteredCards.map(
+        (final card) => Column(
+          children: [
+            CustomMainCard(
+              title: card.titulo,
+              description: card.descripcion,
+              actionCard: () {
+                debugPrint('Se hizo clic en: ${card.titulo}');
+              },
             ),
-          )
-          ,
+            const SizedBox(height: 15),
+          ],
+          // ignore: unnecessary_to_list_in_spreads
+        ),
+      ),
       CustomMeetCard(
         hourAndDate: '08:00 - 10:00 a.m. lun. (07/10/2024)',
         title: 'Clase diseño de base de datos',
-        description: 'Reportes de los fallas y asistencias de los encuentros que ha realizado.',
+        description:
+            'Reportes de los fallas y asistencias de los encuentros que ha realizado.',
         actionCard: null,
         showButton: true,
         onDeletePressed: () {
           debugPrint('ELIMINADO');
         },
+      ),
+      const SizedBox(height: 15),
+      CustomMeetCard(
+        hourAndDate: '08:00 - 10:00 a.m. lun. (07/10/2024)',
+        title: 'Clase diseño de base de datos',
+        description:
+            'Reportes de los fallas y asistencias de los encuentros que ha realizado.',
+        actionCard: null,
+        showButton: true,
+        onDeletePressed: () {
+          debugPrint('ELIMINADO');
+        },
+      ),
+      const SizedBox(height: 15),
+      CustomUsersCard(
+        nameUser: 'Collazos Marmolejo Marcos Alejandro',
+        emailUser: 'marc.collazos@udla.edu.co',
+        showButton: true,
+        actionCard: () {
+          debugPrint('SELECCIONADO');
+        },
+        onButtonPressed: () {
+          debugPrint('SELECCIONADO CHECK');
+        },
+        showNumber: true,
+        buttonColor: TipoColores.pantone634C,
+        buttonCheckedColor: TipoColores.pantone356C,
+      ),
+      const SizedBox(height: 15),
+      CustomUsersCard(
+        nameUser: 'Perilla Valderrama Geraldine',
+        emailUser: 'g.perilla@udla.edu.co',
+        numberIndicator: 2,
+        showButton: true,
+        actionCard: () {
+          debugPrint('SELECCIONADO');
+        },
+        onButtonPressed: () {
+          debugPrint('SELECCIONADO CHECK');
+        },
+        showNumber: true,
+        buttonColor: TipoColores.pantone634C,
+        buttonCheckedColor: TipoColores.pantone356C,
       ),
     ],
   );
