@@ -201,12 +201,12 @@ class _LoginButton extends StatelessWidget {
                             debugPrint('Usuario encontrado: $data');
                           } else if (response.statusCode == 404) {
                             debugPrint('Usuario no encontrado para: $username');
-                          } else {
+                          } else { 
                             debugPrint(
                               'Error al obtener usuario. Código: ${response.statusCode}',
                             );
                           }
-                        } catch (e) {
+                        } on Exception catch (e) {
                           debugPrint('Error en la solicitud HTTP: $e');
                         }
                       }
