@@ -91,14 +91,14 @@ class CustomMainCard extends StatelessWidget {
                       maxLines: 1, // Para evitar que el título se desborde
                       overflow: TextOverflow.ellipsis,
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 6),
                     Text(
                       description,
                       style: TextStyle(
                         fontSize: 12,
                         color: descriptionColor.value,
                       ),
-                      maxLines: 1, // Para evitar que la descripción se desborde
+                      maxLines: 2, // Para evitar que la descripción se desborde
                       overflow: TextOverflow.ellipsis,
                     ),
                   ],
