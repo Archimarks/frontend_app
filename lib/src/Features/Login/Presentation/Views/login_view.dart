@@ -207,11 +207,15 @@ class _LoginButton extends StatelessWidget {
                             );
                           }
                         } on Exception catch (e) {
+
+                          // ignore: avoid_catches_without_on_clauses
+                        } catch (e) {
                           debugPrint('Error en la solicitud HTTP: $e');
                         }
                       }
                     : null,
                 text: 'Ingresar',
+                showDecoration: false,
                 color: TipoColores.pantone158C,
               ),
             );

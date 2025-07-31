@@ -54,16 +54,16 @@ AppBar customAppBar({
         : const SizedBox(width: 56.0), // Mantiene el espacio del leading
     title: Text(
       title,
-      textAlign: TextAlign.center,
+      textAlign: TextAlign.left,
       style: TextStyle(
         fontWeight: FontWeight.bold,
-        fontSize: sizeTitle ?? 20,
+        fontSize: sizeTitle ?? 24,
         color:
             colorText ??
             TipoColores.seasalt.value, // Usar el color de texto personalizado
       ),
     ),
-    centerTitle: true,
+    centerTitle: false,
     backgroundColor:
         backgroundColor ??
         Colors.transparent, // Usar el color de fondo personalizado
