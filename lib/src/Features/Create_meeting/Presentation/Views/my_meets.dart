@@ -1,7 +1,7 @@
 /// ****************************************************************************
 /// ### MyMeets
 /// * Fecha: 2025
-/// * Descripción: Widget de tarjeta para mostrar información de los usuarios y botones de acción opcionales.
+/// * Descripción: Vista de encuentros creados.
 /// * Autores: Geraldine Perilla Valderrama & Marcos Alejandro Collazos Marmolejo
 /// ****************************************************************************
 library;
@@ -9,9 +9,9 @@ library;
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../Core/Barrels/enums_barrel.dart';
-import '../../../Core/Barrels/widgets_shared_barrel.dart';
-import '../../../Core/Routes/route_names.dart';
+import '../../../../Core/Barrels/enums_barrel.dart';
+import '../../../../Core/Barrels/widgets_shared_barrel.dart';
+import '../../../../Core/Routes/route_names.dart';
 
 class MyMeets extends StatefulWidget {
   const MyMeets({super.key});
@@ -43,7 +43,7 @@ class _MyMeetsState extends State<MyMeets> {
             if (!context.mounted) {
               return;
             }
-            context.goNamed(RouteNames.login);
+            context.goNamed(RouteNames.home);
           },
           backgroundColor:
               TipoColores.pantone356C.value, // Color de fondo de la AppBar

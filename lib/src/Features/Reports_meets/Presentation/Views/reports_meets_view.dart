@@ -1,7 +1,7 @@
 /// ****************************************************************************
-/// ### CreateMeeting
+/// ### ReportsMeets
 /// * Fecha: 2025
-/// * Descripción: Widget de tarjeta para mostrar información de los usuarios y botones de acción opcionales.
+/// * Descripción: Vista de selección del encuentro del cual quiere ver el/los reportes.
 /// * Autores: Geraldine Perilla Valderrama & Marcos Alejandro Collazos Marmolejo
 /// ****************************************************************************
 library;
@@ -9,18 +9,18 @@ library;
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../Core/Barrels/enums_barrel.dart';
-import '../../../Core/Barrels/widgets_shared_barrel.dart';
-import '../../../Core/Routes/route_names.dart';
+import '../../../../Core/Barrels/enums_barrel.dart';
+import '../../../../Core/Barrels/widgets_shared_barrel.dart';
+import '../../../../Core/Routes/route_names.dart';
 
-class CreateMeeting extends StatefulWidget {
-  const CreateMeeting({super.key});
+class ReportsMeets extends StatefulWidget {
+  const ReportsMeets({super.key});
 
   @override
-  State<CreateMeeting> createState() => _CreateMeetingState();
+  State<ReportsMeets> createState() => _ReportsMeetsState();
 }
 
-class _CreateMeetingState extends State<CreateMeeting> {
+class _ReportsMeetsState extends State<ReportsMeets> {
   @override
   // ignore: prefer_expression_function_bodies
   Widget build(final BuildContext context) {
@@ -38,12 +38,12 @@ class _CreateMeetingState extends State<CreateMeeting> {
             TipoColores.seasalt.value, // Color de fondo para toda la vista
         appBar: customAppBar(
           context: context,
-          title: 'Crear encuentro',
+          title: 'Reportes de encuentros',
           onLeadingPressed: () async {
             if (!context.mounted) {
               return;
             }
-            context.goNamed(RouteNames.myMeets);
+            context.goNamed(RouteNames.home);
           },
           backgroundColor:
               TipoColores.pantone356C.value, // Color de fondo de la AppBar
@@ -66,7 +66,6 @@ class _CreateMeetingState extends State<CreateMeeting> {
     );
   }
 
-  Widget _portraitLayout() => const Column(
-    crossAxisAlignment: CrossAxisAlignment.stretch,
-  );
+  Widget _portraitLayout() =>
+      const Column(crossAxisAlignment: CrossAxisAlignment.stretch);
 }
