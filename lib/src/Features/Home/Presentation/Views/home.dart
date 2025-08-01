@@ -2,9 +2,12 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
+import 'package:go_router/go_router.dart';
 
+import '../../../../Core/Barrels/configs_barrel.dart';
 import '../../../../Core/Barrels/enums_barrel.dart';
 import '../../../../Core/Barrels/widgets_shared_barrel.dart';
+import '../../../../Core/Routes/route_names.dart';
 import '../../Domain/card_info.dart';
 
 /// ****************************************************************************
@@ -23,7 +26,9 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  String rolApp = 'administrador';
+  String rolApp = '';
+
+  /// Indica que está cargando los datos del JSON
   bool isLoading = true;
   // Lista para almacenar las tarjetas filtradas
   List<CardInfo> filteredCards = [];
@@ -31,7 +36,19 @@ class _HomeState extends State<Home> {
   @override
   void initState() {
     super.initState();
+
+    _getRolUser(); // Llamar la función para obtener el rol del usuario
     _loadCardsData(); // Llamar la función para cargar los datos de las tarjetas
+  }
+
+  Future<void> _getRolUser() async {
+    final String? rol = getString('rol');
+    if (rol != null) {
+      rolApp = rol.toLowerCase();
+      debugPrint('Rol de la aplicación configurado como: $rolApp');
+    } else {
+      debugPrint('No se encontró el rol del usuario en el almacenamiento.');
+    }
   }
 
   Future<void> _loadCardsData() async {
@@ -42,8 +59,10 @@ class _HomeState extends State<Home> {
       );
       final Map<String, dynamic> data = json.decode(response);
 
-      print('JSON cargado exitosamente: $data'); // ¡Imprime el JSON completo!
-      print('Rol de la aplicación configurado como: $rolApp');
+      debugPrint(
+        'JSON cargado exitosamente: $data',
+      ); // ¡Imprime el JSON completo!
+      debugPrint('Rol de la aplicación configurado como: $rolApp');
 
       final List<dynamic> rawCards = data['infoCards'];
       final List<CardInfo> allCards = rawCards
@@ -56,12 +75,16 @@ class _HomeState extends State<Home> {
       for (final card in allCards) {
         final String? roleValue = card.rol[rolApp]
             ?.toString(); // Asegúrate de que sea un String
-        print('Tarjeta: ${card.titulo}, Valor del rol "$rolApp": "$roleValue"');
+        debugPrint(
+          'Tarjeta: ${card.titulo}, Valor del rol "$rolApp": "$roleValue"',
+        );
         if (roleValue == 'true') {
           tempFilteredCards.add(card);
-          print('--> Tarjeta "${card.titulo}" INCLUIDA.');
+          debugPrint('--> Tarjeta "${card.titulo}" INCLUIDA.');
         } else {
-          print('--> Tarjeta "${card.titulo}" EXCLUIDA (valor no es "true").');
+          debugPrint(
+            '--> Tarjeta "${card.titulo}" EXCLUIDA (valor no es "true").',
+          );
         }
       }
 
@@ -69,9 +92,8 @@ class _HomeState extends State<Home> {
         filteredCards = tempFilteredCards;
         isLoading = false;
       });
-      print('Número de tarjetas filtradas: ${filteredCards.length}');
-      // ignore: avoid_catches_without_on_clauses
-    } catch (e) {
+      debugPrint('Número de tarjetas filtradas: ${filteredCards.length}');
+    } on Exception catch (e) {
       debugPrint('Error al cargar o parsear el JSON desde i18n/spanish: $e');
       setState(() {
         isLoading = false;
@@ -97,7 +119,12 @@ class _HomeState extends State<Home> {
         appBar: customAppBar(
           context: context,
           title: 'Encuentros',
-          onLeadingPressed: () async {},
+          onLeadingPressed: () async {
+            if (!context.mounted) {
+              return;
+            }
+            context.goNamed(RouteNames.login);
+          },
           backgroundColor:
               TipoColores.pantone356C.value, // Color de fondo de la AppBar
           leadingIconColor:
@@ -134,62 +161,7 @@ class _HomeState extends State<Home> {
             ),
             const SizedBox(height: 15),
           ],
-          // ignore: unnecessary_to_list_in_spreads
         ),
-      ),
-      CustomMeetCard(
-        hourAndDate: '08:00 - 10:00 a.m. lun. (07/10/2024)',
-        title: 'Clase diseño de base de datos',
-        description:
-            'Reportes de los fallas y asistencias de los encuentros que ha realizado.',
-        actionCard: null,
-        showButton: true,
-        onDeletePressed: () {
-          debugPrint('ELIMINADO');
-        },
-      ),
-      const SizedBox(height: 15),
-      CustomMeetCard(
-        hourAndDate: '08:00 - 10:00 a.m. lun. (07/10/2024)',
-        title: 'Clase diseño de base de datos',
-        description:
-            'Reportes de los fallas y asistencias de los encuentros que ha realizado.',
-        actionCard: null,
-        showButton: true,
-        onDeletePressed: () {
-          debugPrint('ELIMINADO');
-        },
-      ),
-      const SizedBox(height: 15),
-      CustomUsersCard(
-        nameUser: 'Collazos Marmolejo Marcos Alejandro',
-        emailUser: 'marc.collazos@udla.edu.co',
-        showButton: true,
-        actionCard: () {
-          debugPrint('SELECCIONADO');
-        },
-        onButtonPressed: () {
-          debugPrint('SELECCIONADO CHECK');
-        },
-        showNumber: true,
-        buttonColor: TipoColores.pantone634C,
-        buttonCheckedColor: TipoColores.pantone356C,
-      ),
-      const SizedBox(height: 15),
-      CustomUsersCard(
-        nameUser: 'Perilla Valderrama Geraldine',
-        emailUser: 'g.perilla@udla.edu.co',
-        numberIndicator: 2,
-        showButton: true,
-        actionCard: () {
-          debugPrint('SELECCIONADO');
-        },
-        onButtonPressed: () {
-          debugPrint('SELECCIONADO CHECK');
-        },
-        showNumber: true,
-        buttonColor: TipoColores.pantone634C,
-        buttonCheckedColor: TipoColores.pantone356C,
       ),
     ],
   );
