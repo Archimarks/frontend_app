@@ -14,6 +14,8 @@ library;
 
 import 'package:go_router/go_router.dart';
 
+import '../../Features/Create_meeting/Presentation/create_meeting_view.dart';
+import '../../Features/Create_meeting/Presentation/my_meets.dart';
 import '../../Features/Home/Presentation/Views/home.dart';
 import '../../Features/Login/Presentation/Views/login_view.dart';
 import 'route_names.dart';
@@ -31,6 +33,18 @@ GoRoute(
     path: '/home',
     name: RouteNames.home,
     builder: (final context, final state) => const Home(),
+  ),
+
+GoRoute(
+    path: '/myMeets',
+    name: RouteNames.myMeets,
+    builder: (final context, final state) => const MyMeets(),
+  ),
+
+  GoRoute(
+    path: '/createMeet',
+    name: RouteNames.createMeet,
+    builder: (final context, final state) => const CreateMeeting(),
   ),
 
   // Ruta comentada de ejemplo para futuras implementaciones:
