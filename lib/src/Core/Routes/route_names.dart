@@ -24,4 +24,16 @@ abstract class RouteNames {
 
   /// Nombre de la ruta para la vista de crear encuentros.
   static const createMeet = 'createMeet';
+
+  /// Nombre de la ruta para la vista de asistir a un encuentro.
+  static const attendMeet = 'attendMeet';
+
+  /// Nombre de la ruta para la vista de registrar asistencia a un encuentro.
+  static const register = 'register';
+
+  /// Nombre de la ruta para la vista de selección de encuentro para reportes.
+  static const typeReports = 'typeReports';
+
+  /// Nombre de la ruta para la vista de encuentros para unirse.
+  static const meets = 'meets';
 }
