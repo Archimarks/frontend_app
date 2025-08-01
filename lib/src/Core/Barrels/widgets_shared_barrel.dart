@@ -17,6 +17,8 @@ export '../../Shared/Widgets/app_bar.dart';
 export '../../Shared/Widgets/banner.dart';
 // Widget de botón personalizado
 export '../../Shared/Widgets/button.dart';
+// Widget desplegable personalizado
+export '../../Shared/Widgets/dropdown.dart';
 // Widget de tarjeta principal informativa y personalizada
 export '../../Shared/Widgets/main_card.dart';
 // Widget de tarjeta para mostrar información de encuentros personalizada
