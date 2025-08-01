@@ -15,12 +15,14 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:http/http.dart' as http;
 
 import '../../../../Core/Barrels/base_cubit_barrel.dart';
 import '../../../../Core/Barrels/configs_barrel.dart';
 import '../../../../Core/Barrels/enums_barrel.dart';
 import '../../../../Core/Barrels/widgets_shared_barrel.dart';
+import '../../../../Core/Routes/route_names.dart';
 
 /// Vista principal del Login.
 class LoginView extends StatelessWidget {
@@ -182,7 +184,7 @@ class _LoginButton extends StatelessWidget {
             return SizedBox(
               width: double.infinity,
               child: CustomButton(
-                onPressed: canLogin
+onPressed: canLogin
                     ? () async {
                         final username = controller.text.trim();
                         if (username.isEmpty) {
@@ -197,8 +199,25 @@ class _LoginButton extends StatelessWidget {
                           final response = await http.get(Uri.parse(url));
 
                           if (response.statusCode == 200) {
-                            final data = jsonDecode(response.body);
+                            final Map<String, dynamic> data = jsonDecode(
+                              response.body,
+                            );
                             debugPrint('Usuario encontrado: $data');
+
+                            // Guardar cada campo por separado
+                            await saveString('pege', data['pege'].toString());
+                            await saveString('email', data['email']);
+                            await saveString('nombre', data['nombre']);
+                            await saveString(
+                              'rol',
+                              data['rol'].toString().toLowerCase(),
+                            );
+                            if (!context.mounted) {
+                              return;
+                            }
+                            context.goNamed(RouteNames.home);
+
+
                           } else if (response.statusCode == 404) {
                             debugPrint('Usuario no encontrado para: $username');
                           } else {
@@ -206,14 +225,13 @@ class _LoginButton extends StatelessWidget {
                               'Error al obtener usuario. Código: ${response.statusCode}',
                             );
                           }
-                          // ignore: avoid_catches_without_on_clauses
-                        } catch (e) {
+                        } on Exception catch (e) {
                           debugPrint('Error en la solicitud HTTP: $e');
                         }
                       }
                     : null,
+
                 text: 'Ingresar',
-                showDecoration: false,
                 color: TipoColores.pantone158C,
               ),
             );

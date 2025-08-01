@@ -24,7 +24,7 @@ class ApiConfig {
 
   /// Instancia única de configuración.
   static const ApiConfig instance = ApiConfig._internal(
-    'http://192.168.1.6:5009',
+    'http://192.168.1.10:5009',
   );
 
   /// Retorna la URL para obtener un usuario por su correo electrónico.
