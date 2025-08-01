@@ -19,6 +19,9 @@ abstract class RouteNames {
   /// Nombre de la ruta para la vista de Home.
   static const home = 'home';
 
-  /// Nombre de la ruta para la vista Splash o de carga inicial.
-  static const splash = 'splash';
+  /// Nombre de la ruta para la vista de encuentros creados.
+  static const myMeets = 'myMeets';
+
+  /// Nombre de la ruta para la vista de crear encuentros.
+  static const createMeet = 'createMeet';
 }
