@@ -21,8 +21,9 @@ class CreateMeeting extends StatefulWidget {
 }
 
 class _CreateMeetingState extends State<CreateMeeting> {
-  String _selectedMeetType = 'Reunión administrativa';
-
+  String _selectedMeetType =
+      'Reunión administrativa'; // Tipo de encuentro seleccionado por defecto
+  /// Lista de tipos de encuentros disponibles
   final List<String> _encounterTypes = [
     'Reunión administrativa',
     'Clases académicas',
@@ -34,9 +35,9 @@ class _CreateMeetingState extends State<CreateMeeting> {
   _descriptionController; // Controlador para el campo de descripción
   final String _selectedLeadingUser = 'Reunión administrativa';
   DateTime? _startDate; // Fecha de inicio por defecto
-  TimeOfDay? _startTime; // Hora de inicio por defecto
+  TimeOfDay? _startTime; // Hora de inicio
   DateTime? _endDate; // Fecha de fin por defecto
-  TimeOfDay? _endTime; // Hora de fin por defecto
+  TimeOfDay? _endTime; // Hora de fin
 
   @override
   void initState() {
@@ -148,7 +149,14 @@ class _CreateMeetingState extends State<CreateMeeting> {
         ],
       ),
       const SizedBox(height: 20),
-      _buildSpaceLeadingUser(),
+      //_buildSpaceLeadingUser(),
+      CustomSelectionField(
+        title: 'Líder del encuentro',
+        displayValue: '',
+        onPressed: () {
+          print('Funciona como botón');
+        },
+      ),
       const SizedBox(height: 20),
       Row(
         children: [
@@ -235,6 +243,7 @@ class _CreateMeetingState extends State<CreateMeeting> {
           ],
         ),
         Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             const SizedBox(width: 10),
             Text(
