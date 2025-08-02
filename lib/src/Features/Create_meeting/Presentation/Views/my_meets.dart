@@ -63,7 +63,7 @@ class _MyMeetsState extends State<MyMeets> {
             Align(
               alignment: Alignment.topCenter,
               child: Padding(
-                padding: const EdgeInsets.all(10.0),
+                padding: const EdgeInsets.all(15.0),
                 child: _portraitLayout(),
               ),
             ),
@@ -74,7 +74,7 @@ class _MyMeetsState extends State<MyMeets> {
   }
 
   Widget _portraitLayout() => Column(
-    crossAxisAlignment: CrossAxisAlignment.stretch,
+    mainAxisAlignment: MainAxisAlignment.center,
     children: [
       // Muestra un mensaje si no hay ningún encuentro creado
       Center(
@@ -91,8 +91,8 @@ class _MyMeetsState extends State<MyMeets> {
               'No tiene encuentros creados.',
               textAlign: TextAlign.center,
               style: TextStyle(
-                fontSize: 28,
-                fontWeight: FontWeight.w600,
+                fontSize: 20,
+                fontWeight: FontWeight.w400,
                 color: TipoColores.pantoneBlackC.value,
               ),
             ),
