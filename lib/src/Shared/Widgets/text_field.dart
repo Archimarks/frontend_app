@@ -98,8 +98,13 @@ class _CustomTextFieldState extends State<CustomTextField> {
         setState(() {});
       },
       validator: widget.validator,
+      maxLength: widget.maxLength,
       // Color del texto ingresado: activo si está enfocado, inactivo si no lo está
-      style: TextStyle(color: TipoColores.pantoneBlackC.value, fontSize: 16),
+      style: TextStyle(
+        color: TipoColores.pantoneBlackC.value,
+        fontSize: 16,
+        fontWeight: FontWeight.w400,
+      ),
       decoration: InputDecoration(
         labelText: widget.labelText,
         // Color de la etiqueta: activo si está enfocado, inactivo si no lo está

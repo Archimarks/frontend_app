@@ -130,17 +130,11 @@ class _HomeState extends State<Home> {
           leadingIconColor:
               TipoColores.seasalt.value, // Color del icono de retroceso
         ),
-        body: Stack(
-          children: [
-            /// Contenido central con diseño responsive
-            Align(
-              alignment: Alignment.topCenter,
-              child: Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: _portraitLayout(),
-              ),
-            ),
-          ],
+        body: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: _portraitLayout(),
+          ),
         ),
       ),
     );

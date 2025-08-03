@@ -17,7 +17,7 @@ class CustomSelectionField extends StatelessWidget {
     required this.title,
     required this.displayValue, // El valor a mostrar
     required this.onPressed, // Callback que se ejecuta al presionar
-    this.prefixIcon,
+    required this.prefixIcon,
     this.iconColor = TipoColores.pantoneCool,
     this.backgroundColor = TipoColores.seasalt,
   });
@@ -30,43 +30,52 @@ class CustomSelectionField extends StatelessWidget {
   final TipoColores backgroundColor;
 
   @override
-  Widget build(final BuildContext context) {
-    // Si el valor a mostrar es nulo, se muestra el título.
-    final String textToDisplay = displayValue ?? title;
-
-    return GestureDetector(
-      onTap: onPressed, // Llama directamente a la función pasada por el padre
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        decoration: BoxDecoration(
-          color: backgroundColor.value,
-          border: const Border(
-            bottom: BorderSide(color: Colors.grey, width: 1.0),
-          ),
-        ),
-        child: Row(
-          children: [
-            if (prefixIcon != null)
+  Widget build(final BuildContext context) => GestureDetector(
+    onTap: onPressed, // Llama directamente a la función pasada por el padre
+    child: Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: backgroundColor.value,
+        border: Border(bottom: BorderSide(color: iconColor.value)),
+      ),
+      child: Column(
+        children: [
+          Row(
+            children: [
               Padding(
-                padding: const EdgeInsets.only(right: 16),
-                child: Icon(prefixIcon, color: iconColor.value),
-              ),
-            Expanded(
-              child: Text(
-                textToDisplay,
-                style: TextStyle(
-                  color: TipoColores.pantoneBlackC.value,
-                  fontSize: 16,
-                  fontWeight: displayValue != null
-                      ? FontWeight.bold
-                      : FontWeight.w400,
+                padding: const EdgeInsets.only(left: 35, bottom: 5),
+                child: Text(
+                  title,
+                  style: TextStyle(
+                    color: iconColor.value,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w400,
+                  ),
                 ),
               ),
-            ),
-            Icon(Icons.arrow_drop_down, color: iconColor.value),
-          ],
-        ),
+            ],
+          ),
+          Row(
+            children: [
+              if (prefixIcon != null)
+                Padding(
+                  padding: const EdgeInsets.only(right: 11),
+                  child: Icon(prefixIcon, color: iconColor.value),
+                ),
+              Expanded(
+                child: Text(
+                  displayValue!,
+                  style: TextStyle(
+                    color: TipoColores.pantoneBlackC.value,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w400,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
-    );
-  }
+    ),
+  );
 }

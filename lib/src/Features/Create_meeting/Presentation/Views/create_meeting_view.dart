@@ -29,11 +29,39 @@ class _CreateMeetingState extends State<CreateMeeting> {
     'Clases académicas',
     'Eventos de bienestar universitario',
   ];
+  String _selectedTime =
+      '15 minutos'; // Variable para que almacena el tiempo seleccionado
+  /// Lista de tipos de tiempo disponibles
+  final List<String> _optionsTime = [
+    '15 minutos',
+    '30 minutos',
+    '45 minutos',
+    '1 hora',
+    '2 horas',
+    '3 horas',
+  ];
+  bool certificate =
+      false; // Variable que indica si se va a generar acta (true) o no (false por defecto)
+  bool repeat =
+      false; // Variable que indica si el encuentro se repite (true) o no (false por defecto)
+  String _selectedRepeat =
+      'Nunca'; // Variable para que almacena el tipo de repetición seleccionado
+  /// Lista de tipos de repetición disponibles
+  final List<String> _optionsRepeat = [
+    'Nunca',
+    'Cada día',
+    'Cada día laborable (lun - vie)',
+    'Cada semana',
+    'Cada mes',
+  ];
   late final TextEditingController
   _asuntoController; // Controlador para el campo de asunto
   late final TextEditingController
   _descriptionController; // Controlador para el campo de descripción
-  final String _selectedLeadingUser = 'Reunión administrativa';
+  final String _selectedLeadingUser =
+      'GERALDINE PERILLA VALDERRAMA'; // Variable para almacenar al líder del encuentro
+  final String _selectedLocation =
+      'CAMPUS PRINCIPAL UNIVERSIDAD DE LA AMAZONIA - PORVENIR'; // Variable para almacenar la ubicación seleccionada
   DateTime? _startDate; // Fecha de inicio por defecto
   TimeOfDay? _startTime; // Hora de inicio
   DateTime? _endDate; // Fecha de fin por defecto
@@ -115,7 +143,7 @@ class _CreateMeetingState extends State<CreateMeeting> {
         maxLength: 70,
         showCounter: true,
       ),
-      const SizedBox(height: 15),
+      const SizedBox(height: 5),
       CustomTextField(
         labelText: 'Descripción',
         prefixIcon: Icons.edit_note,
@@ -148,16 +176,17 @@ class _CreateMeetingState extends State<CreateMeeting> {
           ),
         ],
       ),
-      const SizedBox(height: 20),
-      //_buildSpaceLeadingUser(),
+      const SizedBox(height: 15),
       CustomSelectionField(
         title: 'Líder del encuentro',
-        displayValue: '',
+        prefixIcon: Icons.person_add_alt_1,
+        displayValue:
+            _selectedLeadingUser, // Variable que contiene el nombre del líder elegido
         onPressed: () {
           print('Funciona como botón');
         },
       ),
-      const SizedBox(height: 20),
+      const SizedBox(height: 30),
       Row(
         children: [
           const SizedBox(height: 10),
@@ -176,9 +205,67 @@ class _CreateMeetingState extends State<CreateMeeting> {
           ),
         ],
       ),
-      const SizedBox(height: 20),
-      const Divider(),
+      const SizedBox(height: 15),
+      Divider(color: TipoColores.pantoneCool.value),
       const SizedBox(height: 10),
+      _buildFullSchedule(), // Método que construye el widget de hora inicio y fin del encuentro
+      const SizedBox(height: 15),
+      // Espacio para decidir si se quiere generar acta
+      Row(
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(right: 3),
+            child: IconButton(
+              icon: Icon(
+                certificate
+                    ? Icons.check_box_outlined
+                    : Icons.check_box_outline_blank_rounded,
+                color: certificate
+                    ? TipoColores.pantone356C.value
+                    : TipoColores
+                          .pantoneCool
+                          .value, // Color común para los iconos de acción
+                size: 30, // Tamaño común para los iconos de acción
+              ),
+              onPressed: () {
+                setState(() {
+                  certificate = !certificate;
+                });
+                print(certificate);
+              },
+            ),
+          ),
+          Text(
+            'Generar acta',
+            style: TextStyle(
+              color: TipoColores.pantoneBlackC.value,
+              fontSize: 16,
+            ),
+          ),
+        ],
+      ),
+      const SizedBox(height: 15),
+      // Espacio de botón para finalizar la creación del encuentro
+      CustomButton(
+        color: TipoColores.pantone158C,
+        text: 'Crear encuentro',
+        width:
+            MediaQuery.of(context).size.width *
+            0.80, // 80% del ancho de la pantalla
+        onPressed: () {},
+      ),
+    ],
+  );
+
+  // ***************************************************************************
+  //                       Métodos visuales auxiliares                         *
+  // ***************************************************************************
+  ///---------------------------------------------------------------------------
+  /// ### Método para construir el widget de hora inicio y fin del encuentro.
+  ///---------------------------------------------------------------------------
+  Widget _buildFullSchedule() => Column(
+    children: [
+      // Espacio de selección de la fecha del encuentro
       Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
@@ -197,8 +284,62 @@ class _CreateMeetingState extends State<CreateMeeting> {
         ],
       ),
       const SizedBox(height: 10),
-      const Divider(),
-      _buildSchedule(),
+      Divider(color: TipoColores.pantoneCool.value),
+      _buildSchedule(), // Espacio de hora inicio y fin del encuentro
+      // Selección de ubicación
+      CustomSelectionField(
+        title: 'Ubicación',
+        prefixIcon: Icons.location_on_outlined,
+        displayValue:
+            _selectedLocation, // Variable que contiene la ubicación elegida
+        onPressed: () {
+          print('Funciona como botón');
+        },
+      ),
+      const SizedBox(height: 15),
+      // Espacio de selección de repetición del encuentro
+      CustomDropdown(
+        prefixIcon: Icons.repeat_rounded,
+        title: 'Repetir',
+        options: _optionsRepeat,
+        initialValue: _selectedRepeat,
+        onChanged: (final newValue) {
+          setState(() {
+            _selectedRepeat = newValue!;
+            repeat = newValue != 'Nunca';
+          });
+        },
+      ),
+      if (repeat) ...[
+        const SizedBox(height: 15),
+        CustomSelectionField(
+          prefixIcon: Icons.event_rounded,
+          title: 'Finalizar repetición',
+          displayValue: _endDate.toString(),
+          onPressed: () {
+            _pickDate(true);
+            setState(() {
+              _formatDate(_endDate!);
+            });
+            print(_endDate);
+          },
+        ),
+      ],
+      const SizedBox(height: 15),
+      // Espacio de selección del tiempo permitido de espera
+      CustomDropdown(
+        prefixIcon: Icons.watch_later_outlined,
+        title: 'Tiempo permitido para registrar asistencia',
+        options: _optionsTime,
+        initialValue: _selectedTime,
+        onChanged: (final newValue) {
+          setState(() {
+            _selectedTime = newValue!;
+          });
+        },
+      ),
+      const SizedBox(height: 15),
+      // Espacio de botón por si se quiere agregar más horarios
       CustomButton(
         color: TipoColores.pantone663C,
         colorIcon: TipoColores.pantoneBlackC,
@@ -206,69 +347,13 @@ class _CreateMeetingState extends State<CreateMeeting> {
         icon: Icons.calendar_month,
         width:
             MediaQuery.of(context).size.width *
-            0.75, // 75% del ancho de la pantalla,
+            0.90, // 90% del ancho de la pantalla,
       ),
     ],
   );
 
-  // ***************************************************************************
-  //                       Métodos visuales auxiliares                         *
-  // ***************************************************************************
-
   ///---------------------------------------------------------------------------
-  /// ### Método para construir el widget de líder de reunión.
-  ///---------------------------------------------------------------------------
-  Widget _buildSpaceLeadingUser() => GestureDetector(
-    onTap: () {
-      print('Se seleccionó: $_selectedMeetType');
-    },
-    child: Column(
-      children: [
-        Row(
-          children: [
-            const SizedBox(height: 10),
-            Icon(
-              Icons.person_add_alt_1,
-              color: TipoColores.pantoneCool.value,
-              size: 25,
-            ),
-            const SizedBox(width: 10),
-            Text(
-              'Líder del encuentro',
-              style: TextStyle(
-                color: TipoColores.pantoneBlackC.value,
-                fontSize: 16,
-              ),
-            ),
-          ],
-        ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const SizedBox(width: 10),
-            Text(
-              _selectedLeadingUser, // Usuario seleccionado como líder
-              style: TextStyle(
-                color: TipoColores.pantoneBlackC.value,
-                fontSize: 16,
-              ),
-            ),
-            const SizedBox(height: 10),
-            Icon(
-              Icons.expand_more_rounded,
-              color: TipoColores.pantoneCool.value,
-              size: 25,
-            ),
-          ],
-        ),
-        const Divider(),
-        const SizedBox(height: 10),
-      ],
-    ),
-  );
-
-  ///---------------------------------------------------------------------------
-  /// ### Método para construir el widget de horario.
+  /// ### Método para construir el widget de hora inicio y fin del encuentro.
   ///---------------------------------------------------------------------------
   Widget _buildSchedule() {
     // Estilo para los textos de encabezado

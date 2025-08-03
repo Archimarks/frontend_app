@@ -57,48 +57,56 @@ class _MyMeetsState extends State<MyMeets> {
             context.goNamed(RouteNames.createMeet);
           },
         ),
-        body: Stack(
-          children: [
-            /// Contenido central con diseño responsive
-            Align(
-              alignment: Alignment.topCenter,
-              child: Padding(
-                padding: const EdgeInsets.all(15.0),
-                child: _portraitLayout(),
+        body: LayoutBuilder(
+          builder:
+              (
+                final BuildContext context,
+                final BoxConstraints viewportConstraints,
+              ) => SingleChildScrollView(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    minHeight: viewportConstraints.maxHeight,
+                  ),
+                  child: IntrinsicHeight(
+                    child: Padding(
+                      padding: const EdgeInsets.all(15.0),
+                      child: _portraitLayout(),
+                    ),
+                  ),
+                ),
               ),
-            ),
-          ],
         ),
       ),
     );
   }
 
-  Widget _portraitLayout() => Column(
-    mainAxisAlignment: MainAxisAlignment.center,
-    children: [
-      // Muestra un mensaje si no hay ningún encuentro creado
-      Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.warning_rounded,
-              size: 50,
-              color: TipoColores.pantoneBlackC.value,
-            ),
-            const SizedBox(height: 20),
-            Text(
-              'No tiene encuentros creados.',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w400,
+  Widget _portraitLayout() => Center(
+    child: Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Expanded(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.warning_rounded,
+                size: 50,
                 color: TipoColores.pantoneBlackC.value,
               ),
-            ),
-          ],
+              const SizedBox(height: 20),
+              Text(
+                'No tiene encuentros creados.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w400,
+                  color: TipoColores.pantoneBlackC.value,
+                ),
+              ),
+            ],
+          ),
         ),
-      ),
-    ],
+      ],
+    ),
   );
 }
