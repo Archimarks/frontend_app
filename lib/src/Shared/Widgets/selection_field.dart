@@ -11,7 +11,7 @@ import 'package:flutter/material.dart';
 
 import '../../Core/Barrels/enums_barrel.dart';
 
-class CustomSelectionField extends StatelessWidget {
+class CustomSelectionField extends StatefulWidget {
   const CustomSelectionField({
     super.key,
     required this.title,
@@ -30,24 +30,31 @@ class CustomSelectionField extends StatelessWidget {
   final TipoColores backgroundColor;
 
   @override
+  // ignore: library_private_types_in_public_api
+  _CustomSelectionFieldState createState() => _CustomSelectionFieldState();
+}
+
+class _CustomSelectionFieldState extends State<CustomSelectionField> {
+  @override
   Widget build(final BuildContext context) => GestureDetector(
-    onTap: onPressed, // Llama directamente a la función pasada por el padre
+    onTap: widget.onPressed, // Llama a la función del widget padre
     child: Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: backgroundColor.value,
-        border: Border(bottom: BorderSide(color: iconColor.value)),
+        color: widget.backgroundColor.value,
+        border: Border(bottom: BorderSide(color: widget.iconColor.value)),
       ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Row(
             children: [
               Padding(
                 padding: const EdgeInsets.only(left: 35, bottom: 5),
                 child: Text(
-                  title,
+                  widget.title,
                   style: TextStyle(
-                    color: iconColor.value,
+                    color: widget.iconColor.value,
                     fontSize: 14,
                     fontWeight: FontWeight.w400,
                   ),
@@ -57,14 +64,15 @@ class CustomSelectionField extends StatelessWidget {
           ),
           Row(
             children: [
-              if (prefixIcon != null)
+              if (widget.prefixIcon != null)
                 Padding(
                   padding: const EdgeInsets.only(right: 11),
-                  child: Icon(prefixIcon, color: iconColor.value),
+                  child: Icon(widget.prefixIcon, color: widget.iconColor.value),
                 ),
               Expanded(
                 child: Text(
-                  displayValue!,
+                  widget.displayValue ??
+                      '', // Muestra un valor por defecto si es nulo
                   style: TextStyle(
                     color: TipoColores.pantoneBlackC.value,
                     fontSize: 16,

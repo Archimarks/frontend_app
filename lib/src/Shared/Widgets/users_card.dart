@@ -14,13 +14,12 @@ class CustomUsersCard extends StatelessWidget {
   const CustomUsersCard({
     super.key,
     required this.nameUser,
-    required this.emailUser,
+    this.emailUser,
     required this.showButton,
     required this.actionCard,
     required this.onButtonPressed,
     required this.showNumber,
-    required this.buttonColor, // Color del botón
-    required this.buttonCheckedColor,
+    this.buttonColor = TipoColores.pantone634C, // Color del botón
     this.numberIndicator = 1,
     this.actionIcon = Icons.check_box_outline_blank,
     this.backgroundColor =
@@ -30,6 +29,7 @@ class CustomUsersCard extends StatelessWidget {
         TipoColores.pantoneBlackC, // Color del texto predeterminado
     this.numberTextColor =
         TipoColores.seasalt, // Color del número predeterminado
+    this.enableShadow = true,
   });
 
   /// El nombre del usuario.
@@ -39,7 +39,7 @@ class CustomUsersCard extends StatelessWidget {
   final String nameUser;
 
   /// El email del usuario.
-  final String emailUser;
+  final String? emailUser;
 
   /// Indica si se debe mostrar el botón
   final bool showButton;
@@ -71,22 +71,24 @@ class CustomUsersCard extends StatelessWidget {
   /// El color del botón.
   final TipoColores buttonColor;
 
-  /// El color del botón.
-  final TipoColores buttonCheckedColor;
+  /// Habilitar sombra
+  final bool enableShadow;
 
   @override
   Widget build(final BuildContext context) => Container(
     margin: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
     decoration: BoxDecoration(
       borderRadius: BorderRadius.circular(10.0),
-      boxShadow: [
-        BoxShadow(
-          color: TipoColores.pantoneCool.value,
-          offset: const Offset(0.5, 0.5),
-          blurRadius: 10,
-          spreadRadius: 0.5,
-        ),
-      ],
+      boxShadow: enableShadow
+          ? [
+              BoxShadow(
+                color: TipoColores.pantoneCool.value,
+                offset: const Offset(0.5, 0.5),
+                blurRadius: 10,
+                spreadRadius: 0.5,
+              ),
+            ]
+          : null,
     ),
     child: ClipRRect(
       borderRadius: BorderRadius.circular(10.0),
@@ -146,16 +148,19 @@ class CustomUsersCard extends StatelessWidget {
           Text(
             nameUser,
             style: TextStyle(fontSize: 13, color: textColor.value),
-            maxLines: 1,
+            maxLines: 3,
             overflow: TextOverflow.ellipsis,
           ),
-          const SizedBox(height: 4),
-          Text(
-            emailUser,
-            style: TextStyle(fontSize: 12, color: textColor.value),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
+
+          if (emailUser != null && emailUser!.isNotEmpty) ...[
+            const SizedBox(height: 4),
+            Text(
+              emailUser!,
+              style: TextStyle(fontSize: 12, color: textColor.value),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
         ],
       ),
     ),

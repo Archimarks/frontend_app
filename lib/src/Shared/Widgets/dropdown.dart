@@ -21,7 +21,7 @@ class CustomDropdown extends StatefulWidget {
     this.prefixIcon,
     this.iconColor = TipoColores.pantoneCool,
     this.borderColor = TipoColores.pantoneCool,
-    this.focusedBorderColor = TipoColores.pantone7473C,
+    this.focusedBorderColor = TipoColores.pantone634C,
   });
 
   final String title;
