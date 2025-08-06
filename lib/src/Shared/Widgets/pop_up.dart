@@ -172,8 +172,9 @@ class _CustomPopUpState extends State<CustomPopUp> {
       (final card) => card['id'] == selectedEmail,
     );
 
-    if (indexInAllInformation == -1)
+    if (indexInAllInformation == -1) {
       return; // No se encontró el índice en la lista completa
+    }
 
     setState(() {
       if (widget.isOneSelection) {

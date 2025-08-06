@@ -6,6 +6,7 @@ class CardInfo {
     required this.titulo,
     required this.descripcion,
     required this.rol,
+    required this.route,
   });
 
   factory CardInfo.fromJson(final Map<String, dynamic> json) => CardInfo(
@@ -13,9 +14,11 @@ class CardInfo {
       titulo: json['titulo'] as String,
       descripcion: json['descripcion'] as String,
       rol: json['rol'] as Map<String, dynamic>,
+    route: json['route'] as String,
     );
   final int codigoCard;
   final String titulo;
   final String descripcion;
   final Map<String, dynamic> rol;
+  final String route;
 }

@@ -345,8 +345,6 @@ class _CreateMeetingState extends State<CreateMeeting> {
                         .toList();
                     _addParticipants = selectedCards.isNotEmpty;
                   });
-                  print(addedParticipants);
-                  print(_selectedParticipantId);
                   if (!context.mounted) {
                     return;
                   }
@@ -392,7 +390,6 @@ class _CreateMeetingState extends State<CreateMeeting> {
                           .toList();
                     },
                   ); // Forzar una reconstrucción del padre para que el CustomSelectionField se actualice
-                  print(_selectedLeaderId);
                   if (!context.mounted) {
                     return;
                   }
@@ -471,7 +468,6 @@ class _CreateMeetingState extends State<CreateMeeting> {
                     setState(() {
                       certificate = !certificate;
                     });
-                    print(certificate);
                   },
                 ),
               ),

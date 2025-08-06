@@ -5,6 +5,7 @@
       "codigoCard": 1,
       "titulo": "Crear encuentro",
       "descripcion": "Invitar personas, definir horario y fecha.",
+      "route": "myMeets",
       "rol": {
         "administrador": "true",
         "docente": "true",
@@ -15,6 +16,7 @@
       "codigoCard": 2,
       "titulo": "Registrar asistencia",
       "descripcion": "Activar escaneo del QR de los invitados o registro manual de asistencia.",
+      "route": "register",
       "rol": {
         "administrador": "true",
         "docente": "true",
@@ -25,6 +27,7 @@
       "codigoCard": 3,
       "titulo": "Asistir a un encuentro",
       "descripcion": "Generar mi QR para registro de mi asistencia.",
+      "route": "attendMeet",
       "rol": {
         "administrador": "true",
         "docente": "true",
@@ -35,6 +38,7 @@
       "codigoCard": 4,
       "titulo": "Reportes",
       "descripcion": "Reportes de los encuentros.",
+      "route": "typeReports",
       "rol": {
         "administrador": "true",
         "docente": "true",
@@ -45,6 +49,7 @@
       "codigoCard": 5,
       "titulo": "Encuentros",
       "descripcion": "Encuentros informales a los que se puede unir.",
+      "route": "meets",
       "rol": {
         "administrador": "true",
         "docente": "true",
