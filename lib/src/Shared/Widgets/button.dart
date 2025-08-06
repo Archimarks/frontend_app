@@ -98,7 +98,7 @@ class CustomButton extends StatelessWidget {
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w600,
-              color: TipoColores.seasalt.value,
+              color: colorIcon.value,
             ),
           ),
         ],
@@ -113,7 +113,7 @@ class CustomButton extends StatelessWidget {
           fontFamily: 'Libre Franklin',
           fontSize: 16,
           fontWeight: FontWeight.w600,
-          color: TipoColores.seasalt.value,
+          color: colorIcon.value,
         ),
       );
       finalSemanticLabel = text!;

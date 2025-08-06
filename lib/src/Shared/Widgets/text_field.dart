@@ -14,13 +14,15 @@ import '../../Core/Barrels/enums_barrel.dart';
 class CustomTextField extends StatefulWidget {
   const CustomTextField({
     super.key,
-    this.labelText,
+    required this.labelText,
+    required this.prefixIcon,
+    required this.controller,
     this.activeColor = TipoColores.airBlue,
-    this.prefixIcon,
     this.inactiveColor = TipoColores.pantoneCool,
-    this.controller,
     this.onChanged,
     this.validator,
+    this.maxLength = 100,
+    this.showCounter = false,
   });
 
   /// Texto de etiqueta para el campo.
@@ -40,6 +42,12 @@ class CustomTextField extends StatefulWidget {
 
   /// Función para validar el contenido del campo.
   final String? Function(String?)? validator;
+
+  /// Longitud máxima del texto permitido.
+  final int? maxLength;
+
+  /// Mostrar el contador de caracteres.
+  final bool showCounter;
 
   @override
   State<CustomTextField> createState() => _CustomTextFieldState();
@@ -71,7 +79,6 @@ class _CustomTextFieldState extends State<CustomTextField> {
     setState(() {
       _isFocused = _focusNode.hasFocus;
     });
-    debugPrint('is focus');
   }
 
   @override
@@ -84,10 +91,20 @@ class _CustomTextFieldState extends State<CustomTextField> {
     return TextFormField(
       focusNode: _focusNode, // Asignar el FocusNode al TextFormField
       controller: widget.controller,
-      onChanged: widget.onChanged,
+      onChanged: (final String value) {
+        // Llamar al onChanged original si existe
+        widget.onChanged?.call(value);
+        // Actualizar el estado para que se redibuje el widget con el nuevo contador
+        setState(() {});
+      },
       validator: widget.validator,
+      maxLength: widget.maxLength,
       // Color del texto ingresado: activo si está enfocado, inactivo si no lo está
-      style: TextStyle(color: TipoColores.pantoneBlackC.value),
+      style: TextStyle(
+        color: TipoColores.pantoneBlackC.value,
+        fontSize: 16,
+        fontWeight: FontWeight.w400,
+      ),
       decoration: InputDecoration(
         labelText: widget.labelText,
         // Color de la etiqueta: activo si está enfocado, inactivo si no lo está
@@ -108,6 +125,12 @@ class _CustomTextFieldState extends State<CustomTextField> {
           borderSide: BorderSide(color: activeColor), // Color azul
         ),
         border: const UnderlineInputBorder(), // Borde por defecto
+        // Contador de caracteres
+        counterText: widget.showCounter
+            ? widget.maxLength != null
+                  ? '${widget.controller?.text.length ?? 0}/${widget.maxLength}'
+                  : null
+            : null,
       ),
     );
   }
