@@ -1,7 +1,8 @@
 /// ****************************************************************************
 /// * Widget: CustomUsersCard
 /// * Fecha: 2025
-/// * Descripción: Widget de tarjeta para mostrar información de los usuarios y botones de acción opcionales.
+/// * Descripción: Widget de tarjeta para mostrar información de los usuarios
+/// * y botones de acción opcionales.
 /// * Autores: Geraldine Perilla Valderrama & Marcos Alejandro Collazos Marmolejo
 /// ****************************************************************************
 library;
@@ -10,14 +11,13 @@ import 'package:flutter/material.dart';
 
 import '../../Core/Barrels/enums_barrel.dart';
 
-class CustomUsersCard extends StatelessWidget {
+class CustomUsersCard extends StatefulWidget {
   const CustomUsersCard({
     super.key,
-    required this.nameUser,
-    this.emailUser,
+    required this.textMain,
+    this.textSecondary,
     required this.showButton,
     required this.actionCard,
-    required this.onButtonPressed,
     required this.showNumber,
     this.buttonColor = TipoColores.pantone634C, // Color del botón
     this.numberIndicator = 1,
@@ -32,29 +32,26 @@ class CustomUsersCard extends StatelessWidget {
     this.enableShadow = true,
   });
 
-  /// El nombre del usuario.
+  /// Número indicador de la tarjeta.
   final int numberIndicator;
 
-  /// El nombre del usuario.
-  final String nameUser;
+  /// Texto principal de la tarjeta.
+  final String textMain;
 
-  /// El email del usuario.
-  final String? emailUser;
+  /// Texto secundario de la tarjeta (opcional).
+  final String? textSecondary;
 
-  /// Indica si se debe mostrar el botón
+  /// Indica si se debe mostrar el botón de acción.
   final bool showButton;
 
   /// Indica si se debe mostrar el número indicativo
   final bool showNumber;
 
-  /// El icono que se muestra en la parte derecha de la tarjeta.
+  /// El icono del botón de acción.
   final IconData? actionIcon;
 
   /// La función que se ejecuta cuando se toca cualquier parte de la tarjeta.
   final VoidCallback? actionCard;
-
-  /// La función que se ejecuta cuando se presiona el botón de eliminar.
-  final VoidCallback? onButtonPressed;
 
   /// El color de fondo de la tarjeta.
   final TipoColores backgroundColor;
@@ -75,11 +72,16 @@ class CustomUsersCard extends StatelessWidget {
   final bool enableShadow;
 
   @override
+  State<CustomUsersCard> createState() => _CustomUsersCardState();
+}
+
+class _CustomUsersCardState extends State<CustomUsersCard> {
+  @override
   Widget build(final BuildContext context) => Container(
     margin: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
     decoration: BoxDecoration(
       borderRadius: BorderRadius.circular(10.0),
-      boxShadow: enableShadow
+      boxShadow: widget.enableShadow
           ? [
               BoxShadow(
                 color: TipoColores.pantoneCool.value,
@@ -93,20 +95,20 @@ class CustomUsersCard extends StatelessWidget {
     child: ClipRRect(
       borderRadius: BorderRadius.circular(10.0),
       child: Material(
-        color: backgroundColor.value,
+        color: widget.backgroundColor.value,
         child: InkWell(
-          onTap: actionCard,
+          onTap: widget.actionCard,
           child: IntrinsicHeight(
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 // Contenido de la tarjeta
                 // Número indicativo
-                ?_numberIndicator(),
+                if (widget.showNumber) _numberIndicator(),
                 // Información del usuario
                 _infoCard(),
                 // Botón de acción
-                ?_buttonCheck(),
+                if (widget.showButton) _buttonCheck(),
               ],
             ),
           ),
@@ -115,29 +117,23 @@ class CustomUsersCard extends StatelessWidget {
     ),
   );
 
-  Widget? _numberIndicator() {
-    if (showNumber) {
-      return InkWell(
-        onTap: actionCard,
-        child: Container(
-          width: 35,
-          color: numberColor.value,
-          child: Center(
-            child: Text(
-              numberIndicator.toString(),
-              style: TextStyle(
-                color: numberTextColor.value,
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
+  Widget _numberIndicator() => InkWell(
+    onTap: widget.actionCard,
+    child: Container(
+      width: 35,
+      color: widget.numberColor.value,
+      child: Center(
+        child: Text(
+          widget.numberIndicator.toString(),
+          style: TextStyle(
+            color: widget.numberTextColor.value,
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
           ),
         ),
-      );
-    } else {
-      return null;
-    }
-  }
+      ),
+    ),
+  );
 
   Widget _infoCard() => Expanded(
     child: Padding(
@@ -146,17 +142,17 @@ class CustomUsersCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            nameUser,
-            style: TextStyle(fontSize: 13, color: textColor.value),
+            widget.textMain,
+            style: TextStyle(fontSize: 13, color: widget.textColor.value),
             maxLines: 3,
             overflow: TextOverflow.ellipsis,
           ),
-
-          if (emailUser != null && emailUser!.isNotEmpty) ...[
+          if (widget.textSecondary != null &&
+              widget.textSecondary!.isNotEmpty) ...[
             const SizedBox(height: 4),
             Text(
-              emailUser!,
-              style: TextStyle(fontSize: 12, color: textColor.value),
+              widget.textSecondary!,
+              style: TextStyle(fontSize: 12, color: widget.textColor.value),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
@@ -166,21 +162,19 @@ class CustomUsersCard extends StatelessWidget {
     ),
   );
 
-  Widget? _buttonCheck() {
-    if (showButton) {
-      return InkWell(
-        onTap: onButtonPressed,
-        child: Container(
-          padding: const EdgeInsets.only(right: 10),
-          width: 40,
-          color: backgroundColor.value,
-          child: Center(
-            child: Icon(actionIcon, color: buttonColor.value, size: 30),
-          ),
+  Widget _buttonCheck() => InkWell(
+    onTap: widget.actionCard,
+    child: Container(
+      padding: const EdgeInsets.only(right: 10),
+      width: 40,
+      color: widget.backgroundColor.value,
+      child: Center(
+        child: Icon(
+          widget.actionIcon,
+          color: widget.buttonColor.value,
+          size: 30,
         ),
-      );
-    } else {
-      return null;
-    }
-  }
+      ),
+    ),
+  );
 }

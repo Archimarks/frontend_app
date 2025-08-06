@@ -24,7 +24,7 @@ class CreateMeeting extends StatefulWidget {
 class _CreateMeetingState extends State<CreateMeeting> {
   bool _isCreateButtonEnabled =
       false; // Variable para manejar el estado del botón de crear encuentro
-  bool _isSelectedLeanding =
+  final bool _isSelectedLeanding =
       false; // Variable para manejar el estado de selección del líder del encuentro
   bool _addParticipants =
       false; // Variable para manejar si se han agregado participantes
@@ -233,28 +233,52 @@ class _CreateMeetingState extends State<CreateMeeting> {
                   _addParticipants =
                       true; // Actualiza el estado de agregar participantes
                 });
-                CustomPopUp.show(
-                  context,
-                  title: 'Agregar participantes',
-                  onClose: () {
-                    if (!context.mounted) {
-                      return;
-                    }
-                    context.pop();
-                  },
-                  onCheck: () {
-                    if (!context.mounted) {
-                      return;
-                    }
-                    context.pop();
-                  },
-                  showSearchBar: true,
-                  onButtonPressed: () {
-                    // Acción del botón dentro del pop-up
-                    print('Botón de agregar participantes presionado');
-                  },
-                  participants: myParticipants,
-                );
+                if (_selectedMeetType == 'Clases académicas') {
+                  CustomPopUp.show(
+                    context,
+                    title: 'Grupos',
+                    onClose: () {
+                      if (!context.mounted) {
+                        return;
+                      }
+                      context.pop();
+                    },
+                    onCheck: (final List<Map<String, String>> selectedCards) {
+                      if (!context.mounted) {
+                        return;
+                      }
+                      context.pop();
+                    },
+                    onCardPressed: (final int index) {
+                      // Acción del botón dentro del pop-up
+                      print('Botón de agregar grupos presionado');
+                    },
+                    participants: myParticipants,
+                  );
+                } else {
+                  CustomPopUp.show(
+                    context,
+                    title: 'Agregar participantes',
+                    onClose: () {
+                      if (!context.mounted) {
+                        return;
+                      }
+                      context.pop();
+                    },
+                    onCheck: (final List<Map<String, String>> selectedCards) {
+                      if (!context.mounted) {
+                        return;
+                      }
+                      context.pop();
+                    },
+                    showSearchBar: true,
+                    onCardPressed: (final int index) {
+                      // Acción del botón dentro del pop-up
+                      print('Botón de agregar participantes presionado');
+                    },
+                    participants: myParticipants,
+                  );
+                }
                 _validatorButtonCreate();
               },
             ),
@@ -278,16 +302,18 @@ class _CreateMeetingState extends State<CreateMeeting> {
                       }
                       context.pop();
                     },
-                    onCheck: () {
+                    onCheck: (final List<Map<String, String>> selectedCards) {
                       if (!context.mounted) {
                         return;
                       }
                       context.pop();
                     },
-                    onButtonPressed: () {
+                    onCardPressed: (final int index) {
                       // Acción del botón dentro del pop-up
                       print('Participante eliminado');
                     },
+                    showButtonCard: true,
+                    isChoose: false,
                     participants: myParticipants,
                     iconButtonCard: const Icon(Icons.close),
                     colorButtonCard: TipoColores.pantone7621C,
@@ -307,33 +333,29 @@ class _CreateMeetingState extends State<CreateMeeting> {
             onPressed: () {
               CustomPopUp.show(
                 context,
-                title: 'Líder de la reunión',
+                title: 'Elegir líder de reunión',
                 onClose: () {
                   if (!context.mounted) {
                     return;
                   }
                   context.pop();
                 },
-                onCheck: () {
+                onCheck: (final List<Map<String, String>> selectedCards) {
                   if (!context.mounted) {
                     return;
                   }
                   context.pop();
+                  setState(
+                    () {},
+                  ); // Forzar una reconstrucción del padre para que el CustomSelectionField se actualice
                 },
-                showButtonCheck: true,
+                showButtonCard: true,
                 iconButtonCard: _isSelectedLeanding
                     ? const Icon(Icons.check_box_outlined)
                     : const Icon(Icons.check_box_outline_blank_rounded),
                 colorButtonCard: _isSelectedLeanding
                     ? TipoColores.pantone356C
                     : TipoColores.pantone634C,
-                onButtonPressed: () {
-                  setState(() {
-                    _isSelectedLeanding = !_isSelectedLeanding;
-                  });
-                  // Acción del botón dentro del pop-up
-                  print('Botón de elegir líder');
-                },
                 participants: myParticipants,
               );
               _validatorButtonCreate();
@@ -460,17 +482,17 @@ class _CreateMeetingState extends State<CreateMeeting> {
               context.pop();
             },
             title: 'Seleccionar ubicación',
-            showButtonCheck: true,
-            onCheck: () {
+            showButtonCard: true,
+            onCheck: (final List<Map<String, String>> selectedCards) {
+              print(selectedCards);
               if (!context.mounted) {
                 return;
               }
               context.pop();
             },
             showSearchBar: true,
-            onButtonPressed: () {
-              print('Ubicación seleccionada');
-            },
+            // ignore: avoid_print
+            onCardPressed: (final int index) => print('Ubicación seleccionada'),
             participants: myLocations,
           );
         },
