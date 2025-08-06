@@ -25,6 +25,8 @@ class CustomPopUp extends StatefulWidget {
     this.colorButtonCard = TipoColores.pantone634C,
     this.isChoose = true,
     this.isOneSelection = true,
+    this.initialSelectedIDs = const [],
+    this.searchHintText = 'Escribe un nombre o correo electrónico',
   });
 
   /// Título del pop-up.
@@ -66,6 +68,12 @@ class CustomPopUp extends StatefulWidget {
   /// Variable que indica si se puede seleccionar una o varias tarjetas
   final bool isOneSelection;
 
+  /// La lista de IDs únicos que deben estar seleccionados al inicio
+  final List<String> initialSelectedIDs;
+
+  /// Texto que se muestra en el buscador
+  final String searchHintText;
+
   @override
   // ignore: library_private_types_in_public_api
   _CustomPopUpState createState() => _CustomPopUpState();
@@ -76,7 +84,7 @@ class CustomPopUp extends StatefulWidget {
     required final VoidCallback onClose,
     required final Function(List<Map<String, String>>) onCheck,
     required final String title,
-    required final List<Map<String, String>> participants,
+    required final List<Map<String, String>> infoShowCards,
     final TipoColores colorHeader = TipoColores.pantone7473C,
     final TipoColores colorSuportHeader = TipoColores.seasalt,
     final bool showSearchBar = false,
@@ -86,6 +94,8 @@ class CustomPopUp extends StatefulWidget {
     final void Function(int index)? onCardPressed,
     final bool isChoose = true,
     final bool isOneSelection = true,
+    final List<String> initialSelectedIDs = const [],
+    final String searchHintText = 'Escribe un correo electrónico',
   }) async => showDialog<void>(
     context: context,
     barrierDismissible: false,
@@ -97,12 +107,14 @@ class CustomPopUp extends StatefulWidget {
       colorSuportHeader: colorSuportHeader,
       showSearchBar: showSearchBar,
       showButtonCard: showButtonCard,
-      infoShowCards: participants,
+      infoShowCards: infoShowCards,
       iconButtonCard: iconButtonCard,
       colorButtonCard: colorButtonCard,
       onCardPressed: onCardPressed,
       isChoose: isChoose,
       isOneSelection: isOneSelection,
+      initialSelectedIDs: initialSelectedIDs,
+      searchHintText: searchHintText,
     ),
   );
 }
@@ -128,6 +140,18 @@ class _CustomPopUpState extends State<CustomPopUp> {
     // La lista filtrada inicialmente es igual a la lista completa
     _filteredInformation = _allInformation;
 
+    // Se recorre la lista de IDs iniciales que se pasaron
+    for (final String email in widget.initialSelectedIDs) {
+      // Se busca el índice de la tarjeta con ese Id
+      final int index = _allInformation.indexWhere(
+        (final card) => card['id'] == email,
+      );
+      // Si se encuentra, se agrega el índice a la lista de seleccionados
+      if (index != -1) {
+        _selectedIndices.add(index);
+      }
+    }
+
     // Se escuchan los cambios en el campo de búsqueda para filtrar la lista
     _searchController.addListener(_filterListInformation);
   }
@@ -144,30 +168,50 @@ class _CustomPopUpState extends State<CustomPopUp> {
 
   /// ### Método que permite chequer o no una o varias tarjetas
   /// Este método necesita el `index` de la tarjeta en la lista _filteredInformation.
-  void _checkCard(final int index) {
-    setState(() {
-      if (widget.isOneSelection) { // Lógica para selección única
+  void _checkCard(final int filteredIndex) {
+    // Obtenemos el ID (email) de la tarjeta seleccionada en la lista filtrada.
+    final String selectedEmail = _filteredInformation[filteredIndex]['id']!;
 
-        // Si el índice ya está en la lista, significa que la tarjeta ya está seleccionada.
-        if (_selectedIndices.contains(index)) {
-          // La deseleccionamos vaciando la lista.
+    // Buscamos el índice de esta tarjeta en la lista completa para asegurarnos de que el estado
+    // de selección se mantiene incluso si la lista filtrada cambia.
+    final int indexInAllInformation = _allInformation.indexWhere(
+      (final card) => card['id'] == selectedEmail,
+    );
+
+    if (indexInAllInformation == -1)
+      return; // No se encontró el índice en la lista completa
+
+    setState(() {
+      if (widget.isOneSelection) {
+        if (_selectedIndices.contains(indexInAllInformation)) {
           _selectedIndices.clear();
         } else {
-          // Si no está, deseleccionamos cualquier tarjeta anterior y seleccionamos la nueva.
-          _selectedIndices..clear()
-          ..add(index);
+          _selectedIndices
+            ..clear()
+            ..add(indexInAllInformation);
         }
-      } else { // Lógica para selección múltiple
-
-        // Si el índice ya está en la lista, lo eliminamos.
-        if (_selectedIndices.contains(index)) {
-          _selectedIndices.remove(index);
+      } else {
+        // Selección múltiple
+        if (_selectedIndices.contains(indexInAllInformation)) {
+          _selectedIndices.remove(indexInAllInformation);
         } else {
-          // Si no está, lo agregamos.
-          _selectedIndices.add(index);
+          _selectedIndices.add(indexInAllInformation);
         }
       }
     });
+  }
+
+  /// ### Método que obtiene los id de las tarjetas seleccionadas.
+  List<String> _getSelectedId() {
+    final List<String> selectedId = [];
+    for (final index in _selectedIndices) {
+      // Usamos _allInformation porque _selectedIndices guarda los índices de esa lista
+      final email = _allInformation[index]['id'];
+      if (email != null) {
+        selectedId.add(email);
+      }
+    }
+    return selectedId;
   }
 
   /// ### Método que obtiene la información de las tarjetas seleccionadas.
@@ -180,9 +224,9 @@ class _CustomPopUpState extends State<CustomPopUp> {
     // Se crea una lista para almacenar la información de las tarjetas seleccionadas
     final List<Map<String, String>> selectedCards = [];
 
-    // Se recorren los índices seleccionados y se añade su información a la lista
+    // Se recorren los índices seleccionados y se añade su información de la lista completa
     for (final index in _selectedIndices) {
-      selectedCards.add(_filteredInformation[index]);
+      selectedCards.add(_allInformation[index]);
     }
 
     return selectedCards;
@@ -270,7 +314,7 @@ class _CustomPopUpState extends State<CustomPopUp> {
   Widget _buildSearchBar() => TextField(
     controller: _searchController,
     decoration: InputDecoration(
-      hintText: 'Escribe un nombre o correo electrónico',
+      hintText: widget.searchHintText,
       hintStyle: TextStyle(color: TipoColores.pantoneCool.value, fontSize: 13),
       contentPadding: const EdgeInsets.symmetric(horizontal: 12),
       border: const OutlineInputBorder(borderSide: BorderSide.none),
@@ -300,10 +344,14 @@ class _CustomPopUpState extends State<CustomPopUp> {
             itemCount:
                 _filteredInformation.length, // Largo de la lista de datos
             itemBuilder: (final BuildContext context, final int index) {
-              // Solo verificamos si el índice está en la lista.
-              final bool isSelected = _selectedIndices.contains(index);
+              // Obtenemos el id de la tarjeta actual en la lista filtrada
+              final String? currentId = _filteredInformation[index]['id'];
 
-              // Elegimos el icono del botón basado en el estado de la tarjeta
+              // Verificar si este Id está en la lista de emails seleccionados
+              // Esto mantendrá la consistencia entre las listas filtradas y no filtradas
+              final bool isSelected = _getSelectedId().contains(currentId);
+
+              // Elegimos el icono y color del botón basado en el estado de la tarjeta
               final IconData icon = isSelected
                   ? Icons.check_box_outlined
                   : Icons.check_box_outline_blank;
