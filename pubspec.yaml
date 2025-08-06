@@ -11,7 +11,7 @@
 # ─────────────────────────────────────────────────────────────────────────────
 name: frontend_app
 description: "A new Flutter project."
-publish_to: 'none'                # 🚫 No se publicará en pub.dev
+publish_to: "none" # 🚫 No se publicará en pub.dev
 version: 1.0.0+1
 environment:
   sdk: ^3.8.1
@@ -67,8 +67,8 @@ dev_dependencies:
   # 📜 Pruebas avanzadas
 
   # 🔧 Herramientas de desarrollo
-  flutter_launcher_icons: ^0.14.3     # Iconos personalizados para la aplicación
-  flutter_lints: ^5.0.0               # Buenas prácticas de código
+  flutter_launcher_icons: ^0.14.3 # Iconos personalizados para la aplicación
+  flutter_lints: ^5.0.0 # Buenas prácticas de código
 
 # ─────────────────────────────────────────────────────────────────────────────
 # 🎯 Configuración específica de Flutter
@@ -78,15 +78,14 @@ flutter:
 
   # 🗂️ Recursos
   assets:
+    # json
+    - lib/i18n/Spanish/es_menu.json
     # 🖼️ Imágenes
     - assets/Images/
     # 🔊 Archivos de audio
     - assets/Audio/
     # 🔤 Tipografía
     - assets/Fonts/
-    # json
-    - lib/i18n/Spanish/es_menu.json
-
 # ─────────────────────────────────────────────────────────────────────────────
 # 🖍️ Configuración de íconos
 # ─────────────────────────────────────────────────────────────────────────────

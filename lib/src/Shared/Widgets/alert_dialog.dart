@@ -163,7 +163,6 @@ class _CustomAlertDialogState extends State<CustomAlertDialog> {
           child: Text(
             widget.message, //Descripción que tendrá el alert dialog
             style: TextStyle(
-              fontFamily: 'Libre Franklin',
               fontSize: 16,
               fontWeight: FontWeight.w400,
               color: TipoColores.pantoneBlackC.value,

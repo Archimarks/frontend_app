@@ -61,7 +61,7 @@ class _HomeState extends State<Home> {
 
       debugPrint(
         'JSON cargado exitosamente: $data',
-      ); // ¡Imprime el JSON completo!
+      );
       debugPrint('Rol de la aplicación configurado como: $rolApp');
 
       final List<dynamic> rawCards = data['infoCards'];
@@ -74,7 +74,7 @@ class _HomeState extends State<Home> {
 
       for (final card in allCards) {
         final String? roleValue = card.rol[rolApp]
-            ?.toString(); // Asegúrate de que sea un String
+            ?.toString(); 
         debugPrint(
           'Tarjeta: ${card.titulo}, Valor del rol "$rolApp": "$roleValue"',
         );
@@ -130,17 +130,11 @@ class _HomeState extends State<Home> {
           leadingIconColor:
               TipoColores.seasalt.value, // Color del icono de retroceso
         ),
-        body: Stack(
-          children: [
-            /// Contenido central con diseño responsive
-            Align(
-              alignment: Alignment.topCenter,
-              child: Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: _portraitLayout(),
-              ),
-            ),
-          ],
+        body: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: _portraitLayout(),
+          ),
         ),
       ),
     );
@@ -156,7 +150,12 @@ class _HomeState extends State<Home> {
               title: card.titulo,
               description: card.descripcion,
               actionCard: () {
+                if (!context.mounted) {
+                  return;
+                }
                 debugPrint('Se hizo clic en: ${card.titulo}');
+                // Usar la propiedad 'route' de la tarjeta para navegar
+                context.goNamed(card.route);
               },
             ),
             const SizedBox(height: 15),
