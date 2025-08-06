@@ -23,7 +23,6 @@ class CustomPopUp extends StatefulWidget {
     this.onCardPressed,
     this.iconButtonCard = const Icon(Icons.check_box_outline_blank),
     this.colorButtonCard = TipoColores.pantone634C,
-    this.isChoose = true,
     this.isOneSelection = true,
     this.initialSelectedIDs = const [],
     this.searchHintText = 'Escribe un nombre o correo electrónico',
@@ -62,9 +61,6 @@ class CustomPopUp extends StatefulWidget {
   /// Callback para manejar los eventos al oprimir la tarjeta
   final void Function(int index)? onCardPressed;
 
-  /// Variable que indica si el pop up se va a usar para eliminar o para elegir
-  final bool isChoose;
-
   /// Variable que indica si se puede seleccionar una o varias tarjetas
   final bool isOneSelection;
 
@@ -92,7 +88,6 @@ class CustomPopUp extends StatefulWidget {
     final Icon iconButtonCard = const Icon(Icons.check_box_outline_blank),
     final TipoColores colorButtonCard = TipoColores.pantone634C,
     final void Function(int index)? onCardPressed,
-    final bool isChoose = true,
     final bool isOneSelection = true,
     final List<String> initialSelectedIDs = const [],
     final String searchHintText = 'Escribe un correo electrónico',
@@ -111,7 +106,6 @@ class CustomPopUp extends StatefulWidget {
       iconButtonCard: iconButtonCard,
       colorButtonCard: colorButtonCard,
       onCardPressed: onCardPressed,
-      isChoose: isChoose,
       isOneSelection: isOneSelection,
       initialSelectedIDs: initialSelectedIDs,
       searchHintText: searchHintText,
@@ -242,9 +236,10 @@ class _CustomPopUpState extends State<CustomPopUp> {
         _filteredInformation = _allInformation;
       } else {
         // Filtramos la lista completa
-        _filteredInformation = _allInformation.where((final nombre) {
-          final name = nombre['name']!.toLowerCase();
-          return name.contains(query);
+        _filteredInformation = _allInformation.where((final card) {
+          final textMain = card['textMain']?.toLowerCase() ?? '';
+          final textSecondary = card['textSecondary']?.toLowerCase() ?? '';
+          return textMain.contains(query) || textSecondary.contains(query);
         }).toList();
       }
     });
@@ -362,23 +357,17 @@ class _CustomPopUpState extends State<CustomPopUp> {
               return Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 5),
                 child: CustomUsersCard(
-                  textMain: _filteredInformation[index]['name']!,
-                  textSecondary: _filteredInformation[index]['email'],
+                  textMain: _filteredInformation[index]['textMain']!,
+                  textSecondary: _filteredInformation[index]['textSecondary'],
                   showButton: widget.showButtonCard,
                   actionCard: () {
-                    if (widget.isChoose) {
                       // Llamamos a nuestro método _checkCard con el índice actual
                       _checkCard(index);
-                    } else {
-                      print('eliminar');
-                    }
                   },
                   showNumber: false,
                   enableShadow: false,
-                  actionIcon: widget.isChoose ? icon : Icons.close,
-                  buttonColor: widget.isChoose
-                      ? colorIcon
-                      : TipoColores.pantone7621C,
+                  actionIcon: icon,
+                  buttonColor: colorIcon,
                 ),
               );
             },

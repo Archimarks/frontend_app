@@ -68,18 +68,18 @@ class _CreateMeetingState extends State<CreateMeeting> {
   final List<Map<String, String>> myParticipants = [
     {
       'id': '1',
-      'name': 'Fredy Antonio Verástegui González',
-      'email': 'f.verastegui@udla.edu.co',
+      'textMain': 'Fredy Antonio Verástegui González',
+      'textSecondary': 'f.verastegui@udla.edu.co',
     },
     {
       'id': '2',
-      'name': 'Marcos Alejandro Collazos Marmolejo',
-      'email': 'marc.collazos@udla.edu.co',
+      'textMain': 'Marcos Alejandro Collazos Marmolejo',
+      'textSecondary': 'marc.collazos@udla.edu.co',
     },
     {
       'id': '3',
-      'name': 'Geraldine Perilla Valderrama',
-      'email': 'g.perilla@udla.edu.co',
+      'textMain': 'Geraldine Perilla Valderrama',
+      'textSecondary': 'g.perilla@udla.edu.co',
     },
     // ... más participantes
   ];
@@ -87,22 +87,22 @@ class _CreateMeetingState extends State<CreateMeeting> {
   final List<Map<String, String>> myLocations = [
     {
       'id': '1',
-      'name':
+      'textMain':
           'CAMPUS ALBANIA: SEDE ALBANIA COLEGIO DE ESTA LOCALIDAD: ALABINA-NO SNIES',
     },
     {
       'id': '2',
-      'name':
+      'textMain':
           'CAMPUS ALTAMIRA: COLEGIO EN CALIDAD DE PRESTAMO PARA DICTAR CLASES: COL01',
     },
-    {'id': '3', 'name': 'CAMPUS CENTRO: BLOQUE DE AULAS: BIENESTAR'},
-    {'id': '4', 'name': 'CAMPUS CENTRO: BLOQUE DE AULAS: CANCHA DE FUTBOL'},
+    {'id': '3', 'textMain': 'CAMPUS CENTRO: BLOQUE DE AULAS: BIENESTAR'},
+    {'id': '4', 'textMain': 'CAMPUS CENTRO: BLOQUE DE AULAS: CANCHA DE FUTBOL'},
   ];
   // Lista de grupos
   final List<Map<String, String>> groups = [
-    {'id': '1', 'name': 'Diseño de Base de Datos Grupo 1'},
-    {'id': '2', 'name': 'Administración de base de Datos Grupo 1'},
-    {'id': '4', 'name': 'Administración de base de Datos Grupo 2'},
+    {'id': '1', 'textMain': 'Diseño de Base de Datos Grupo 1'},
+    {'id': '2', 'textMain': 'Administración de base de Datos Grupo 1'},
+    {'id': '4', 'textMain': 'Administración de base de Datos Grupo 2'},
   ];
   // Lista de usuarios agregados
   List<Map<String, String>> addedParticipants = [];
@@ -384,7 +384,7 @@ class _CreateMeetingState extends State<CreateMeeting> {
                   setState(
                     () {
                       _selectedLeadingUser = selectedCards.isNotEmpty
-                          ? selectedCards.first['name']
+                          ? selectedCards.first['textMain']
                           : null; // Actualiza el nombre del líder seleccionado
 
                       _selectedLeaderId = selectedCards
@@ -618,7 +618,7 @@ class _CreateMeetingState extends State<CreateMeeting> {
                 setState(() {
                   currentSchedule
                     ..selectedLocationName = selectedCards.isNotEmpty
-                        ? selectedCards.first['name']
+                        ? selectedCards.first['textMain']
                         : null
                     ..selectedLocationID = selectedCards.isNotEmpty
                         ? selectedCards.first['id']
@@ -632,6 +632,7 @@ class _CreateMeetingState extends State<CreateMeeting> {
               },
               title: 'Seleccionar ubicación',
               showButtonCard: true,
+              showSearchBar: true,
               infoShowCards: myLocations,
               initialSelectedIDs: currentSchedule.selectedLocationID != null
                   ? [currentSchedule.selectedLocationID!]
