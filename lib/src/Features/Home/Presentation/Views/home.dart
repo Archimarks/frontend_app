@@ -3,8 +3,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../../../Core/Barrels/configs_barrel.dart';
 import '../../../../Core/Barrels/enums_barrel.dart';
 import '../../../../Core/Barrels/widgets_shared_barrel.dart';
 import '../../../../Core/Routes/route_names.dart';
@@ -27,64 +27,61 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   String rolApp = '';
-
-  /// Indica que está cargando los datos del JSON
   bool isLoading = true;
-  // Lista para almacenar las tarjetas filtradas
+
   List<CardInfo> filteredCards = [];
 
   @override
   void initState() {
     super.initState();
-
-    _getRolUser(); // Llamar la función para obtener el rol del usuario
-    _loadCardsData(); // Llamar la función para cargar los datos de las tarjetas
+    initializeData();
   }
 
-  Future<void> _getRolUser() async {
-    final String? rol = getString('rol');
-    if (rol != null) {
-      rolApp = rol.toLowerCase();
-      debugPrint('Rol de la aplicación configurado como: $rolApp');
-    } else {
-      debugPrint('No se encontró el rol del usuario en el almacenamiento.');
-    }
+  Future<void> initializeData() async {
+    await getRolUsuario();
+    await _loadCardsData();
+  }
+
+  Future<void> getRolUsuario() async {
+    final prefs = await SharedPreferences.getInstance();
+    rolApp = prefs.getString('rol')?.toLowerCase() ?? '';
+    debugPrint('Rol obtenido de preferencias: $rolApp');
   }
 
   Future<void> _loadCardsData() async {
     try {
-      // Traer información del json de las tarjetas
       final String response = await rootBundle.loadString(
         'lib/i18n/Spanish/es_menu.json',
       );
       final Map<String, dynamic> data = json.decode(response);
 
-      debugPrint(
-        'JSON cargado exitosamente: $data',
-      );
-      debugPrint('Rol de la aplicación configurado como: $rolApp');
+      debugPrint('JSON cargado exitosamente');
+      debugPrint('Rol configurado: $rolApp');
 
       final List<dynamic> rawCards = data['infoCards'];
-      final List<CardInfo> allCards = rawCards
-          .map((final json) => CardInfo.fromJson(json))
-          .toList();
+      final List<CardInfo> allCards = [];
 
-      final List<CardInfo> tempFilteredCards =
-          []; // Usa una lista temporal para depurar
+      for (final jsonCard in rawCards) {
+        try {
+          allCards.add(CardInfo.fromJson(jsonCard));
+        } catch (e) {
+          debugPrint('Error al parsear tarjeta individual: $e');
+        }
+      }
+
+      final List<CardInfo> tempFilteredCards = [];
 
       for (final card in allCards) {
-        final String? roleValue = card.rol[rolApp]
-            ?.toString(); 
+        final String? roleValue = card.rol[rolApp]?.toString();
         debugPrint(
           'Tarjeta: ${card.titulo}, Valor del rol "$rolApp": "$roleValue"',
         );
+
         if (roleValue == 'true') {
           tempFilteredCards.add(card);
           debugPrint('--> Tarjeta "${card.titulo}" INCLUIDA.');
         } else {
-          debugPrint(
-            '--> Tarjeta "${card.titulo}" EXCLUIDA (valor no es "true").',
-          );
+          debugPrint('--> Tarjeta "${card.titulo}" EXCLUIDA.');
         }
       }
 
@@ -92,9 +89,8 @@ class _HomeState extends State<Home> {
         filteredCards = tempFilteredCards;
         isLoading = false;
       });
-      debugPrint('Número de tarjetas filtradas: ${filteredCards.length}');
-    } on Exception catch (e) {
-      debugPrint('Error al cargar o parsear el JSON desde i18n/spanish: $e');
+    } catch (e) {
+      debugPrint('Error al cargar o parsear el JSON: $e');
       setState(() {
         isLoading = false;
       });
@@ -102,43 +98,33 @@ class _HomeState extends State<Home> {
   }
 
   @override
-  // ignore: prefer_expression_function_bodies
-  Widget build(final BuildContext context) {
-    // Envuelve el Scaffold con PopScope para interceptar el botón de retroceso del hardware
-    return PopScope(
-      canPop: false, // Evita que la ruta se "popee" automáticamente
-      // ignore: deprecated_member_use
+  Widget build(final BuildContext context) => PopScope(
+    canPop: false,
       onPopInvoked: (final bool didPop) {
-        if (didPop) {
-          return; // Si el pop ya fue manejado por el sistema, no se hace nada.
-        }
+      if (didPop) return;
       },
       child: Scaffold(
-        backgroundColor:
-            TipoColores.seasalt.value, // Color de fondo para toda la vista
+      backgroundColor: TipoColores.seasalt.value,
         appBar: customAppBar(
           context: context,
           title: 'Encuentros',
-          onLeadingPressed: () async {
-            if (!context.mounted) {
-              return;
-            }
+        onLeadingPressed: () {
+          if (!context.mounted) return;
             context.goNamed(RouteNames.login);
           },
-          backgroundColor:
-              TipoColores.pantone356C.value, // Color de fondo de la AppBar
-          leadingIconColor:
-              TipoColores.seasalt.value, // Color del icono de retroceso
+        backgroundColor: TipoColores.pantone356C.value,
+        leadingIconColor: TipoColores.seasalt.value,
         ),
-        body: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: _portraitLayout(),
-          ),
-        ),
+      body: isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: _portraitLayout(),
+              ),
+            ),
       ),
-    );
-  }
+  );
 
   Widget _portraitLayout() => Column(
     crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -150,12 +136,10 @@ class _HomeState extends State<Home> {
               title: card.titulo,
               description: card.descripcion,
               actionCard: () {
-                if (!context.mounted) {
-                  return;
-                }
+                if (!context.mounted || card.route == null) return;
+
                 debugPrint('Se hizo clic en: ${card.titulo}');
-                // Usar la propiedad 'route' de la tarjeta para navegar
-                context.goNamed(card.route);
+                context.goNamed(card.route!);
               },
             ),
             const SizedBox(height: 15),

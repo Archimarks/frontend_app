@@ -7,9 +7,9 @@
       "descripcion": "Invitar personas, definir horario y fecha.",
       "route": "myMeets",
       "rol": {
-        "administrador": "true",
-        "docente": "true",
-        "estudiante": "false"
+        "administrador": true,
+        "docente": true,
+        "estudiante": false
       }
     },
     {
@@ -18,9 +18,9 @@
       "descripcion": "Activar escaneo del QR de los invitados o registro manual de asistencia.",
       "route": "register",
       "rol": {
-        "administrador": "true",
-        "docente": "true",
-        "estudiante": "false"
+        "administrador": true,
+        "docente": true,
+        "estudiante": false
       }
     },
     {
@@ -29,9 +29,9 @@
       "descripcion": "Generar mi QR para registro de mi asistencia.",
       "route": "attendMeet",
       "rol": {
-        "administrador": "true",
-        "docente": "true",
-        "estudiante": "true"
+        "administrador": true,
+        "docente": true,
+        "estudiante": true
       }
     },
     {
@@ -40,9 +40,9 @@
       "descripcion": "Reportes de los encuentros.",
       "route": "typeReports",
       "rol": {
-        "administrador": "true",
-        "docente": "true",
-        "estudiante": "true"
+        "administrador": true,
+        "docente": true,
+        "estudiante": true
       }
     },
     {
@@ -51,19 +51,20 @@
       "descripcion": "Encuentros informales a los que se puede unir.",
       "route": "meets",
       "rol": {
-        "administrador": "true",
-        "docente": "true",
-        "estudiante": "true"
+        "administrador": true,
+        "docente": true,
+        "estudiante": true
       }
     },
     {
       "codigoCard": 6,
       "titulo": "Configuraciones root",
       "descripcion": "Edición de variables.",
+      "route": "rootConfig",
       "rol": {
-        "administrador": "true",
-        "docente": "false",
-        "estudiante": "false"
+        "administrador": true,
+        "docente": false,
+        "estudiante": false
       }
     }
   ]

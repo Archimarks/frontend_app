@@ -24,7 +24,7 @@ class ApiConfig {
 
   /// Instancia única de configuración.
   static const ApiConfig instance = ApiConfig._internal(
-    'http://192.168.1.8:5009',
+    'http://172.27.19.254:5009',
   );
 
   /// Retorna la URL para obtener un usuario por su correo electrónico.
@@ -32,10 +32,10 @@ class ApiConfig {
       '$baseUrl/api/Usuario/$correo';
 
   /// Retorna la URL para probar la conexión con SQL Server.
-  String testConexionSqlServer() => '$baseUrl/api/TestConexion/sqlserver';
+  String testConexionSqlServer() => '$baseUrl/api/_TestConexion/sqlserver';
 
   /// Retorna la URL para probar la conexión con Oracle.
-  String testConexionOracle() => '$baseUrl/api/TestConexion/oracle';
+  String testConexionOracle() => '$baseUrl/api/_TestConexion/oracle';
 
   // Puedes agregar más métodos según sea necesario:
   // String login() => '$baseUrl/api/Auth/Login';
