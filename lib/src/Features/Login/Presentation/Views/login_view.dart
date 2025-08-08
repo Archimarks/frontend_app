@@ -184,7 +184,7 @@ class _LoginButton extends StatelessWidget {
             return SizedBox(
               width: double.infinity,
               child: CustomButton(
-onPressed: canLogin
+                onPressed: canLogin
                     ? () async {
                         final username = controller.text.trim();
                         if (username.isEmpty) {
@@ -216,8 +216,6 @@ onPressed: canLogin
                               return;
                             }
                             context.goNamed(RouteNames.home);
-
-
                           } else if (response.statusCode == 404) {
                             debugPrint('Usuario no encontrado para: $username');
                           } else {
