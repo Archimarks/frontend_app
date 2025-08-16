@@ -114,16 +114,16 @@ class CustomPopUp extends StatefulWidget {
 }
 
 class _CustomPopUpState extends State<CustomPopUp> {
-  /// Controlador para el campo de texto de la búsqueda
+  // Controlador para el campo de texto de la búsqueda
   final TextEditingController _searchController = TextEditingController();
 
-  /// Lista para rastrear los índices de las tarjetas seleccionadas (para selección múltiple)
+  // Lista para rastrear los índices de las tarjetas seleccionadas (para selección múltiple)
   final List<int> _selectedIndices = [];
 
-  /// Lista para toda la información
+  // Lista para toda la información
   late List<Map<String, String>> _allInformation;
 
-  ///  Lista para la filtrados
+  // Lista para la información filtrada
   List<Map<String, String>> _filteredInformation = [];
 
   @override
@@ -131,19 +131,25 @@ class _CustomPopUpState extends State<CustomPopUp> {
     super.initState();
     // Se inicializa la lista de todos los participantes con la que viene del widget
     _allInformation = widget.infoShowCards;
-    // La lista filtrada inicialmente es igual a la lista completa
-    _filteredInformation = _allInformation;
 
-    // Se recorre la lista de IDs iniciales que se pasaron
-    for (final String email in widget.initialSelectedIDs) {
-      // Se busca el índice de la tarjeta con ese Id
+    // Se recorre la lista de IDs iniciales para encontrar sus índices y agregarlos
+    // a la lista de seleccionados. Esto es importante para mantener el estado.
+    for (final String id in widget.initialSelectedIDs) {
       final int index = _allInformation.indexWhere(
-        (final card) => card['id'] == email,
+        (final card) => card['id'] == id,
       );
-      // Si se encuentra, se agrega el índice a la lista de seleccionados
       if (index != -1) {
         _selectedIndices.add(index);
       }
+    }
+
+    // Si hay IDs seleccionados al inicio, se muestran solo esas tarjetas.
+    if (_selectedIndices.isNotEmpty) {
+      _filteredInformation = _getSelectedCardsInfo();
+    } else {
+      // Si no hay IDs seleccionados, la lista filtrada se inicializa como vacía.
+      // Las tarjetas solo se mostrarán al buscar.
+      _filteredInformation = [];
     }
 
     // Se escuchan los cambios en el campo de búsqueda para filtrar la lista
@@ -157,19 +163,18 @@ class _CustomPopUpState extends State<CustomPopUp> {
   }
 
   /// **************************************************************************
-  /// *                         Métodos Privados                               *
+  /// *                         Métodos Privados                               *
   /// **************************************************************************
 
-  /// ### Método que permite chequer o no una o varias tarjetas
-  /// Este método necesita el `index` de la tarjeta en la lista _filteredInformation.
+  /// ### Método que permite chequear o no una o varias tarjetas
   void _checkCard(final int filteredIndex) {
-    // Obtenemos el ID (email) de la tarjeta seleccionada en la lista filtrada.
-    final String selectedEmail = _filteredInformation[filteredIndex]['id']!;
+    // Obtenemos el ID de la tarjeta seleccionada en la lista filtrada.
+    final String selectedId = _filteredInformation[filteredIndex]['id']!;
 
     // Buscamos el índice de esta tarjeta en la lista completa para asegurarnos de que el estado
     // de selección se mantiene incluso si la lista filtrada cambia.
     final int indexInAllInformation = _allInformation.indexWhere(
-      (final card) => card['id'] == selectedEmail,
+      (final card) => card['id'] == selectedId,
     );
 
     if (indexInAllInformation == -1) {
@@ -193,6 +198,15 @@ class _CustomPopUpState extends State<CustomPopUp> {
           _selectedIndices.add(indexInAllInformation);
         }
       }
+
+      // Actualizamos la lista filtrada para que siempre muestre el estado correcto.
+      // Si la búsqueda no está vacía, se mantiene el filtro.
+      // Si la búsqueda está vacía, se muestran solo las seleccionadas.
+      if (_searchController.text.isEmpty) {
+        _filteredInformation = _getSelectedCardsInfo();
+      } else {
+        _filterListInformation();
+      }
     });
   }
 
@@ -201,9 +215,9 @@ class _CustomPopUpState extends State<CustomPopUp> {
     final List<String> selectedId = [];
     for (final index in _selectedIndices) {
       // Usamos _allInformation porque _selectedIndices guarda los índices de esa lista
-      final email = _allInformation[index]['id'];
-      if (email != null) {
-        selectedId.add(email);
+      final id = _allInformation[index]['id'];
+      if (id != null) {
+        selectedId.add(id);
       }
     }
     return selectedId;
@@ -233,10 +247,11 @@ class _CustomPopUpState extends State<CustomPopUp> {
 
     setState(() {
       if (query.isEmpty) {
-        // Si la búsqueda está vacía, mostramos toda la información
-        _filteredInformation = _allInformation;
+        // Si la búsqueda está vacía, mostramos las tarjetas seleccionadas
+        // o una lista vacía si no hay ninguna.
+        _filteredInformation = _getSelectedCardsInfo();
       } else {
-        // Filtramos la lista completa
+        // Si la búsqueda tiene texto, filtramos la lista completa
         _filteredInformation = _allInformation.where((final card) {
           final textMain = card['textMain']?.toLowerCase() ?? '';
           final textSecondary = card['textSecondary']?.toLowerCase() ?? '';
@@ -246,6 +261,7 @@ class _CustomPopUpState extends State<CustomPopUp> {
     });
   }
 
+  // El resto del código `build` y los demás métodos quedan igual.
   @override
   Widget build(final BuildContext context) => Dialog(
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
@@ -253,9 +269,6 @@ class _CustomPopUpState extends State<CustomPopUp> {
     child: _portraitLayout(),
   );
 
-  /// --------------------------------------------------------------------------
-  /// Texto que muestra el título del widget.
-  /// --------------------------------------------------------------------------
   Widget _buildHeader() => Container(
     decoration: BoxDecoration(
       color: widget.colorHeader.value,
@@ -304,9 +317,6 @@ class _CustomPopUpState extends State<CustomPopUp> {
     ),
   );
 
-  /// --------------------------------------------------------------------------
-  /// Widget para la barra de búsqueda
-  /// --------------------------------------------------------------------------
   Widget _buildSearchBar() => TextField(
     controller: _searchController,
     decoration: InputDecoration(
@@ -319,9 +329,6 @@ class _CustomPopUpState extends State<CustomPopUp> {
     ),
   );
 
-  /// --------------------------------------------------------------------------
-  /// Construye la vista del alert dialog
-  /// --------------------------------------------------------------------------
   Widget _portraitLayout() => SizedBox(
     height: MediaQuery.of(context).size.height * 0.60,
     width: MediaQuery.of(context).size.width * 0.90,
@@ -362,8 +369,7 @@ class _CustomPopUpState extends State<CustomPopUp> {
                   textSecondary: _filteredInformation[index]['textSecondary'],
                   showButton: widget.showButtonCard,
                   actionCard: () {
-                      // Llamamos a nuestro método _checkCard con el índice actual
-                      _checkCard(index);
+                    _checkCard(index);
                   },
                   showNumber: false,
                   enableShadow: false,

@@ -21,6 +21,36 @@ class AttendMeeting extends StatefulWidget {
 }
 
 class _AttendMeetingState extends State<AttendMeeting> {
+  // Fecha actual para mostrar los encuentros de ese día
+  DateTime currentDay = DateTime.now();
+  // Lista de encuentros
+  final List<Map<String, dynamic>> currentMeets = [
+    {
+      'id': 1,
+      'hour': TimeOfDay.now(),
+      'title': 'Reunión 1',
+      'description': 'Desrcipción de la reunión 1',
+    },
+    {
+      'id': 2,
+      'hour': TimeOfDay.now(),
+      'title': 'Reunión 2',
+      'description': 'Desrcipción de la reunión 2',
+    },
+    {
+      'id': 3,
+      'hour': TimeOfDay.now(),
+      'title': 'Reunión 3',
+      'description': 'Desrcipción de la reunión 3',
+    },
+    {
+      'id': 4,
+      'hour': TimeOfDay.now(),
+      'title': 'Reunión 4',
+      'description': 'Desrcipción de la reunión 4',
+    },
+  ];
+
   @override
   // ignore: prefer_expression_function_bodies
   Widget build(final BuildContext context) {
@@ -66,6 +96,37 @@ class _AttendMeetingState extends State<AttendMeeting> {
     );
   }
 
-  Widget _portraitLayout() =>
-      const Column(crossAxisAlignment: CrossAxisAlignment.stretch);
+  Widget _portraitLayout() => Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      Padding(
+        padding: const EdgeInsets.symmetric(vertical: 20),
+        child: Text(
+          'Encuentros del día ${currentDay.day} del mes ${currentDay.month}',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: TipoColores.pantoneBlackC.value,
+          ),
+        ),
+      ),
+      ...currentMeets.asMap().entries.map((final card) => Column(
+          children: [
+            CustomMeetCard(
+              hourAndDate: '',
+              title: '',
+              description: '',
+              actionCard: () {
+                if (!context.mounted) {
+                  return;
+                }
+                debugPrint('Se hizo clic en: ');
+              },
+            ),
+            const SizedBox(height: 15),
+          ],
+        )),
+    ],
+  );
 }
