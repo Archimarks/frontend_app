@@ -4,6 +4,8 @@
 /// * Descripción: Vista de selección al encuentro que desea asistir.
 /// * Autores: Geraldine Perilla Valderrama & Marcos Alejandro Collazos Marmolejo
 /// ****************************************************************************
+// ignore_for_file: avoid_dynamic_calls
+
 library;
 
 import 'package:flutter/material.dart';
@@ -28,26 +30,20 @@ class _AttendMeetingState extends State<AttendMeeting> {
     {
       'id': 1,
       'hour': TimeOfDay.now(),
-      'title': 'Reunión 1',
-      'description': 'Desrcipción de la reunión 1',
+      'title': 'Clase diseño de base de datos',
+      'description': 'Clase diseño de base de datos lunes y martes...',
     },
     {
       'id': 2,
       'hour': TimeOfDay.now(),
-      'title': 'Reunión 2',
-      'description': 'Desrcipción de la reunión 2',
+      'title': 'Clase administración de base de datos Grupo 1',
+      'description': 'Clase administración de base de datos martes y jueves...',
     },
     {
       'id': 3,
       'hour': TimeOfDay.now(),
-      'title': 'Reunión 3',
-      'description': 'Desrcipción de la reunión 3',
-    },
-    {
-      'id': 4,
-      'hour': TimeOfDay.now(),
-      'title': 'Reunión 4',
-      'description': 'Desrcipción de la reunión 4',
+      'title': 'Clase administración de base de datos Grupo 2',
+      'description': 'Clase administración de base de datos lunes y jueves...',
     },
   ];
 
@@ -73,7 +69,7 @@ class _AttendMeetingState extends State<AttendMeeting> {
             if (!context.mounted) {
               return;
             }
-            context.goNamed(RouteNames.myMeets);
+            context.goNamed(RouteNames.home);
           },
           backgroundColor:
               TipoColores.pantone356C.value, // Color de fondo de la AppBar
@@ -100,33 +96,42 @@ class _AttendMeetingState extends State<AttendMeeting> {
     crossAxisAlignment: CrossAxisAlignment.stretch,
     children: [
       Padding(
-        padding: const EdgeInsets.symmetric(vertical: 20),
+        padding: const EdgeInsets.symmetric(vertical: 10),
         child: Text(
-          'Encuentros del día ${currentDay.day} del mes ${currentDay.month}',
+          'Encuentros del día ${currentDay.day} de ${currentDay.month.toString()}',
           textAlign: TextAlign.center,
           style: TextStyle(
-            fontSize: 16,
+            fontSize: 20,
             fontWeight: FontWeight.bold,
             color: TipoColores.pantoneBlackC.value,
           ),
         ),
       ),
-      ...currentMeets.asMap().entries.map((final card) => Column(
+      ...currentMeets.asMap().entries.map((final entry) {
+        final meet = entry.value; // Accedemos a la reunión actual
+        // Variable para los datos del encuentro seleccionado
+        final meetData = {
+          'title': meet['title'].toString(),
+          'hourAndDate': '${meet['hour'].hour}:${meet['hour'].minute}',
+        };
+        return Column(
           children: [
             CustomMeetCard(
-              hourAndDate: '',
-              title: '',
-              description: '',
+              hourAndDate: '${meet['hour'].hour}:${meet['hour'].minute}',
+              title: meet['title'].toString(),
+              description: meet['description'].toString(),
               actionCard: () {
-                if (!context.mounted) {
+                if (!mounted) {
                   return;
                 }
-                debugPrint('Se hizo clic en: ');
+                debugPrint('Enviando datos: $meetData');
+                context.goNamed(RouteNames.generateQR, extra: meetData);
               },
             ),
             const SizedBox(height: 15),
           ],
-        )),
+        );
+      }),
     ],
   );
 }

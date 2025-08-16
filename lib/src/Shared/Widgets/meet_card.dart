@@ -120,7 +120,11 @@ class CustomMeetCard extends StatelessWidget {
           const SizedBox(height: 6),
           Text(
             title,
-            style: TextStyle(fontSize: 15, color: titleColor.value),
+            style: TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w500,
+              color: titleColor.value,
+            ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),

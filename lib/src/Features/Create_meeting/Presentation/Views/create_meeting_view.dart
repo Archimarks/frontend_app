@@ -12,7 +12,6 @@ import 'package:go_router/go_router.dart';
 import '../../../../Core/Barrels/enums_barrel.dart';
 import '../../../../Core/Barrels/widgets_shared_barrel.dart';
 import '../../../../Core/Routes/route_names.dart';
-import '../../../../Shared/Widgets/pop_up.dart';
 import '../../Domain/schedule_data.dart';
 
 class CreateMeeting extends StatefulWidget {

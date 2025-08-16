@@ -21,6 +21,30 @@ class RegisterAttendance extends StatefulWidget {
 }
 
 class _RegisterAttendanceState extends State<RegisterAttendance> {
+  // Fecha actual para mostrar los encuentros de ese día
+  DateTime currentDay = DateTime.now();
+  // Lista de encuentros
+  final List<Map<String, dynamic>> currentMeets = [
+    {
+      'id': 1,
+      'hour': TimeOfDay.now(),
+      'title': 'Clase diseño de base de datos',
+      'description': 'Clase diseño de base de datos lunes y martes...',
+    },
+    {
+      'id': 2,
+      'hour': TimeOfDay.now(),
+      'title': 'Clase administración de base de datos Grupo 1',
+      'description': 'Clase administración de base de datos martes y jueves...',
+    },
+    {
+      'id': 3,
+      'hour': TimeOfDay.now(),
+      'title': 'Clase administración de base de datos Grupo 2',
+      'description': 'Clase administración de base de datos lunes y jueves...',
+    },
+  ];
+
   @override
   // ignore: prefer_expression_function_bodies
   Widget build(final BuildContext context) {
@@ -66,6 +90,46 @@ class _RegisterAttendanceState extends State<RegisterAttendance> {
     );
   }
 
-  Widget _portraitLayout() =>
-      const Column(crossAxisAlignment: CrossAxisAlignment.stretch);
+  Widget _portraitLayout() => Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      Padding(
+        padding: const EdgeInsets.symmetric(vertical: 10),
+        child: Text(
+          'Encuentros del día ${currentDay.day} de ${currentDay.month.toString()}',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: TipoColores.pantoneBlackC.value,
+          ),
+        ),
+      ),
+      ...currentMeets.asMap().entries.map((final entry) {
+        final meet = entry.value; // Accedemos a la reunión actual
+        // Variable para los datos del encuentro seleccionado
+        final meetData = {
+          'title': meet['title'].toString(),
+          'hourAndDate': '${meet['hour'].hour}:${meet['hour'].minute}',
+        };
+        return Column(
+          children: [
+            CustomMeetCard(
+              hourAndDate: '${meet['hour'].hour}:${meet['hour'].minute}',
+              title: meet['title'].toString(),
+              description: meet['description'].toString(),
+              actionCard: () {
+                if (!mounted) {
+                  return;
+                }
+                debugPrint('Enviando datos: $meetData');
+                context.goNamed(RouteNames.generateQR, extra: meetData);
+              },
+            ),
+            const SizedBox(height: 15),
+          ],
+        );
+      }),
+    ],
+  );
 }
