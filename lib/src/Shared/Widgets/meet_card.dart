@@ -16,9 +16,9 @@ class CustomMeetCard extends StatelessWidget {
     required this.hourAndDate,
     required this.title,
     required this.description,
-    required this.showButton,
+    this.showButton = false,
     required this.actionCard,
-    required this.onDeletePressed,
+    this.onDeletePressed,
     this.actionIcon = Icons.delete,
     this.backgroundColor =
         TipoColores.pantone663C, // Color de fondo predeterminado
@@ -120,7 +120,11 @@ class CustomMeetCard extends StatelessWidget {
           const SizedBox(height: 6),
           Text(
             title,
-            style: TextStyle(fontSize: 15, color: titleColor.value),
+            style: TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w500,
+              color: titleColor.value,
+            ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),

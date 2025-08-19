@@ -20,6 +20,6 @@ import 'routes_config.dart';
 /// Utiliza las rutas definidas en [appRoutes] y establece la vista de login como inicial.
 final GoRouter appRouter = GoRouter(
   routes: appRoutes,
-  initialLocation: '/login',
+  initialLocation: '/attendMeet',
   debugLogDiagnostics: true,
 );
