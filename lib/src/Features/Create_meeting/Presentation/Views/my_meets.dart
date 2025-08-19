@@ -44,6 +44,7 @@ class _MyMeetsState extends State<MyMeets> {
               return;
             }
             context.goNamed(RouteNames.home);
+            print('Saliendo de mis reuniones');
           },
           backgroundColor:
               TipoColores.pantone356C.value, // Color de fondo de la AppBar

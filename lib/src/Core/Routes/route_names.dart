@@ -36,4 +36,7 @@ abstract class RouteNames {
 
   /// Nombre de la ruta para la vista de encuentros para unirse.
   static const meets = 'meets';
+
+  /// Nombre de la ruta para la vista de generación de QR.
+  static const generateQR = 'generateQR';
 }

@@ -29,3 +29,5 @@ export '../../Shared/Widgets/text_field.dart';
 export '../../Shared/Widgets/users_card.dart';
 // Widget de campo de selección personalizado
 export '../../Shared/Widgets/selection_field.dart';
+// Widget de pop up para selección personalizada
+export '../../Shared/Widgets/pop_up.dart';

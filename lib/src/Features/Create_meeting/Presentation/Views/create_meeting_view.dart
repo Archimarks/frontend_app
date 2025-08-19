@@ -12,7 +12,6 @@ import 'package:go_router/go_router.dart';
 import '../../../../Core/Barrels/enums_barrel.dart';
 import '../../../../Core/Barrels/widgets_shared_barrel.dart';
 import '../../../../Core/Routes/route_names.dart';
-import '../../../../Shared/Widgets/pop_up.dart';
 import '../../Domain/schedule_data.dart';
 
 class CreateMeeting extends StatefulWidget {
@@ -134,37 +133,43 @@ class _CreateMeetingState extends State<CreateMeeting> {
   ///---------------------------------------------------------------------------
   /// ### Método para validar que los horarios agregados estén completos.
   ///---------------------------------------------------------------------------
-  bool _validateSchedules() {
+  String? _validateSchedules() {
     // Itera sobre la lista de horarios
     for (final schedule in _schedules) {
-      // ... (código de validación de campos obligatorios existente) ...
+      // 1. Validar que los campos obligatorios del horario no sean nulos.
       if (schedule.startDate == null ||
           schedule.startTime == null ||
           schedule.endTime == null ||
           schedule.selectedLocationID == null) {
-        return false;
+        // Si alguno de los campos de fecha u hora es nulo.
+        return '';
       }
 
-      // Si el horario se repite, verifica que la fecha de finalización esté seleccionada.
+      // 2. Si el horario se repite, verifica que la fecha de finalización esté seleccionada.
       if (schedule.repeat && schedule.endDate == null) {
-        return false;
+        return 'No se ha seleccionado fecha de finalización para el horario repetido.';
       }
 
-      // Se corrigió el error: ahora se usa una función auxiliar para comparar TimeOfDay
+      // 3. Comparar que la hora de inicio no sea posterior a la hora de finalización.
       final int startTimeInMinutes = _toMinutes(schedule.startTime!);
       final int endTimeInMinutes = _toMinutes(schedule.endTime!);
-
       if (startTimeInMinutes >= endTimeInMinutes) {
-        return false;
+        return 'La hora de inicio debe ser anterior a la hora de finalización.';
       }
 
-      // Si la fecha de inicio es posterior a la fecha de fin de repetición, no es válido.
+      // 4. Si la fecha de inicio es posterior o igual a la fecha de fin de repetición, no es válido.
       if (schedule.repeat && schedule.startDate!.isAfter(schedule.endDate!)) {
-        return false;
+        return 'La fecha de finalización debe ser posterior a la fecha de inicio.';
+      }
+
+      // 5. Si el horario se repite, validar que la fecha de fin no sea igual o anterior a la de inicio.
+      if (schedule.repeat && schedule.endDate!.isBefore(schedule.startDate!)) {
+        return 'La fecha de finalización debe ser posterior a la fecha de inicio.';
       }
     }
-    // Si todos los horarios son válidos, retorna true.
-    return true;
+
+    // Si todos los horarios son válidos, retorna null.
+    return null;
   }
 
   ///---------------------------------------------------------------------------
@@ -176,6 +181,22 @@ class _CreateMeetingState extends State<CreateMeeting> {
   /// ### Método que valida los campos y habilita el botón de crear encuentro
   ///---------------------------------------------------------------------------
   void _validatorButtonCreate() {
+    final String? validationError = _validateSchedules();
+
+    if (validationError != null && validationError.isNotEmpty) {
+      // Se muestra el SnackBar de advertencia cuando falta o está mal algún parámetro del horario
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(validationError),
+          backgroundColor: TipoColores.pantone7621C.value,
+        ),
+      );
+      setState(() {
+        _isCreateButtonEnabled = false;
+      });
+      return;
+    }
+
     // Validar que todos los campos obligatorios estén llenos
     final bool isAsuntoNotEmpty =
         (_asuntoController.text.trim().isNotEmpty &&
@@ -183,8 +204,7 @@ class _CreateMeetingState extends State<CreateMeeting> {
     final bool isDescriptionNotEmpty =
         (_descriptionController.text.trim().isNotEmpty &&
         _descriptionController.text != '');
-    final bool isSchedulesValid =
-        _validateSchedules(); // Llama a la nueva función de validación
+    final bool isSchedulesValid = _validateSchedules() == null;
     final bool isLeaderSelected =
         _selectedMeetType != 'Reunión administrativa' ||
         _selectedLeadingUser != null;
@@ -198,7 +218,9 @@ class _CreateMeetingState extends State<CreateMeeting> {
           isSchedulesValid &&
           isLeaderSelected;
 
-      print('Encuentro: $_isCreateButtonEnabled');
+      print('Encuentro: $_selectedMeet');
+      print('Asunto: $isAsuntoNotEmpty');
+      print('Descripción: $isDescriptionNotEmpty');
       print('Participantes: $_addParticipants');
       print('Horarios válidos: $isSchedulesValid');
       print('Líder seleccionado: $isLeaderSelected');
@@ -242,7 +264,10 @@ class _CreateMeetingState extends State<CreateMeeting> {
           body: SingleChildScrollView(
             child: Padding(
               padding: const EdgeInsets.all(20.0),
-              child: _portraitLayout(),
+              child: Builder(
+                builder: (final BuildContext builderContext) =>
+                    _portraitLayout(),
+              ),
             ),
           ),
         ),
@@ -349,6 +374,7 @@ class _CreateMeetingState extends State<CreateMeeting> {
                     return;
                   }
                   context.pop();
+                  _validatorButtonCreate();
                 },
 
                 showSearchBar: true,
@@ -356,7 +382,6 @@ class _CreateMeetingState extends State<CreateMeeting> {
                 initialSelectedIDs: _selectedParticipantId,
               );
             }
-            _validatorButtonCreate();
           },
         ),
         // Espacio de selección del líder del encuentro
@@ -394,12 +419,12 @@ class _CreateMeetingState extends State<CreateMeeting> {
                     return;
                   }
                   context.pop();
+                  _validatorButtonCreate();
                 },
                 showButtonCard: true,
                 infoShowCards: myParticipants,
                 initialSelectedIDs: _selectedLeaderId,
               );
-              _validatorButtonCreate();
             },
           ),
         ],
@@ -431,7 +456,7 @@ class _CreateMeetingState extends State<CreateMeeting> {
           return _buildScheduleWidget(index);
         }),
         // Botón "Agregar nuevo horario" después de todos los horarios
-        if (_selectedMeetType != 'Clases académicas')
+        if (_selectedMeetType != 'Clases académicas' && _schedules.length < 3)
           CustomButton(
             color: TipoColores.pantone663C,
             colorIcon: TipoColores.pantoneBlackC,
@@ -439,10 +464,23 @@ class _CreateMeetingState extends State<CreateMeeting> {
             icon: Icons.calendar_month,
             width: MediaQuery.of(context).size.width * 0.90,
             onPressed: () {
-              setState(() {
-                _schedules.add(ScheduleData());
-              });
-              _validatorButtonCreate();
+              if (_validateSchedules() != null) {
+                // Si hay un error de validación en los campos del horario
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: const Text(
+                      'Faltan campos obligatorios en el horario o no son válidos.',
+                    ),
+                    backgroundColor: TipoColores.pantone7621C.value,
+                  ),
+                );
+              } else {
+                // Si no hay errores, se agrega un nuevo horario.
+                setState(() {
+                  _schedules.add(ScheduleData());
+                  _validatorButtonCreate();
+                });
+              }
             },
           ),
         // Espacio para decidir si se quiere generar acta
@@ -619,14 +657,15 @@ class _CreateMeetingState extends State<CreateMeeting> {
                     ..selectedLocationID = selectedCards.isNotEmpty
                         ? selectedCards.first['id']
                         : null;
+                  _validatorButtonCreate();
                 });
-                _validatorButtonCreate();
                 if (!context.mounted) {
                   return;
                 }
                 context.pop();
               },
               title: 'Seleccionar ubicación',
+              searchHintText: 'Escribe el nombre de la ubicación...',
               showButtonCard: true,
               showSearchBar: true,
               infoShowCards: myLocations,
@@ -653,8 +692,8 @@ class _CreateMeetingState extends State<CreateMeeting> {
               currentSchedule
                 ..selectedRepeat = newValue!
                 ..repeat = newValue != 'Nunca';
+              _validatorButtonCreate();
             });
-            _validatorButtonCreate();
           },
         ),
         if (currentSchedule.repeat) ...[
@@ -679,8 +718,8 @@ class _CreateMeetingState extends State<CreateMeeting> {
           onChanged: (final newValue) {
             setState(() {
               currentSchedule.selectedTime = newValue!;
+              _validatorButtonCreate();
             });
-            _validatorButtonCreate();
           },
         ),
         const SizedBox(height: 15),
@@ -785,8 +824,8 @@ class _CreateMeetingState extends State<CreateMeeting> {
         } else {
           _schedules[index].endDate = pickedDate;
         }
+        _validatorButtonCreate();
       });
-      _validatorButtonCreate();
     }
   }
 
@@ -822,8 +861,8 @@ class _CreateMeetingState extends State<CreateMeeting> {
         } else {
           _schedules[index].endTime = pickedTime;
         }
+        _validatorButtonCreate();
       });
-      _validatorButtonCreate();
     }
   }
 }
