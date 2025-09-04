@@ -21,6 +21,55 @@ class MyMeets extends StatefulWidget {
 }
 
 class _MyMeetsState extends State<MyMeets> {
+  /// Variable para saber si hay encuentros creados
+  final List<Map<String, dynamic>> currentMeets = [
+    {
+      'id': 1,
+      'hour': TimeOfDay.now(),
+      'title': 'Clase diseño de base de datos',
+      'description': 'Clase diseño de base de datos lunes y martes...',
+    },
+    {
+      'id': 2,
+      'hour': TimeOfDay.now(),
+      'title': 'Clase administración de base de datos Grupo 1',
+      'description': 'Clase administración de base de datos martes y jueves...',
+    },
+    {
+      'id': 3,
+      'hour': TimeOfDay.now(),
+      'title': 'Clase administración de base de datos Grupo 2',
+      'description': 'Clase administración de base de datos lunes y jueves...',
+    },
+    {
+      'id': 4,
+      'hour': TimeOfDay.now(),
+      'title': 'Clase diseño de base de datos',
+      'description': 'Clase diseño de base de datos lunes y martes...',
+    },
+    {
+      'id': 5,
+      'hour': TimeOfDay.now(),
+      'title': 'Clase administración de base de datos Grupo 1',
+      'description': 'Clase administración de base de datos martes y jueves...',
+    },
+    {
+      'id': 6,
+      'hour': TimeOfDay.now(),
+      'title': 'Clase administración de base de datos Grupo 2',
+      'description': 'Clase administración de base de datos lunes y jueves...',
+    },
+    {
+      'id': 7,
+      'hour': TimeOfDay.now(),
+      'title': 'Clase diseño de base de datos',
+      'description': 'Clase diseño de base de datos lunes y martes...',
+    },
+  ];
+
+  /// Getter para verificar si hay encuentros
+  bool get hasMeets => currentMeets.isNotEmpty;
+
   @override
   // ignore: prefer_expression_function_bodies
   Widget build(final BuildContext context) {
@@ -44,7 +93,6 @@ class _MyMeetsState extends State<MyMeets> {
               return;
             }
             context.goNamed(RouteNames.home);
-            print('Saliendo de mis reuniones');
           },
           backgroundColor:
               TipoColores.pantone356C.value, // Color de fondo de la AppBar
@@ -81,33 +129,91 @@ class _MyMeetsState extends State<MyMeets> {
     );
   }
 
-  Widget _portraitLayout() => Center(
-    child: Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Expanded(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.warning_rounded,
-                size: 50,
-                color: TipoColores.pantoneBlackC.value,
-              ),
-              const SizedBox(height: 20),
-              Text(
-                'No tiene encuentros creados.',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w400,
-                  color: TipoColores.pantoneBlackC.value,
-                ),
-              ),
-            ],
-          ),
+  Widget _portraitLayout() => hasMeets ? showActiveMeets() : hasntMeets();
+
+  /// ### Widget que muestra los encuentros existentes
+  Widget showActiveMeets() => Column(
+    children: [
+      Expanded(
+        child: Column(
+          children: [
+            ...currentMeets.asMap().entries.map((final entry) {
+              final meet = entry.value; // Accedemos a la reunión actual
+              // Variable para los datos del encuentro seleccionado
+              final meetData = {
+                'title': meet['title'].toString(),
+                'hourAndDate': '${meet['hour'].hour}:${meet['hour'].minute}',
+              };
+              return Column(
+                children: [
+                  CustomMeetCard(
+                    hourAndDate: '${meet['hour'].hour}:${meet['hour'].minute}',
+                    title: meet['title'].toString(),
+                    description: meet['description'].toString(),
+                    actionCard: () {
+                      if (!mounted) {
+                        return;
+                      }
+                      debugPrint('Enviando datos: $meetData');
+                      context.goNamed(RouteNames.generateQR, extra: meetData);
+                    },
+                    showButtonDelete: true,
+                    onDeletePressed: () {
+                      CustomAlertDialog.show(
+                        context,
+                        title: 'Eliminar encuentro',
+                        message:
+                            '¿Está seguro que desea eliminar este encuentro? Esta acción no se puede deshacer.',
+                        confirmButtonText: 'Eliminar',
+                        cancelButtonText: 'Cancelar',
+                        colorButtonConfirm: TipoColores.pantone7621C,
+                        onConfirm: () {
+                          setState(() {
+                            currentMeets.removeAt(entry.key);
+                          });
+                          if (!context.mounted) {
+                            return;
+                          }
+                          context.pop();
+                        },
+                        onCancel: () {
+                          if (!context.mounted) {
+                            return;
+                          }
+                          context.pop();
+                        },
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 15),
+                ],
+              );
+            }),
+          ],
         ),
-      ],
-    ),
+      ),
+    ],
+  );
+
+  /// ### Widget que muestra un aviso de que el usuario no tiene encuentros creados
+  Widget hasntMeets() => Column(
+    mainAxisAlignment: MainAxisAlignment.center,
+    children: [
+      Icon(
+        Icons.warning_rounded,
+        size: 50,
+        color: TipoColores.pantoneBlackC.value,
+      ),
+      const SizedBox(height: 20),
+      Text(
+        'No tiene encuentros creados.',
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          fontSize: 20,
+          fontWeight: FontWeight.w400,
+          color: TipoColores.pantoneBlackC.value,
+        ),
+      ),
+    ],
   );
 }

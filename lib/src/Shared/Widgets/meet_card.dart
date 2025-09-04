@@ -16,7 +16,7 @@ class CustomMeetCard extends StatelessWidget {
     required this.hourAndDate,
     required this.title,
     required this.description,
-    this.showButton = false,
+    this.showButtonDelete = false,
     required this.actionCard,
     this.onDeletePressed,
     this.actionIcon = Icons.delete,
@@ -41,7 +41,7 @@ class CustomMeetCard extends StatelessWidget {
   final String description;
 
   /// Indica si se debe mostrar el botón
-  final bool showButton;
+  final bool showButtonDelete;
 
   /// El icono que se muestra en la parte derecha de la tarjeta.
   final IconData? actionIcon;
@@ -141,7 +141,7 @@ class CustomMeetCard extends StatelessWidget {
   );
 
   Widget? _buttonDelete() {
-    if (showButton) {
+    if (showButtonDelete) {
       return InkWell(
         onTap: onDeletePressed,
         child: Container(

@@ -126,10 +126,14 @@ class _CustomTextFieldState extends State<CustomTextField> {
         ),
         border: const UnderlineInputBorder(), // Borde por defecto
         // Contador de caracteres
-        counterText: widget.showCounter
-            ? widget.maxLength != null
-                  ? '${widget.controller?.text.length ?? 0}/${widget.maxLength}'
-                  : null
+        counterText: widget.showCounter ? null : '',
+        counter: widget.showCounter && widget.maxLength != null
+            ? Text(
+                '${widget.controller?.text.length}/${widget.maxLength}',
+                style: TextStyle(
+                  color: _isFocused ? activeColor : inactiveColor,
+                ),
+              )
             : null,
       ),
     );

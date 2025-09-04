@@ -63,6 +63,7 @@ class _RegisterQRState extends State<RegisterQR> {
   @override
   Widget build(final BuildContext context) => PopScope(
     canPop: false,
+    // ignore: deprecated_member_use
     onPopInvoked: (final bool didPop) {
       if (didPop) {
         return;

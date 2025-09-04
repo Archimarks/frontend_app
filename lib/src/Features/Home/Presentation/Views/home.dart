@@ -64,6 +64,7 @@ class _HomeState extends State<Home> {
       for (final jsonCard in rawCards) {
         try {
           allCards.add(CardInfo.fromJson(jsonCard));
+        // ignore: avoid_catches_without_on_clauses
         } catch (e) {
           debugPrint('Error al parsear tarjeta individual: $e');
         }
@@ -89,6 +90,7 @@ class _HomeState extends State<Home> {
         filteredCards = tempFilteredCards;
         isLoading = false;
       });
+    // ignore: avoid_catches_without_on_clauses
     } catch (e) {
       debugPrint('Error al cargar o parsear el JSON: $e');
       setState(() {
@@ -100,8 +102,11 @@ class _HomeState extends State<Home> {
   @override
   Widget build(final BuildContext context) => PopScope(
     canPop: false,
+      // ignore: deprecated_member_use
       onPopInvoked: (final bool didPop) {
-      if (didPop) return;
+      if (didPop) {
+        return;
+      }
       },
       child: Scaffold(
       backgroundColor: TipoColores.seasalt.value,
@@ -109,7 +114,9 @@ class _HomeState extends State<Home> {
           context: context,
           title: 'Encuentros',
         onLeadingPressed: () {
-          if (!context.mounted) return;
+          if (!context.mounted) {
+            return;
+          }
             context.goNamed(RouteNames.login);
           },
         backgroundColor: TipoColores.pantone356C.value,
@@ -136,7 +143,9 @@ class _HomeState extends State<Home> {
               title: card.titulo,
               description: card.descripcion,
               actionCard: () {
-                if (!context.mounted || card.route == null) return;
+                if (!context.mounted || card.route == null) {
+                  return;
+                }
 
                 debugPrint('Se hizo clic en: ${card.titulo}');
                 context.goNamed(card.route!);

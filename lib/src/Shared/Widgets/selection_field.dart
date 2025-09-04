@@ -24,7 +24,7 @@ class CustomSelectionField extends StatefulWidget {
 
   final String title;
   final String? displayValue;
-  final VoidCallback onPressed;
+  final VoidCallback? onPressed;
   final IconData? prefixIcon;
   final TipoColores iconColor;
   final TipoColores backgroundColor;

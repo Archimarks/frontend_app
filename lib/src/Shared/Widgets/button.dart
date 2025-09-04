@@ -133,12 +133,12 @@ class CustomButton extends StatelessWidget {
 
   /// Método para centralizar el estilo del botón y mejorar la modularidad.
   ButtonStyle _buttonStyle() => ElevatedButton.styleFrom(
-      backgroundColor: enabled
-          ? color.value
-          : disabledColor?.value ??
-                TipoColores
-                    .pantoneCool
-                    .value, // Usa el color específico o un gris
+    backgroundColor: color.value, // Usa el color específico
+    disabledBackgroundColor:
+        disabledColor?.value ??
+        TipoColores
+            .pantoneCool
+            .value, // Usa el color específico o un gris si es nulo
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(borderRadius),
