@@ -22,6 +22,8 @@ import '../../Features/Home/Presentation/Views/home.dart';
 import '../../Features/Login/Presentation/Views/login_view.dart';
 import '../../Features/Meets/Presentation/Views/meets_view.dart';
 import '../../Features/Register_attendance/Presentation/Views/register_attendance_view.dart';
+import '../../Features/Register_attendance/Presentation/Views/register_manual_attendance.dart';
+import '../../Features/Register_attendance/Presentation/Views/register_qr.dart';
 import '../../Features/Reports_meets/Presentation/Views/reports_meets_view.dart';
 import 'route_names.dart';
 
@@ -89,10 +91,22 @@ GoRoute(
     },
   ),
 
-  // Ruta comentada de ejemplo para futuras implementaciones:
-  // GoRoute(
-  //   path: '/home',
-  //   name: RouteNames.home,
-  //   builder: (context, state) => const HomePage(),
-  // ),
+  GoRoute(
+    path: '/scanerQR',
+    name: RouteNames.scanerQR,
+    builder: (final context, final state) {
+      // Extraemos los datos de `state.extra`
+      final meetData = state.extra as Map<String, String>;
+      final title = meetData['title']!;
+      final hourAndDate = meetData['hourAndDate']!;
+
+      return RegisterQR(title: title, hourAndDate: hourAndDate);
+    },
+  ),
+
+  GoRoute(
+    path: '/registerManual',
+    name: RouteNames.registerManual,
+    builder: (final context, final state) => const RegisterManualAttendance(),
+  ),
 ];

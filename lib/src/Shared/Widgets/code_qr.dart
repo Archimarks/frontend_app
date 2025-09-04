@@ -22,11 +22,12 @@ class CodeQR extends StatelessWidget {
         QrImageView(
           data: data, // El parámetro que se usará para generar el QR
           version: 8, // Define la versión del QR
-          size: MediaQuery.of(context).size.width * 0.80, // Tamaño del QR
+        size: MediaQuery.of(context).size.width * 0.85, // Tamaño del QR
           gapless: false, // Evita los espacios en blanco
           embeddedImage: const AssetImage('assets/images/UdlaColor.png'),
           embeddedImageStyle: QrEmbeddedImageStyle(size: Size(MediaQuery.of(context).size.width *
-              0.05, MediaQuery.of(context).size.height * 0.05,
+              0.10,
+            MediaQuery.of(context).size.height * 0.07,
           )), // Imagen embebida en el centro del QR
           errorStateBuilder: (final cxt, final err) => const Center(
               child: Text(

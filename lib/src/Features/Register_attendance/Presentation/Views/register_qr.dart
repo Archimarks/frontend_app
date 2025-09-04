@@ -47,20 +47,6 @@ class _RegisterQRState extends State<RegisterQR> {
   ];
 
   @override
-  void initState() {
-    super.initState();
-    getRolUsuario();
-  }
-
-  Future<void> getRolUsuario() async {
-    /*final prefs = await SharedPreferences.getInstance();
-    rolApp = prefs.getString('rol')?.toLowerCase() ?? '';
-    debugPrint('Rol obtenido de preferencias: $rolApp');*/
-    rolApp = 'Administrativo'; // SOLO DE PRUEBA
-    debugPrint('Rol obtenido de preferencias: $rolApp');
-  }
-
-  @override
   Widget build(final BuildContext context) => PopScope(
     canPop: false,
     // ignore: deprecated_member_use
@@ -78,7 +64,7 @@ class _RegisterQRState extends State<RegisterQR> {
           if (!context.mounted) {
             return;
           }
-          context.goNamed(RouteNames.attendMeet);
+          context.goNamed(RouteNames.register);
         },
         backgroundColor: TipoColores.pantone356C.value,
         leadingIconColor: TipoColores.seasalt.value,
@@ -97,7 +83,7 @@ class _RegisterQRState extends State<RegisterQR> {
     ),
   );
 
-  // Método para el contenido principal
+  /// Método para el contenido principal
   Widget _mainContent() => Column(
     crossAxisAlignment: CrossAxisAlignment.stretch,
     children: [
@@ -116,23 +102,57 @@ class _RegisterQRState extends State<RegisterQR> {
         textAlign: TextAlign.center,
         style: TextStyle(fontSize: 15, color: TipoColores.gris.value),
       ),
-      // ... aquí puedes añadir otros widgets que irían arriba
+      const SizedBox(height: 30),
+      ScanQr(
+        onScan: (final onScan) async {
+          if (onScan.isNotEmpty && context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(' Asistencia registrada para $onScan'),
+                backgroundColor: TipoColores.pantone7621C.value,
+              ),
+            );
+            // Esperar un momento antes de cerrar
+            await Future.delayed(const Duration(seconds: 2));
+            if (context.mounted) {
+              // ignore: use_build_context_synchronously
+              context.pop();
+            }
+          }
+        },
+      ),
+      const SizedBox(height: 20),
+      Text(
+        'Coloque el código dentro del recuadro para registrar la asistencia.',
+        textAlign: TextAlign.center,
+        style: TextStyle(fontSize: 15, color: TipoColores.pantoneBlackC.value),
+      ),
     ],
   );
 
-  // Método para el selector de delegado
-  Widget _selectManualRegister() => Row(
-      children: [
-            Text(
-        widget.hourAndDate,
+  // Botón para registrar asistencia manualmente
+  Widget _selectManualRegister() => Column(
+    mainAxisSize: MainAxisSize.min,
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      Text(
+        'Invitados registrados  1/2',
         textAlign: TextAlign.center,
-        style: TextStyle(fontSize: 15, color: TipoColores.gris.value),
+        style: TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.w500,
+          color: TipoColores.pantoneBlackC.value,
+        ),
       ),
-    CustomButton(color: TipoColores.pantone158C,
-    text: 'Registrar asistencia manualmente',
-    onPressed: () {
-
-    },),
-      ],
-    );
+      const SizedBox(height: 15),
+      CustomButton(
+        color: TipoColores.pantone158C,
+        text: 'Registrar asistencia manualmente',
+        width: double.infinity,
+        onPressed: () {
+          context.goNamed(RouteNames.registerManual);
+        },
+      ),
+    ],
+  );
 }

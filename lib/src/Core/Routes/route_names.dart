@@ -39,4 +39,10 @@ abstract class RouteNames {
 
   /// Nombre de la ruta para la vista de generación de QR.
   static const generateQR = 'generateQR';
+
+  /// Nombre de la ruta para la vista de escaneo de QR.
+  static const scanerQR = 'scanerQR';
+
+  /// Nombre de la ruta para la vista de registro manual.
+  static const registerManual = 'registerManual';
 }

@@ -33,3 +33,5 @@ export '../../Shared/Widgets/selection_field.dart';
 export '../../Shared/Widgets/text_field.dart';
 // Widget de tarjeta para mostrar información de los usuarios personalizada
 export '../../Shared/Widgets/users_card.dart';
+// Widget para escanear códigos QR
+export '../../Shared/Widgets/scan_qr.dart';

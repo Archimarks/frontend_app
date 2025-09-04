@@ -10,7 +10,7 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-
+import 'package:intl/intl.dart';
 import '../../../../Core/Barrels/enums_barrel.dart';
 import '../../../../Core/Barrels/widgets_shared_barrel.dart';
 import '../../../../Core/Routes/route_names.dart';
@@ -98,7 +98,7 @@ class _AttendMeetingState extends State<AttendMeeting> {
       Padding(
         padding: const EdgeInsets.symmetric(vertical: 10),
         child: Text(
-          'Encuentros del día ${currentDay.day} de ${currentDay.month.toString()}',
+          'Encuentros del día ${currentDay.day} de ${DateFormat.MMMM().format(currentDay)}',
           textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: 20,

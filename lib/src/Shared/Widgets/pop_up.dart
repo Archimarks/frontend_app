@@ -351,7 +351,7 @@ class _CustomPopUpState extends State<CustomPopUp> {
               // Obtenemos el id de la tarjeta actual en la lista filtrada
               final String? currentId = _filteredInformation[index]['id'];
 
-              // Verificar si este Id está en la lista de emails seleccionados
+              // Verificar si este Id está en la lista de textos seleccionados
               // Esto mantendrá la consistencia entre las listas filtradas y no filtradas
               final bool isSelected = _getSelectedId().contains(currentId);
 

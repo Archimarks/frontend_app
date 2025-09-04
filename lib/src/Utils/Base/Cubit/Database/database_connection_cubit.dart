@@ -15,7 +15,6 @@ library;
 import 'dart:async';
 
 import 'package:bloc/bloc.dart';
-import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 import '../../../../Core/Barrels/configs_barrel.dart';

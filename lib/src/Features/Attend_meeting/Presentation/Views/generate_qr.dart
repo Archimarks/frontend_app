@@ -26,6 +26,8 @@ class GenerateQR extends StatefulWidget {
 
 class _GenerateQRState extends State<GenerateQR> {
   String rolApp = '';
+  /// Texto para el QR (nombre del grupo - fecha actual)
+  String _textQR = '';
   List<String> _selectedDelegateId = [];
   String? _selectedDelegate; // Variable para almacenar al delegado seleccionado
   final List<Map<String, String>> myParticipants = [
@@ -51,6 +53,8 @@ class _GenerateQRState extends State<GenerateQR> {
   void initState() {
     super.initState();
     getRolUsuario();
+    final now = DateTime.now();
+    _textQR = '${widget.title} - ${now.day}/${now.month}/${now.year}';
   }
 
   /// Obtener rol del usuario desde SharedPreferences
@@ -90,7 +94,7 @@ class _GenerateQRState extends State<GenerateQR> {
             // Contenido principal que puede desplazarse si es necesario
             Expanded(child: SingleChildScrollView(child: _mainContent())),
             // Widget inferior que permanece fijo abajo
-            if (rolApp == 'Administrativo') _selectDelegate(),
+            if (rolApp == 'ADMINISTRATIVO') _selectDelegate(),
           ],
         ),
       ),
@@ -116,8 +120,8 @@ class _GenerateQRState extends State<GenerateQR> {
         textAlign: TextAlign.center,
         style: TextStyle(fontSize: 15, color: TipoColores.gris.value),
       ),
-      const SizedBox(height: 20),
-      CodeQR(data: widget.title),
+      const SizedBox(height: 30),
+      CodeQR(data: _textQR),
       const SizedBox(height: 20),
       Text(
         'Coloque el código dentro del escáner para registrar su asistencia.',
