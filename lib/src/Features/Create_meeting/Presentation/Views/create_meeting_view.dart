@@ -22,27 +22,81 @@ class CreateMeeting extends StatefulWidget {
 }
 
 class _CreateMeetingState extends State<CreateMeeting> {
-  bool _isCreateButtonEnabled =
-      false; // Variable para manejar el estado del botón de crear encuentro
-  bool _addParticipants =
-      false; // Variable para manejar si se han agregado participantes
-  bool _selectedMeet =
-      false; // Variable para manejar el estado de selección de un encuentro
-  String? _selectedMeetType; // Tipo de encuentro seleccionado por defecto
-  bool _selectedRolUser =
-      false; // Variable para manejar el estado de selección del rol al que va dirigido el entrenamiento
-  String? _selectedTypeRolUser; // Tipo de rol seleccionado por defecto
-  /// Lista de tipos de encuentros disponibles
+  // ---------------------------------------------------------------------------
+  // Estados principales del formulario
+  // ---------------------------------------------------------------------------
+
+  /// Indica si el botón de "Crear encuentro" está habilitado
+  bool _isCreateButtonEnabled = false;
+
+  /// Indica si se han agregado participantes
+  bool _addParticipants = false;
+
+  /// Indica si ya se seleccionó un tipo de encuentro
+  bool _selectedMeet = false;
+
+  /// Indica el tipo de encuentro seleccionado
+  String? _selectedMeetType;
+
+  /// Indica si se seleccionó un rol de usuario
+  bool _selectedRolUser = false;
+
+  /// Tipo de rol de usuario seleccionado
+  String? _selectedTypeRolUser;
+
+  /// Indica si se debe generar acta
+  bool certificate = false;
+
+  /// Indica si el encuentro es repetitivo
+  bool repeat = false;
+
+  /// Indica si se seleccionó tiempo permitido
+  bool time = false;
+
+  // ---------------------------------------------------------------------------
+  // Controladores de texto
+  // ---------------------------------------------------------------------------
+
+  /// Controlador del campo "Asunto"
+  late final TextEditingController _asuntoController;
+
+  /// Controlador del campo "Descripción"
+  late final TextEditingController _descriptionController;
+
+  // ---------------------------------------------------------------------------
+  // Selecciones y asignaciones de usuario
+  // ---------------------------------------------------------------------------
+
+  /// ID del líder seleccionado para el encuentro
+  String? _selectedLeadingUser;
+
+  /// IDs de participantes seleccionados
+  List<String> _selectedParticipantId = [];
+
+  /// ID de grupo seleccionado (Debe recibir solo un valor)
+  List<String> _selectedGroupId = [];
+
+  /// ID de líder seleccionado (Debe recibir solo un valor)
+  List<String> _selectedLeaderId = [];
+
+  /// Participantes agregados
+  List<Map<String, String>> addedParticipants = [];
+
+  // ---------------------------------------------------------------------------
+  // Listas temporales (luego serán reemplazadas por datos de la API)
+  // ---------------------------------------------------------------------------
+
+  /// Tipos de encuentros disponibles
   final List<String> _encounterTypes = [
     'Reunión administrativa',
     'Clases académicas',
     'Entrenamiento de equipos',
   ];
 
-  /// Lista de roles para los invitados de los entrenamientos
+  /// Roles de usuario invitados
   final List<String> _rolUser = ['Docentes', 'Administrativos', 'Estudiantes'];
 
-  /// Lista de tipos de tiempo disponibles
+  /// Opciones de duración de los encuentros
   final List<String> _optionsTime = [
     '15 minutos',
     '30 minutos',
@@ -52,16 +106,7 @@ class _CreateMeetingState extends State<CreateMeeting> {
     '3 horas',
   ];
 
-  /// Variable que indica si se va a generar acta (true) o no (false por defecto)
-  bool certificate = false;
-
-  /// Variable que indica si el encuentro se repite (true) o no (false por defecto)
-  bool repeat = false;
-
-  /// Variable que indica si se seleccionó tiempo permitido (true) o no (false por defecto)
-  bool time = false;
-
-  /// Lista de tipos de repetición disponibles
+  /// Opciones de repetición de los encuentros
   final List<String> _optionsRepeat = [
     'Nunca',
     'Cada día',
@@ -69,13 +114,8 @@ class _CreateMeetingState extends State<CreateMeeting> {
     'Cada semana',
     'Cada mes',
   ];
-  late final TextEditingController
-  _asuntoController; // Controlador para el campo de asunto
-  late final TextEditingController
-  _descriptionController; // Controlador para el campo de descripción
-  String?
-  _selectedLeadingUser; // Variable para almacenar al líder del encuentro
-  // Lista de todos los usuarios
+
+  /// Lista de todas las personas disponibles
   final List<Map<String, String>> allPerson = [
     {
       'id': '1',
@@ -94,35 +134,28 @@ class _CreateMeetingState extends State<CreateMeeting> {
     },
     // ... más participantes
   ];
-  // Lista de ubicaciones
+
+  /// Lista de ubicaciones disponibles
   final List<Map<String, String>> myLocations = [
-    {
-      'id': '1',
-      'textMain':
-          'CAMPUS ALBANIA: SEDE ALBANIA COLEGIO DE ESTA LOCALIDAD: ALABINA-NO SNIES',
-    },
-    {
-      'id': '2',
-      'textMain':
-          'CAMPUS ALTAMIRA: COLEGIO EN CALIDAD DE PRESTAMO PARA DICTAR CLASES: COL01',
-    },
+    {'id': '1', 'textMain': 'CAMPUS ALBANIA: SEDE ALBANIA...'},
+    {'id': '2', 'textMain': 'CAMPUS ALTAMIRA: COLEGIO...'},
     {'id': '3', 'textMain': 'CAMPUS CENTRO: BLOQUE DE AULAS: BIENESTAR'},
     {'id': '4', 'textMain': 'CAMPUS CENTRO: BLOQUE DE AULAS: CANCHA DE FUTBOL'},
   ];
-  // Lista de grupos
+
+  /// Lista de grupos disponibles
   final List<Map<String, String>> groups = [
     {'id': '1', 'textMain': 'Diseño de Base de Datos Grupo 1'},
     {'id': '2', 'textMain': 'Administración de base de Datos Grupo 1'},
     {'id': '4', 'textMain': 'Administración de base de Datos Grupo 2'},
   ];
-  // Lista de usuarios agregados
-  List<Map<String, String>> addedParticipants = [];
-  // Lista para almacenar los horarios
+
+  // ---------------------------------------------------------------------------
+  // Horarios
+  // ---------------------------------------------------------------------------
+
+  /// Lista de horarios creados para el encuentro
   final List<ScheduleData> _schedules = [ScheduleData()];
-  // Variables para almacenar las selecciones de los pop-ups
-  List<String> _selectedParticipantId = [];
-  List<String> _selectedGroupId = [];
-  List<String> _selectedLeaderId = [];
 
   @override
   void initState() {
