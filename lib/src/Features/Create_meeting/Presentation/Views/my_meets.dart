@@ -129,10 +129,10 @@ class _MyMeetsState extends State<MyMeets> {
     );
   }
 
-  Widget _portraitLayout() => hasMeets ? showActiveMeets() : hasntMeets();
+  Widget _portraitLayout() => hasMeets ? _showActiveMeets() : _hasntMeets();
 
   /// ### Widget que muestra los encuentros existentes
-  Widget showActiveMeets() => Column(
+  Widget _showActiveMeets() => Column(
     children: [
       Expanded(
         child: Column(
@@ -196,7 +196,7 @@ class _MyMeetsState extends State<MyMeets> {
   );
 
   /// ### Widget que muestra un aviso de que el usuario no tiene encuentros creados
-  Widget hasntMeets() => Column(
+  Widget _hasntMeets() => Column(
     mainAxisAlignment: MainAxisAlignment.center,
     children: [
       Icon(

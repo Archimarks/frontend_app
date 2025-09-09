@@ -66,6 +66,25 @@ class _ReportsMeetsState extends State<ReportsMeets> {
     );
   }
 
-  Widget _portraitLayout() =>
-      const Column(crossAxisAlignment: CrossAxisAlignment.stretch);
+  Widget _portraitLayout() => Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      CustomMainCard(
+        title: 'Encuentros como asistente',
+        description: 'Reportes de las veces que ha asistido y a que...',
+        actionCard: () {
+          context.goNamed(RouteNames.allMeets);
+        },
+      ),
+      const SizedBox(height: 15),
+      CustomMainCard(
+        title: 'Encuentros que he realizado',
+        description:
+            'Reportes de los fallas y asistencias de los encuentros que ha realizado.',
+        actionCard: () {
+          context.goNamed(RouteNames.allMeets);
+        },
+      ),
+    ],
+  );
 }

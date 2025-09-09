@@ -1,66 +1,58 @@
 /// ****************************************************************************
-/// ### AttendMeeting
+/// ### Meets
 /// * Fecha: 2025
-/// * Descripción: Vista de selección al encuentro que desea asistir.
+/// * Descripción: Vista de selección del encuentro al cual desea unirse.
 /// * Autores: Geraldine Perilla Valderrama & Marcos Alejandro Collazos Marmolejo
 /// ****************************************************************************
-// ignore_for_file: avoid_dynamic_calls
-
 library;
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 
 import '../../../../Core/Barrels/enums_barrel.dart';
 import '../../../../Core/Barrels/widgets_shared_barrel.dart';
 import '../../../../Core/Routes/route_names.dart';
 
-class AttendMeeting extends StatefulWidget {
-  const AttendMeeting({super.key});
+class AllMeets extends StatefulWidget {
+  const AllMeets({super.key});
 
   @override
-  State<AttendMeeting> createState() => _AttendMeetingState();
+  State<AllMeets> createState() => _AllMeetsState();
 }
 
-class _AttendMeetingState extends State<AttendMeeting> {
-  // Fecha actual para mostrar los encuentros de ese día
-  DateTime currentDay = DateTime.now();
-  // Lista de encuentros
+class _AllMeetsState extends State<AllMeets> {
   final List<Map<String, dynamic>> currentMeets = [
     {
       'id': 1,
-      'hour': TimeOfDay.now(),
-      'title': 'Clase diseño de base de datos',
-      'description': 'Clase diseño de base de datos lunes y martes...',
+      'title': 'Equipo de fútbol estudiantil',
+      'description':
+          'Horario de los entrenamientos: Lunes 07:00 pm - 10:00 pm, Sábado 08:00 am - 12:...',
     },
     {
       'id': 2,
-      'hour': TimeOfDay.now(),
-      'title': 'Clase administración de base de datos Grupo 1',
-      'description': 'Clase administración de base de datos martes y jueves...',
+      'title': 'Equipo de voleibol estudiantil',
+      'description':
+          'Horario de los entrenamientos: Martes 07:00 pm - 10:00 pm, Sábado 08:00 am - 12:...',
     },
     {
       'id': 3,
-      'hour': TimeOfDay.now(),
-      'title': 'Clase administración de base de datos Grupo 2',
-      'description': 'Clase administración de base de datos lunes y jueves...',
+      'title': 'Equipo de bádminton estudiantil',
+      'description':
+          'Horario de los entrenamientos: Martes 06:00 pm - 09:00 pm, Sábado 09:00 am - 12:...',
     },
     {
       'id': 4,
-      'hour': TimeOfDay.now(),
-      'title': 'Clase diseño de base de datos',
-      'description': 'Clase diseño de base de datos lunes y martes...',
+      'title': 'Equipo de danza folclórica',
+      'description':
+          'Horario de los entrenamientos: Martes 07:00 pm - 10:00 pm, Jueves 06:00 pm - 09:...',
     },
     {
       'id': 5,
-      'hour': TimeOfDay.now(),
       'title': 'Clase administración de base de datos Grupo 1',
       'description': 'Clase administración de base de datos martes y jueves...',
     },
     {
       'id': 6,
-      'hour': TimeOfDay.now(),
       'title': 'Clase administración de base de datos Grupo 2',
       'description': 'Clase administración de base de datos lunes y jueves...',
     },
@@ -86,7 +78,7 @@ class _AttendMeetingState extends State<AttendMeeting> {
             TipoColores.seasalt.value, // Color de fondo para toda la vista
         appBar: customAppBar(
           context: context,
-          title: 'Encuentros por asistir',
+          title: 'Unirme a un grupo',
           onLeadingPressed: () async {
             if (!context.mounted) {
               return;
@@ -100,9 +92,13 @@ class _AttendMeetingState extends State<AttendMeeting> {
         ),
         body: Stack(
           children: [
-            Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: _portraitLayout(),
+            /// Contenido central con diseño responsive
+            Align(
+              alignment: Alignment.topCenter,
+              child: Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: _portraitLayout(),
+              ),
             ),
           ],
         ),
@@ -114,31 +110,16 @@ class _AttendMeetingState extends State<AttendMeeting> {
 
   // ### Widget que muestra los encuentros del día
   Widget _showMeets() => ListView.builder(
-    itemCount: currentMeets.length + 1,
+    itemCount: currentMeets.length,
     itemBuilder: (final context, final index) {
-      if (index == 0) {
-        return Padding(
-          padding: const EdgeInsets.only(bottom: 10),
-          child: Text(
-            'Encuentros del día ${currentDay.day} de ${DateFormat.MMMM().format(currentDay)}',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: TipoColores.pantoneBlackC.value,
-            ),
-          ),
-        );
-      }
-      final meet = currentMeets[index - 1];
+      final meet = currentMeets[index];
       final meetData = {
         'title': meet['title'].toString(),
-        'hourAndDate': '${meet['hour'].hour}:${meet['hour'].minute}',
+        'description': meet['description'].toString(),
       };
       return Column(
         children: [
-          CustomMeetCard(
-            hourAndDate: '${meet['hour'].hour}:${meet['hour'].minute}',
+          CustomMainCard(
             title: meet['title'].toString(),
             description: meet['description'].toString(),
             actionCard: () {
@@ -146,7 +127,7 @@ class _AttendMeetingState extends State<AttendMeeting> {
                 return;
               }
               debugPrint('Enviando datos: $meetData');
-              context.goNamed(RouteNames.generateQR, extra: meetData);
+              context.goNamed(RouteNames.infoMeet, extra: meetData);
             },
           ),
           const SizedBox(height: 10),
