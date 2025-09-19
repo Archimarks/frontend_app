@@ -27,7 +27,7 @@ class CustomDropdown extends StatefulWidget {
   final String title;
   final List<String> options;
   final TipoColores dropdownColor;
-  final Function(String?) onChanged;
+  final Function(String?)? onChanged;
   final String? initialValue;
   final IconData? prefixIcon;
   final TipoColores iconColor; // Color para el ícono y el título
@@ -70,12 +70,7 @@ class _CustomDropdownState extends State<CustomDropdown> {
 
     return DropdownButtonFormField<String>(
       value: _selectedValue,
-      onChanged: (final newValue) {
-        setState(() {
-          _selectedValue = newValue;
-        });
-        widget.onChanged(newValue);
-      },
+      onChanged: widget.onChanged,
       decoration: InputDecoration(
         labelText: widget.title,
         labelStyle: labelTextStyle,

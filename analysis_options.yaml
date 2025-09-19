@@ -8,7 +8,7 @@ linter:
     - avoid_classes_with_only_static_members         # Usa mixins o funciones top-level si no hay estado
     - avoid_dynamic_calls                            # Evita errores difíciles de depurar con llamadas dinámicas
     - avoid_empty_else                               # Evita bloques else vacíos innecesarios
-    - avoid_implementing_value_types                 # Evita implementar tipos de valor (como int, String) directamente 
+    - avoid_implementing_value_types                 # Evita implementar tipos de valor (como int, String) directamente
     - avoid_positional_boolean_parameters            # Usa parámetros nombrados para mayor claridad
     - avoid_print                                    # Usa Logger o debugPrint en lugar de print()
     - avoid_redundant_argument_values                # No pases argumentos con valores por defecto redundantes

@@ -27,8 +27,10 @@ dependencies:
   # 🔄 Gestión de estado
   bloc: ^9.0.0
   flutter_bloc: ^9.1.1
+
   # 🧭 Navegación
   go_router: ^16.0.0
+
   # 🖥️ UI y componentes visuales
 
   # 💾 Almacenamiento local
@@ -39,12 +41,15 @@ dependencies:
   # 🌐 Comunicación con APIs
   http: ^1.4.0
   connectivity_plus: ^6.1.4
+  qr_flutter: ^4.1.0     # Permite crear el codigo QR
+  mobile_scanner: ^6.0.2 # Permite escanear el codigo QR
 
   # 💡 Utilidades para entidades
 
   # 🔐 Autenticación y seguridad
 
   # 🌍 Internacionalización y fechas
+  intl: ^0.19.0 # Para mostrar el nombre del mes en español
 
   # 📷 Multimedia y sensores
 
@@ -81,7 +86,7 @@ flutter:
     # json
     - lib/i18n/Spanish/es_menu.json
     # 🖼️ Imágenes
-    - assets/Images/
+    - assets/images/UdlaColor.png
     # 🔊 Archivos de audio
     - assets/Audio/
     # 🔤 Tipografía
