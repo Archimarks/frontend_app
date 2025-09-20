@@ -37,15 +37,15 @@ class ApiConfig {
   /// Retorna la URL para probar la conexión con Oracle.
   String testConexionOracle() => '$baseUrl/api/_TestConexion/oracle';
 
-  // Traer ubicaciones
-  String getUbicaciones() => '$baseUrl/api/oracle/ubicaciones';
-
   // Traer usuarios
   String getUsuarios(final String palabra) => '$baseUrl/api/Usuario/similitud/$palabra';
 
   // Traer grupos que tiene asignado un docente
   String getGruposDocente() =>
       '$baseUrl/api/oracle/GrupoAsignado/TraerGruposAsignados';
+
+  // Traer ubicaciones
+  String getUbicaciones() => '$baseUrl/api/oracle/ubicaciones';
 
   // Traer tipos de repetición de los encuentros
   String getRepeticion() =>

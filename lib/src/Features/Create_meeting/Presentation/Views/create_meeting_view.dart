@@ -15,7 +15,9 @@ import '../../../../Core/Barrels/configs_barrel.dart';
 import '../../../../Core/Barrels/enums_barrel.dart';
 import '../../../../Core/Barrels/widgets_shared_barrel.dart';
 import '../../../../Core/Routes/route_names.dart';
+import '../../Domain/Models/grupos_data.dart';
 import '../../Domain/Models/schedule_data.dart';
+import '../../Domain/Models/schedule_parser_data.dart';
 import '../../Domain/Service/grupos_service.dart';
 import '../../Domain/Service/repeticion_service.dart';
 import '../../Domain/Service/tiempo_service.dart';
@@ -139,15 +141,18 @@ class _CreateMeetingState extends State<CreateMeeting> {
   /// Lista de ubicaciones disponibles
   List<Map<String, String>> locations = [];
 
-  /// Lista de grupos disponibles
+  /// Lista de grupos del docente
   List<Map<String, String>> groups = [];
+
+  /// Lista con la información de los grupos
+  List<Grupo> infoGroups = [];
 
   // ---------------------------------------------------------------------------
   // Horarios
   // ---------------------------------------------------------------------------
 
   /// Lista de horarios creados para el encuentro
-  final List<ScheduleData> _schedules = [ScheduleData()];
+  List<ScheduleData> _schedules = [];
 
   @override
   void initState() {
@@ -180,7 +185,15 @@ class _CreateMeetingState extends State<CreateMeeting> {
         pegeld: int.parse(pege),
       );
       setState(() {
-        groups = data;
+        infoGroups = data;
+        groups = data
+            .map(
+              (final grupo) => {
+                'id': grupo.id.toString(),
+                'textMain': '${grupo.materia} - ${grupo.grupo}',
+              },
+            )
+            .toList();
       });
       // ignore: avoid_catches_without_on_clauses
     } catch (e) {
@@ -338,6 +351,40 @@ class _CreateMeetingState extends State<CreateMeeting> {
     });
   }
 
+  /// Guardar horarios del grupo
+  void _addGroupSchedules(final Grupo grupo) {
+    final dias =
+        {
+          'lunes': grupo.lunes,
+          'martes': grupo.martes,
+          'miercoles': grupo.miercoles,
+          'jueves': grupo.jueves,
+          'viernes': grupo.viernes,
+          'sabado': grupo.sabado,
+          'domingo': grupo.domingo,
+        }..forEach((final dia, final rawHorario) {
+          final parsed = ScheduleParser.parseScheduleString(rawHorario);
+
+          if (parsed != null) {
+            final schedule = ScheduleData(
+              startDate: DateTime.now(),
+              startTime: parsed.startTime,
+              endTime: parsed.endTime,
+              selectedLocationName: parsed.location,
+              selectedLocationID: grupo.id.toString(),
+              selectedRepeat: 4, // Clase
+              repeat: true,
+            );
+
+            _schedules.add(schedule);
+          }
+        });
+
+    setState(() {
+      _schedules = List.from(_schedules); // Forzar rebuild
+    });
+  }
+
   @override
   // ignore: prefer_expression_function_bodies
   Widget build(final BuildContext context) {
@@ -389,10 +436,21 @@ class _CreateMeetingState extends State<CreateMeeting> {
         onChanged: (final newValue) {
           setState(() {
             _selectedMeetType = newValue!;
-            print(_selectedMeetType);
             _selectedMeet =
                 true; // Actualiza el estado de selección del encuentro
             isClass = _selectedMeetType == '2';
+
+            print(_addParticipants);
+            // Limpiar horarios y demás estados relacionados
+            _schedules.clear();
+            _selectedGroupId.clear();
+            print(_addParticipants);
+            _addParticipants = false;
+
+            if (!isClass) {
+              // Si NO es clase, creo al menos un horario vacío para empezar a editar
+              _schedules.add(ScheduleData());
+            }
           });
           _validatorButtonCreate();
         },
@@ -458,12 +516,24 @@ class _CreateMeetingState extends State<CreateMeeting> {
                   }
                   context.pop();
                 },
-                onCheck: (final List<Map<String, String>> selectedCards) {
+                onCheck: (final List<Map<String, String>> selectedGroup) {
                   setState(() {
-                    _selectedGroupId = selectedCards
-                        .map((final card) => card['id']!)
+                    _selectedGroupId = selectedGroup
+                        .map((final group) => group['id']!)
                         .toList();
-                    _addParticipants = selectedCards.isNotEmpty;
+                    _addParticipants = selectedGroup.isNotEmpty;
+
+                    if (_selectedGroupId.isNotEmpty) {
+                      // Buscar el grupo seleccionado en la lista infoGroups
+                      final infoSelectedGroup = infoGroups.firstWhere(
+                        (final grupo) =>
+                            grupo.id == int.parse(_selectedGroupId.first),
+                      );
+                      // Primero se limpia y luego se agregan los horarios del grupo
+                      _schedules.clear();
+                      // Llamar método para agregar los horarios del grupo
+                      _addGroupSchedules(infoSelectedGroup);
+                    }
                   });
 
                   if (!context.mounted) {
@@ -606,7 +676,7 @@ class _CreateMeetingState extends State<CreateMeeting> {
               } else {
                 // Si no hay errores, se agrega un nuevo horario.
                 setState(() {
-                  _schedules.add(ScheduleData(selectedRepeat: isClass ? 4 : 1));
+                  _schedules.add(ScheduleData());
                   _validatorButtonCreate();
                 });
               }
@@ -686,7 +756,7 @@ class _CreateMeetingState extends State<CreateMeeting> {
 
     return Column(
       children: [
-        // Espacio de selección de la fecha del encuentro
+        // Espacio de titulo del horario
         Container(
           padding: const EdgeInsets.symmetric(vertical: 7, horizontal: 10),
           decoration: BoxDecoration(
@@ -775,7 +845,10 @@ class _CreateMeetingState extends State<CreateMeeting> {
           context: context,
           label: 'Hora inicio',
           initialTimeString: isClass
-              ? TimeOfDay.now().toString()
+              ? ScheduleParser.formatTimeNullable(
+                  currentSchedule.startTime,
+                  context: context,
+                )
               : 'Seleccionar hora',
           time: currentSchedule.startTime,
           onTimePressed: isClass ? null : () => _pickTime(index, true),
@@ -787,7 +860,10 @@ class _CreateMeetingState extends State<CreateMeeting> {
           context: context,
           label: 'Hora final',
           initialTimeString: isClass
-              ? TimeOfDay.now().toString()
+              ? ScheduleParser.formatTimeNullable(
+                  currentSchedule.endTime,
+                  context: context,
+                )
               : 'Seleccionar hora',
           time: currentSchedule.endTime,
           onTimePressed: isClass ? null : () => _pickTime(index, false),

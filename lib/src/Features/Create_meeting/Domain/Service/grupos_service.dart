@@ -5,12 +5,12 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 import '../../../../Core/Configs/api_config.dart';
+import '../Models/grupos_data.dart';
 
 /// Clase encargada de hacer la petición a la API para traer los grupos que tiene un docente
 class GruposService {
-
   /// Método que trae información de los grupos del docente
-  Future<List<Map<String, String>>> fetchGruposDocente({
+  Future<List<Grupo>> fetchGruposDocente({
     required final int pegeld,
     final int periodo = 550,
   }) async {
@@ -29,15 +29,8 @@ class GruposService {
     if (response.statusCode == 200) {
       final List<dynamic> data = json.decode(response.body);
 
-      // Conversión del JSON al formato esperado
-      return data
-          .map<Map<String, String>>(
-            (final grupos) => {
-              'id': grupos['grupO_ID'].toString(),
-              'textMain': '${grupos['materia']} - ${grupos['grupo']}',
-            },
-          )
-          .toList();
+      // Retorna un mapa del modelo de grupos
+      return data.map((final json) => Grupo.fromJson(json)).toList();
     } else {
       throw Exception('Error al cargar grupos: ${response.statusCode}');
     }
