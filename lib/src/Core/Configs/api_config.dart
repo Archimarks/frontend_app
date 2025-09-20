@@ -37,8 +37,23 @@ class ApiConfig {
   /// Retorna la URL para probar la conexión con Oracle.
   String testConexionOracle() => '$baseUrl/api/_TestConexion/oracle';
 
-  // Agregar más métodos según sea necesario:
-  // String login() => '$baseUrl/api/Auth/Login';
+  // Traer ubicaciones
+  String getUbicaciones() => '$baseUrl/api/oracle/ubicaciones';
+
+  // Traer usuarios
+  String getUsuarios(final String palabra) => '$baseUrl/api/Usuario/similitud/$palabra';
+
+  // Traer grupos que tiene asignado un docente
+  String getGruposDocente() =>
+      '$baseUrl/api/oracle/GrupoAsignado/TraerGruposAsignados';
+
+  // Traer tipos de repetición de los encuentros
+  String getRepeticion() =>
+      '$baseUrl/api/sqlserver/Repeticion';
+
+  // Traer tiempo permitido para asistencia
+  String getTime() =>
+      '$baseUrl/api/sqlserver/TiempoAsistencia';
 }
 
 /// Realizar llamadas HTTP GET a los endpoints de prueba de conexión de SQL Server y Oracle.

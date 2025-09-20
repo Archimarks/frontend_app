@@ -11,12 +11,19 @@ import 'src/Core/Routes/app_router.dart';
 class AppWithGlobalListeners extends StatelessWidget {
   const AppWithGlobalListeners({super.key});
 
+  /// Construye la interfaz de la aplicación.
+  /// - Configura las rutas y oculta la etiqueta de depuración.
+  /// - Implementa `GestureDetector` para ocultar el teclado cuando se toca fuera de los campos de texto.
   @override
-  Widget build(final BuildContext context) => MaterialApp.router(
-    // Usa el enrutador definido en la app para manejar la navegación
-    routerConfig: appRouter,
-
-    // Oculta el banner de "debug" en la esquina superior derecha
-    debugShowCheckedModeBanner: false,
+  Widget build(final BuildContext context) => GestureDetector(
+    onTap: () {
+      FocusManager.instance.primaryFocus?.unfocus();
+    },
+    child: MaterialApp.router(
+      // Usa el enrutador definido en la app para manejar la navegación
+      routerConfig: appRouter,
+      // Oculta el banner de "debug" en la esquina superior derecha
+      debugShowCheckedModeBanner: false,
+    ),
   );
 }
