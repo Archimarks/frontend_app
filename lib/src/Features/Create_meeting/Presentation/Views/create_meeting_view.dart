@@ -14,14 +14,13 @@ import 'package:go_router/go_router.dart';
 import '../../../../Core/Barrels/configs_barrel.dart';
 import '../../../../Core/Barrels/enums_barrel.dart';
 import '../../../../Core/Barrels/widgets_shared_barrel.dart';
+import '../../../../Core/Barrels/models_barrel.dart';
 import '../../../../Core/Routes/route_names.dart';
-import '../../Domain/Models/grupos_data.dart';
-import '../../Domain/Models/schedule_data.dart';
-import '../../Domain/Models/schedule_parser_data.dart';
-import '../../Domain/Service/grupos_service.dart';
-import '../../Domain/Service/repeticion_service.dart';
-import '../../Domain/Service/tiempo_service.dart';
-import '../../Domain/Service/ubicacion_service.dart';
+import '../../../../Core/Models/schedule_parser_data.dart';
+import '../../../../Utils/Service/grupos_service.dart';
+import '../../../../Utils/Service/repeticion_service.dart';
+import '../../../../Utils/Service/tiempo_service.dart';
+import '../../../../Utils/Service/ubicacion_service.dart';
 
 class CreateMeeting extends StatefulWidget {
   const CreateMeeting({super.key});
@@ -353,7 +352,8 @@ class _CreateMeetingState extends State<CreateMeeting> {
 
   /// Guardar horarios del grupo
   void _addGroupSchedules(final Grupo grupo) {
-    final dias =
+    // Variable para saber los días del horario del grupo
+    final _ =
         {
           'lunes': grupo.lunes,
           'martes': grupo.martes,

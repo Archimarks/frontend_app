@@ -4,8 +4,8 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 
-import '../../../../Core/Configs/api_config.dart';
-import '../Models/grupos_data.dart';
+import '../../Core/Configs/api_config.dart';
+import '../../Core/Models/grupos_data.dart';
 
 /// Clase encargada de hacer la petición a la API para traer los grupos que tiene un docente
 class GruposService {

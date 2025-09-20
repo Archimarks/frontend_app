@@ -2,7 +2,7 @@
 
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import '../../../../Core/Configs/api_config.dart';
+import '../../Core/Configs/api_config.dart';
 
 /// Clase encargada de hacer la petición a la API para traer las ubicaciones
 class UbicacionService {
