@@ -13,14 +13,11 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../Core/Barrels/configs_barrel.dart';
 import '../../../../Core/Barrels/enums_barrel.dart';
-import '../../../../Core/Barrels/widgets_shared_barrel.dart';
 import '../../../../Core/Barrels/models_barrel.dart';
-import '../../../../Core/Routes/route_names.dart';
+import '../../../../Core/Barrels/services_barrel.dart';
+import '../../../../Core/Barrels/widgets_shared_barrel.dart';
 import '../../../../Core/Models/schedule_parser_data.dart';
-import '../../../../Utils/Service/grupos_service.dart';
-import '../../../../Utils/Service/repeticion_service.dart';
-import '../../../../Utils/Service/tiempo_service.dart';
-import '../../../../Utils/Service/ubicacion_service.dart';
+import '../../../../Core/Routes/route_names.dart';
 
 class CreateMeeting extends StatefulWidget {
   const CreateMeeting({super.key});
@@ -118,24 +115,7 @@ class _CreateMeetingState extends State<CreateMeeting> {
   List<Map<String, String>> _optionsRepeat = [];
 
   /// Lista de todas las personas disponibles
-  final List<Map<String, String>> allPerson = [
-    {
-      'id': '1',
-      'textMain': 'Fredy Antonio Verástegui González',
-      'textSecondary': 'f.verastegui@udla.edu.co',
-    },
-    {
-      'id': '2',
-      'textMain': 'Marcos Alejandro Collazos Marmolejo',
-      'textSecondary': 'marc.collazos@udla.edu.co',
-    },
-    {
-      'id': '3',
-      'textMain': 'Geraldine Perilla Valderrama',
-      'textSecondary': 'g.perilla@udla.edu.co',
-    },
-    // ... más participantes
-  ];
+  List<Map<String, String>> allUsers = [];
 
   /// Lista de ubicaciones disponibles
   List<Map<String, String>> locations = [];
@@ -158,6 +138,7 @@ class _CreateMeetingState extends State<CreateMeeting> {
     super.initState();
     _asuntoController = TextEditingController();
     _descriptionController = TextEditingController();
+    _loadUsers();
     _loadGrupos();
     _loadUbicaciones();
     _loadRepeat();
@@ -174,6 +155,20 @@ class _CreateMeetingState extends State<CreateMeeting> {
   // ****************************************************
   // *             Metodos Privados                     *
   // ****************************************************
+
+  /// Método que asigna los usuarios a una lista local
+  Future<void> _loadUsers() async {
+    try {
+      final data = await UserService().fetchUsers();
+      setState(() {
+        allUsers = data;
+        print(allUsers);
+      });
+      // ignore: avoid_catches_without_on_clauses
+    } catch (e) {
+      debugPrint('Error al cargar los usuarios: $e');
+    }
+  }
 
   /// Método que asigna los grupos a una lista local
   Future<void> _loadGrupos() async {
@@ -576,7 +571,7 @@ class _CreateMeetingState extends State<CreateMeeting> {
                 },
 
                 showSearchBar: true,
-                infoShowCards: allPerson,
+                infoShowCards: allUsers,
                 initialSelectedIDs: _selectedParticipantId,
               );
             }
@@ -621,7 +616,7 @@ class _CreateMeetingState extends State<CreateMeeting> {
                 },
                 showSearchBar: true,
                 showButtonCard: true,
-                infoShowCards: allPerson,
+                infoShowCards: allUsers,
                 initialSelectedIDs: _selectedLeaderId,
               );
             },

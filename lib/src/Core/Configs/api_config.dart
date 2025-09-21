@@ -24,7 +24,7 @@ class ApiConfig {
 
   /// Instancia única de configuración.
   static const ApiConfig instance = ApiConfig._internal(
-    'http://192.168.1.6:5009',
+    'http://192.168.1.7:5009',
   );
 
   /// Retorna la URL para obtener un usuario por su correo electrónico.
@@ -38,7 +38,7 @@ class ApiConfig {
   String testConexionOracle() => '$baseUrl/api/_TestConexion/oracle';
 
   // Traer usuarios
-  String getUsuarios(final String palabra) => '$baseUrl/api/Usuario/similitud/$palabra';
+  String getUsuarios() => '$baseUrl/api/Usuario/todos';
 
   // Traer grupos que tiene asignado un docente
   String getGruposDocente() =>
