@@ -14,8 +14,8 @@ class ScheduleData {
     this.endTime,
     this.selectedLocationName,
     this.selectedLocationID,
-    this.selectedRepeat = 'Nunca',
-    this.selectedTime = '15 minutos',
+    this.selectedRepeat = 1,
+    this.selectedTime = 3,
     this.repeat = false,
   });
   DateTime? startDate;
@@ -24,7 +24,7 @@ class ScheduleData {
   TimeOfDay? endTime;
   String? selectedLocationName;
   String? selectedLocationID;
-  String? selectedRepeat;
-  String selectedTime;
+  int? selectedRepeat;
+  int selectedTime;
   bool repeat;
 }

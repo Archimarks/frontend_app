@@ -25,7 +25,7 @@ class CustomDropdown extends StatefulWidget {
   });
 
   final String title;
-  final List<String> options;
+  final List<Map<String, String>> options;
   final TipoColores dropdownColor;
   final Function(String?)? onChanged;
   final String? initialValue;
@@ -92,9 +92,9 @@ class _CustomDropdownState extends State<CustomDropdown> {
       style: optionTextStyle,
       items: widget.options
           .map(
-            (final String value) => DropdownMenuItem<String>(
-              value: value,
-              child: Text(value, style: optionTextStyle),
+            (final opt) => DropdownMenuItem<String>(
+              value: opt['id'],
+              child: Text(opt['text']!, style: optionTextStyle),
             ),
           )
           .toList(),
