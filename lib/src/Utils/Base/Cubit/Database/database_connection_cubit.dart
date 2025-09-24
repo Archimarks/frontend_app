@@ -41,7 +41,7 @@ class DatabaseConnectionCubit extends Cubit<DatabaseConnectionState> {
 
   /// Actualiza el estado de conexión a Internet.
   /// Si hay conexión, dispara una verificación inmediata a las bases de datos.
-void updateInternetStatus({required final bool connected}) {
+  void updateInternetStatus({required final bool connected}) {
     _hasInternet = connected;
 
     if (connected) {
@@ -50,7 +50,6 @@ void updateInternetStatus({required final bool connected}) {
       _emitIfChanged(DatabaseConnectionFailure());
     }
   }
-
 
   /// Inicia el ciclo de verificación periódica cada 3 segundos (si hay Internet).
   void _iniciarVerificacionPeriodica() {

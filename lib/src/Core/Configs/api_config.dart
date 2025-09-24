@@ -24,7 +24,7 @@ class ApiConfig {
 
   /// Instancia única de configuración.
   static const ApiConfig instance = ApiConfig._internal(
-    'http://172.27.8.48:5009',
+    'http://192.168.1.7:5009',
   );
 
   /// Retorna la URL para obtener un usuario por su correo electrónico.
@@ -37,11 +37,26 @@ class ApiConfig {
   /// Retorna la URL para probar la conexión con Oracle.
   String testConexionOracle() => '$baseUrl/api/_TestConexion/oracle';
 
-  // Puedes agregar más métodos según sea necesario:
-  // String login() => '$baseUrl/api/Auth/Login';
+  // Traer usuarios
+  String getUsuarios() => '$baseUrl/api/Usuario/todos';
+
+  // Traer grupos que tiene asignado un docente
+  String getGruposDocente() =>
+      '$baseUrl/api/oracle/GrupoAsignado/TraerGruposAsignados';
+
+  // Traer ubicaciones
+  String getUbicaciones() => '$baseUrl/api/oracle/ubicaciones';
+
+  // Traer tipos de repetición de los encuentros
+  String getRepeticion() =>
+      '$baseUrl/api/sqlserver/Repeticion';
+
+  // Traer tiempo permitido para asistencia
+  String getTime() =>
+      '$baseUrl/api/sqlserver/TiempoAsistencia';
 }
 
-/// Realiza llamadas HTTP GET a los endpoints de prueba de conexión de SQL Server y Oracle.
+/// Realizar llamadas HTTP GET a los endpoints de prueba de conexión de SQL Server y Oracle.
 /// No se manejan respuestas aquí, ya que se delega la lógica de verificación al backend.
 Future<void> probarConexiones() async {
   final sqlUrl = ApiConfig.instance.testConexionSqlServer();

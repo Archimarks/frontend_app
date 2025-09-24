@@ -17,17 +17,21 @@ export '../../Shared/Widgets/app_bar.dart';
 export '../../Shared/Widgets/banner.dart';
 // Widget de botón personalizado
 export '../../Shared/Widgets/button.dart';
+// Widget de código QR personalizado
+export '../../Shared/Widgets/code_qr.dart';
 // Widget desplegable personalizado
 export '../../Shared/Widgets/dropdown.dart';
 // Widget de tarjeta principal informativa y personalizada
 export '../../Shared/Widgets/main_card.dart';
 // Widget de tarjeta para mostrar información de encuentros personalizada
 export '../../Shared/Widgets/meet_card.dart';
+// Widget de pop up para selección personalizada
+export '../../Shared/Widgets/pop_up.dart';
+// Widget de campo de selección personalizado
+export '../../Shared/Widgets/selection_field.dart';
 // Widget de textField genérico y personalizado
 export '../../Shared/Widgets/text_field.dart';
 // Widget de tarjeta para mostrar información de los usuarios personalizada
 export '../../Shared/Widgets/users_card.dart';
-// Widget de campo de selección personalizado
-export '../../Shared/Widgets/selection_field.dart';
-// Widget de pop up para selección personalizada
-export '../../Shared/Widgets/pop_up.dart';
+// Widget para escanear códigos QR
+export '../../Shared/Widgets/scan_qr.dart';

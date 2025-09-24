@@ -49,7 +49,7 @@
       "codigoCard": 5,
       "titulo": "Encuentros",
       "descripcion": "Encuentros informales a los que se puede unir.",
-      "route": "meets",
+      "route": "allMeets",
       "rol": {
         "administrador": true,
         "docente": true,

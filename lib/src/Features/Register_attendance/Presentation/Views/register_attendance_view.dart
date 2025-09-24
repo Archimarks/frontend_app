@@ -8,6 +8,7 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 
 import '../../../../Core/Barrels/enums_barrel.dart';
 import '../../../../Core/Barrels/widgets_shared_barrel.dart';
@@ -43,7 +44,27 @@ class _RegisterAttendanceState extends State<RegisterAttendance> {
       'title': 'Clase administración de base de datos Grupo 2',
       'description': 'Clase administración de base de datos lunes y jueves...',
     },
+    {
+      'id': 4,
+      'hour': TimeOfDay.now(),
+      'title': 'Clase diseño de base de datos',
+      'description': 'Clase diseño de base de datos lunes y martes...',
+    },
+    {
+      'id': 5,
+      'hour': TimeOfDay.now(),
+      'title': 'Clase administración de base de datos Grupo 1',
+      'description': 'Clase administración de base de datos martes y jueves...',
+    },
+    {
+      'id': 6,
+      'hour': TimeOfDay.now(),
+      'title': 'Clase administración de base de datos Grupo 2',
+      'description': 'Clase administración de base de datos lunes y jueves...',
+    },
   ];
+  // Getter para verificar si hay encuentros
+  bool get hasMeets => currentMeets.isNotEmpty;
 
   @override
   // ignore: prefer_expression_function_bodies
@@ -76,13 +97,9 @@ class _RegisterAttendanceState extends State<RegisterAttendance> {
         ),
         body: Stack(
           children: [
-            /// Contenido central con diseño responsive
-            Align(
-              alignment: Alignment.topCenter,
-              child: Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: _portraitLayout(),
-              ),
+            Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: _portraitLayout(),
             ),
           ],
         ),
@@ -90,46 +107,70 @@ class _RegisterAttendanceState extends State<RegisterAttendance> {
     );
   }
 
-  Widget _portraitLayout() => Column(
-    crossAxisAlignment: CrossAxisAlignment.stretch,
-    children: [
-      Padding(
-        padding: const EdgeInsets.symmetric(vertical: 10),
-        child: Text(
-          'Encuentros del día ${currentDay.day} de ${currentDay.month.toString()}',
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: TipoColores.pantoneBlackC.value,
+  Widget _portraitLayout() => hasMeets ? _showMeets() : _hasntMeets();
+
+  // ### Widget que muestra los encuentros del día
+  Widget _showMeets() => ListView.builder(
+    itemCount: currentMeets.length + 1,
+    itemBuilder: (final context, final index) {
+      if (index == 0) {
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 10),
+          child: Text(
+            'Encuentros del día ${currentDay.day} de ${DateFormat.MMMM().format(currentDay)}',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: TipoColores.pantoneBlackC.value,
+            ),
           ),
+        );
+      }
+      final meet = currentMeets[index - 1];
+      final meetData = {
+        'title': meet['title'].toString(),
+        'hourAndDate': '${meet['hour'].hour}:${meet['hour'].minute}',
+      };
+      return Column(
+        children: [
+          CustomMeetCard(
+            hourAndDate: '${meet['hour'].hour}:${meet['hour'].minute}',
+            title: meet['title'].toString(),
+            description: meet['description'].toString(),
+            actionCard: () {
+              if (!mounted) {
+                return;
+              }
+              debugPrint('Enviando datos: $meetData');
+              context.goNamed(RouteNames.scanerQR, extra: meetData);
+            },
+          ),
+          const SizedBox(height: 10),
+        ],
+      );
+    },
+  );
+
+  /// ### Widget que muestra un aviso de que el usuario no tiene encuentros para hoy
+  Widget _hasntMeets() => Column(
+    mainAxisAlignment: MainAxisAlignment.center,
+    children: [
+      Icon(
+        Icons.warning_rounded,
+        size: 50,
+        color: TipoColores.pantoneBlackC.value,
+      ),
+      const SizedBox(height: 20),
+      Text(
+        'No tiene encuentros el día de hoy.',
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          fontSize: 20,
+          fontWeight: FontWeight.w400,
+          color: TipoColores.pantoneBlackC.value,
         ),
       ),
-      ...currentMeets.asMap().entries.map((final entry) {
-        final meet = entry.value; // Accedemos a la reunión actual
-        // Variable para los datos del encuentro seleccionado
-        final meetData = {
-          'title': meet['title'].toString(),
-          'hourAndDate': '${meet['hour'].hour}:${meet['hour'].minute}',
-        };
-        return Column(
-          children: [
-            CustomMeetCard(
-              hourAndDate: '${meet['hour'].hour}:${meet['hour'].minute}',
-              title: meet['title'].toString(),
-              description: meet['description'].toString(),
-              actionCard: () {
-                if (!mounted) {
-                  return;
-                }
-                debugPrint('Enviando datos: $meetData');
-                context.goNamed(RouteNames.generateQR, extra: meetData);
-              },
-            ),
-            const SizedBox(height: 15),
-          ],
-        );
-      }),
     ],
   );
 }

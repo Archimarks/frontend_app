@@ -4,15 +4,20 @@
 /// * Descripción: Vista de crear encuentros.
 /// * Autores: Geraldine Perilla Valderrama & Marcos Alejandro Collazos Marmolejo
 /// ****************************************************************************
+// ignore_for_file: unrelated_type_equality_checks
+
 library;
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../Core/Barrels/configs_barrel.dart';
 import '../../../../Core/Barrels/enums_barrel.dart';
+import '../../../../Core/Barrels/models_barrel.dart';
+import '../../../../Core/Barrels/services_barrel.dart';
 import '../../../../Core/Barrels/widgets_shared_barrel.dart';
+import '../../../../Core/Models/schedule_parser_data.dart';
 import '../../../../Core/Routes/route_names.dart';
-import '../../Domain/schedule_data.dart';
 
 class CreateMeeting extends StatefulWidget {
   const CreateMeeting({super.key});
@@ -22,101 +27,122 @@ class CreateMeeting extends StatefulWidget {
 }
 
 class _CreateMeetingState extends State<CreateMeeting> {
-  bool _isCreateButtonEnabled =
-      false; // Variable para manejar el estado del botón de crear encuentro
-  bool _addParticipants =
-      false; // Variable para manejar si se han agregado participantes
-  bool _selectedMeet =
-      false; // Variable para manejar el estado de selección de un encuentro
-  String? _selectedMeetType; // Tipo de encuentro seleccionado por defecto
-  /// Lista de tipos de encuentros disponibles
-  final List<String> _encounterTypes = [
-    'Reunión administrativa',
-    'Clases académicas',
-    'Eventos de bienestar universitario',
+  // ---------------------------------------------------------------------------
+  // Estados principales del formulario
+  // ---------------------------------------------------------------------------
+
+  /// Indica si el botón de "Crear encuentro" está habilitado
+  bool _isCreateButtonEnabled = false;
+
+  /// Indica si se han agregado participantes
+  bool _addParticipants = false;
+
+  /// Indica si ya se seleccionó un tipo de encuentro
+  bool _selectedMeet = false;
+
+  /// Indica el tipo de encuentro seleccionado
+  String? _selectedMeetType;
+
+  /// Indica si el encuentro seleccionado es una clase
+  bool isClass = false;
+
+  /// Indica si se seleccionó un rol de usuario
+  bool _selectedRolUser = false;
+
+  /// Tipo de rol de usuario seleccionado
+  String? _selectedTypeRolUser;
+
+  /// Indica si se debe generar acta
+  bool certificate = false;
+
+  /// Indica si el encuentro es repetitivo
+  bool repeat = false;
+
+  /// Indica si se seleccionó tiempo permitido
+  bool time = false;
+
+  // ---------------------------------------------------------------------------
+  // Controladores de texto
+  // ---------------------------------------------------------------------------
+
+  /// Controlador del campo "Asunto"
+  late final TextEditingController _asuntoController;
+
+  /// Controlador del campo "Descripción"
+  late final TextEditingController _descriptionController;
+
+  // ---------------------------------------------------------------------------
+  // Selecciones y asignaciones de usuario
+  // ---------------------------------------------------------------------------
+
+  /// ID del líder seleccionado para el encuentro
+  String? _selectedLeadingUser;
+
+  /// IDs de participantes seleccionados
+  List<String> _selectedParticipantId = [];
+
+  /// ID de grupo seleccionado (Debe recibir solo un valor)
+  List<String> _selectedGroupId = [];
+
+  /// ID de líder seleccionado (Debe recibir solo un valor)
+  List<String> _selectedLeaderId = [];
+
+  /// Participantes agregados
+  List<Map<String, String>> addedParticipants = [];
+
+  // ---------------------------------------------------------------------------
+  // Listas temporales (luego serán reemplazadas por datos de la API)
+  // ---------------------------------------------------------------------------
+
+  /// Tipos de encuentros disponibles
+  final List<Map<String, String>> _encounterTypes = [
+    {'id': '1', 'text': 'Reunión administrativa'},
+    {'id': '2', 'text': 'Clases académicas'},
+    {'id': '3', 'text': 'Entrenamiento de equipos'},
   ];
 
-  /// Lista de tipos de tiempo disponibles
-  final List<String> _optionsTime = [
-    '15 minutos',
-    '30 minutos',
-    '45 minutos',
-    '1 hora',
-    '2 horas',
-    '3 horas',
+  /// Roles de usuario invitados
+  final List<Map<String, String>> _rolUser = [
+    {'id': '1', 'text': 'Docentes'},
+    {'id': '2', 'text': 'Administrativos'},
+    {'id': '3', 'text': 'Estudiantes'},
   ];
-  bool certificate =
-      false; // Variable que indica si se va a generar acta (true) o no (false por defecto)
-  bool repeat =
-      false; // Variable que indica si el encuentro se repite (true) o no (false por defecto)
-  /// Lista de tipos de repetición disponibles
-  final List<String> _optionsRepeat = [
-    'Nunca',
-    'Cada día',
-    'Cada día laborable (lun - vie)',
-    'Cada semana',
-    'Cada mes',
-  ];
-  late final TextEditingController
-  _asuntoController; // Controlador para el campo de asunto
-  late final TextEditingController
-  _descriptionController; // Controlador para el campo de descripción
-  String?
-  _selectedLeadingUser; // Variable para almacenar al líder del encuentro
-  // Lista de todos los usuarios
-  final List<Map<String, String>> myParticipants = [
-    {
-      'id': '1',
-      'textMain': 'Fredy Antonio Verástegui González',
-      'textSecondary': 'f.verastegui@udla.edu.co',
-    },
-    {
-      'id': '2',
-      'textMain': 'Marcos Alejandro Collazos Marmolejo',
-      'textSecondary': 'marc.collazos@udla.edu.co',
-    },
-    {
-      'id': '3',
-      'textMain': 'Geraldine Perilla Valderrama',
-      'textSecondary': 'g.perilla@udla.edu.co',
-    },
-    // ... más participantes
-  ];
-  // Lista de ubicaciones
-  final List<Map<String, String>> myLocations = [
-    {
-      'id': '1',
-      'textMain':
-          'CAMPUS ALBANIA: SEDE ALBANIA COLEGIO DE ESTA LOCALIDAD: ALABINA-NO SNIES',
-    },
-    {
-      'id': '2',
-      'textMain':
-          'CAMPUS ALTAMIRA: COLEGIO EN CALIDAD DE PRESTAMO PARA DICTAR CLASES: COL01',
-    },
-    {'id': '3', 'textMain': 'CAMPUS CENTRO: BLOQUE DE AULAS: BIENESTAR'},
-    {'id': '4', 'textMain': 'CAMPUS CENTRO: BLOQUE DE AULAS: CANCHA DE FUTBOL'},
-  ];
-  // Lista de grupos
-  final List<Map<String, String>> groups = [
-    {'id': '1', 'textMain': 'Diseño de Base de Datos Grupo 1'},
-    {'id': '2', 'textMain': 'Administración de base de Datos Grupo 1'},
-    {'id': '4', 'textMain': 'Administración de base de Datos Grupo 2'},
-  ];
-  // Lista de usuarios agregados
-  List<Map<String, String>> addedParticipants = [];
-  // Lista para almacenar los horarios
-  final List<ScheduleData> _schedules = [ScheduleData()];
-  // Variables para almacenar las selecciones de los pop-ups
-  List<String> _selectedParticipantId = [];
-  List<String> _selectedGroupId = [];
-  List<String> _selectedLeaderId = [];
+
+  /// Opciones de tiempo asistencia para los encuentros
+  List<Map<String, String>> _optionsTime = [];
+
+  /// Opciones de repetición de los encuentros
+  List<Map<String, String>> _optionsRepeat = [];
+
+  /// Lista de todas las personas disponibles
+  List<Map<String, String>> allUsers = [];
+
+  /// Lista de ubicaciones disponibles
+  List<Map<String, String>> locations = [];
+
+  /// Lista de grupos del docente
+  List<Map<String, String>> groups = [];
+
+  /// Lista con la información de los grupos
+  List<Grupo> infoGroups = [];
+
+  // ---------------------------------------------------------------------------
+  // Horarios
+  // ---------------------------------------------------------------------------
+
+  /// Lista de horarios creados para el encuentro
+  List<ScheduleData> _schedules = [];
 
   @override
   void initState() {
     super.initState();
     _asuntoController = TextEditingController();
     _descriptionController = TextEditingController();
+    _loadUsers();
+    _loadGrupos();
+    _loadUbicaciones();
+    _loadRepeat();
+    _loadTime();
   }
 
   @override
@@ -129,6 +155,86 @@ class _CreateMeetingState extends State<CreateMeeting> {
   // ****************************************************
   // *             Metodos Privados                     *
   // ****************************************************
+
+  /// Método que asigna los usuarios a una lista local
+  Future<void> _loadUsers() async {
+    try {
+      final data = await UserService().fetchUsers();
+      setState(() {
+        allUsers = data;
+        print(allUsers);
+      });
+      // ignore: avoid_catches_without_on_clauses
+    } catch (e) {
+      debugPrint('Error al cargar los usuarios: $e');
+    }
+  }
+
+  /// Método que asigna los grupos a una lista local
+  Future<void> _loadGrupos() async {
+    final pege = getString('pege') ?? '';
+
+    try {
+      final data = await GruposService().fetchGruposDocente(
+        pegeld: int.parse(pege),
+      );
+      setState(() {
+        infoGroups = data;
+        groups = data
+            .map(
+              (final grupo) => {
+                'id': grupo.id.toString(),
+                'textMain': '${grupo.materia} - ${grupo.grupo}',
+              },
+            )
+            .toList();
+      });
+      // ignore: avoid_catches_without_on_clauses
+    } catch (e) {
+      debugPrint('Error al cargar los grupos: $e');
+    }
+  }
+
+  /// Método que asigna las ubicaciones a una lista local
+  Future<void> _loadUbicaciones() async {
+    try {
+      final data = await UbicacionService().fetchUbicaciones();
+      setState(() {
+        locations = data;
+      });
+      // ignore: avoid_catches_without_on_clauses
+    } catch (e) {
+      debugPrint('Error al cargar ubicaciones: $e');
+    }
+  }
+
+  /// Método que asigna los tipos de repetición a una lista local
+  Future<void> _loadRepeat() async {
+    try {
+      final data = await RepeatService().fetchRepeats();
+      setState(() {
+        _optionsRepeat = data;
+      });
+      print(_optionsRepeat);
+      // ignore: avoid_catches_without_on_clauses
+    } catch (e) {
+      debugPrint('Error al cargar las repeticiones: $e');
+    }
+  }
+
+  /// Método que asigna los tiempos a una lista local
+  Future<void> _loadTime() async {
+    try {
+      final data = await TimeService().fetchTime();
+      setState(() {
+        _optionsTime = data;
+      });
+      print(_optionsTime);
+      // ignore: avoid_catches_without_on_clauses
+    } catch (e) {
+      debugPrint('Error al cargar los tiempos permitidos: $e');
+    }
+  }
 
   ///---------------------------------------------------------------------------
   /// ### Método para validar que los horarios agregados estén completos.
@@ -165,6 +271,22 @@ class _CreateMeetingState extends State<CreateMeeting> {
       // 5. Si el horario se repite, validar que la fecha de fin no sea igual o anterior a la de inicio.
       if (schedule.repeat && schedule.endDate!.isBefore(schedule.startDate!)) {
         return 'La fecha de finalización debe ser posterior a la fecha de inicio.';
+      }
+
+      // 6. Validar que la hora de inicio no sea anterior a la hora actual para el mismo día.
+      final now = DateTime.now();
+      final today = DateTime(now.year, now.month, now.day);
+
+      // Verificar si la fecha de inicio es hoy
+      if (schedule.startDate != null &&
+          schedule.startDate!.isAtSameMomentAs(today)) {
+        final nowInMinutes = (now.hour * 60) + now.minute;
+        final startTimeInMinutes = _toMinutes(schedule.startTime!);
+
+        // Compara la hora de inicio con la hora actual
+        if (startTimeInMinutes < nowInMinutes) {
+          return 'No puedes programar una reunión con una hora de inicio anterior a la actual para el día de hoy.';
+        }
       }
     }
 
@@ -208,23 +330,53 @@ class _CreateMeetingState extends State<CreateMeeting> {
     final bool isLeaderSelected =
         _selectedMeetType != 'Reunión administrativa' ||
         _selectedLeadingUser != null;
+    final bool isRolUserSelected =
+        _selectedMeetType != 'Entrenamiento de equipos' || _selectedRolUser;
 
     setState(() {
       _isCreateButtonEnabled =
+          isRolUserSelected &&
           _selectedMeet &&
           isAsuntoNotEmpty &&
           isDescriptionNotEmpty &&
           _addParticipants &&
           isSchedulesValid &&
           isLeaderSelected;
+    });
+  }
 
-      print('Encuentro: $_selectedMeet');
-      print('Asunto: $isAsuntoNotEmpty');
-      print('Descripción: $isDescriptionNotEmpty');
-      print('Participantes: $_addParticipants');
-      print('Horarios válidos: $isSchedulesValid');
-      print('Líder seleccionado: $isLeaderSelected');
-      print('Mostar botón de crear: $_isCreateButtonEnabled');
+  /// Guardar horarios del grupo
+  void _addGroupSchedules(final Grupo grupo) {
+    // Variable para saber los días del horario del grupo
+    final _ =
+        {
+          'lunes': grupo.lunes,
+          'martes': grupo.martes,
+          'miercoles': grupo.miercoles,
+          'jueves': grupo.jueves,
+          'viernes': grupo.viernes,
+          'sabado': grupo.sabado,
+          'domingo': grupo.domingo,
+        }..forEach((final dia, final rawHorario) {
+          final parsed = ScheduleParser.parseScheduleString(rawHorario);
+
+          if (parsed != null) {
+            final schedule = ScheduleData(
+              startDate: DateTime.now(),
+              startTime: parsed.startTime,
+              endTime: parsed.endTime,
+              selectedLocationName: parsed.location,
+              selectedLocationID: grupo.id.toString(),
+              selectedRepeat: 4, // Clase
+              repeat: true,
+            );
+
+            _schedules.add(schedule);
+          }
+        });
+
+    setState(() {
+      _schedules = List.from(_schedules); // Forzar rebuild
     });
   }
 
@@ -239,35 +391,28 @@ class _CreateMeetingState extends State<CreateMeeting> {
           return; // Si el pop ya fue manejado por el sistema, no se hace nada.
         }
       },
-      child: GestureDetector(
-        onTap: () {
-          // Llamar a este método para deseleccionar el TextField
-          FocusScope.of(context).unfocus();
-        },
-        child: Scaffold(
+      child: Scaffold(
+        backgroundColor:
+            TipoColores.seasalt.value, // Color de fondo para toda la vista
+        appBar: customAppBar(
+          context: context,
+          title: 'Crear encuentro',
+          onLeadingPressed: () async {
+            if (!context.mounted) {
+              return;
+            }
+            context.goNamed(RouteNames.myMeets);
+          },
           backgroundColor:
-              TipoColores.seasalt.value, // Color de fondo para toda la vista
-          appBar: customAppBar(
-            context: context,
-            title: 'Crear encuentro',
-            onLeadingPressed: () async {
-              if (!context.mounted) {
-                return;
-              }
-              context.goNamed(RouteNames.myMeets);
-            },
-            backgroundColor:
-                TipoColores.pantone356C.value, // Color de fondo de la AppBar
-            leadingIconColor:
-                TipoColores.seasalt.value, // Color del icono de retroceso
-          ),
-          body: SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Builder(
-                builder: (final BuildContext builderContext) =>
-                    _portraitLayout(),
-              ),
+              TipoColores.pantone356C.value, // Color de fondo de la AppBar
+          leadingIconColor:
+              TipoColores.seasalt.value, // Color del icono de retroceso
+        ),
+        body: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Builder(
+              builder: (final BuildContext builderContext) => _portraitLayout(),
             ),
           ),
         ),
@@ -288,33 +433,65 @@ class _CreateMeetingState extends State<CreateMeeting> {
             _selectedMeetType = newValue!;
             _selectedMeet =
                 true; // Actualiza el estado de selección del encuentro
+            isClass = _selectedMeetType == '2';
+
+            print(_addParticipants);
+            // Limpiar horarios y demás estados relacionados
+            _schedules.clear();
+            _selectedGroupId.clear();
+            print(_addParticipants);
+            _addParticipants = false;
+
+            if (!isClass) {
+              // Si NO es clase, creo al menos un horario vacío para empezar a editar
+              _schedules.add(ScheduleData());
+            }
           });
           _validatorButtonCreate();
         },
       ),
       if (_selectedMeet) ...[
+        if (_selectedMeetType == '3') ...[
+          const SizedBox(height: 15),
+          CustomDropdown(
+            prefixIcon: Icons.sports_kabaddi_rounded,
+            title: 'Dirigido a:',
+            options: _rolUser,
+            initialValue: _selectedTypeRolUser,
+            onChanged: (final newValue) {
+              setState(() {
+                _selectedTypeRolUser = newValue!;
+                _selectedRolUser =
+                    true; // Actualiza el estado de selección del rol
+              });
+              _validatorButtonCreate();
+            },
+          ),
+        ],
         const SizedBox(height: 15),
         CustomTextField(
-          labelText: 'Asunto',
+          labelText: 'Asunto *',
           prefixIcon: Icons.edit_outlined,
           controller: _asuntoController,
           maxLength: 70,
           showCounter: true,
+          onChanged: (final value) => _validatorButtonCreate(),
         ),
         const SizedBox(height: 5),
         CustomTextField(
-          labelText: 'Descripción',
+          labelText: 'Descripción *',
           prefixIcon: Icons.edit_note,
           controller: _descriptionController,
           maxLength: 150,
           showCounter: true,
+          onChanged: (final value) => _validatorButtonCreate(),
         ),
         const SizedBox(height: 15),
         // Espacio de agregar participantes
         CustomButton(
           color: TipoColores.pantone663C,
           colorIcon: TipoColores.pantone634C,
-          text: _selectedMeetType == 'Clases académicas'
+          text: _selectedMeetType == '2'
               ? 'Seleccionar grupo'
               : 'Agregar participantes',
           icon: Icons.group_add_outlined,
@@ -322,7 +499,8 @@ class _CreateMeetingState extends State<CreateMeeting> {
               MediaQuery.of(context).size.width *
               0.75, // 75% del ancho de la pantalla,
           onPressed: () {
-            if (_selectedMeetType == 'Clases académicas') {
+            if (_selectedMeetType == '2') {
+              // Se muestran los grupos si son clases académicas
               CustomPopUp.show(
                 context,
                 title: 'Grupos',
@@ -333,23 +511,38 @@ class _CreateMeetingState extends State<CreateMeeting> {
                   }
                   context.pop();
                 },
-                onCheck: (final List<Map<String, String>> selectedCards) {
+                onCheck: (final List<Map<String, String>> selectedGroup) {
                   setState(() {
-                    _selectedGroupId = selectedCards
-                        .map((final card) => card['id']!)
+                    _selectedGroupId = selectedGroup
+                        .map((final group) => group['id']!)
                         .toList();
-                    _addParticipants = selectedCards.isNotEmpty;
+                    _addParticipants = selectedGroup.isNotEmpty;
+
+                    if (_selectedGroupId.isNotEmpty) {
+                      // Buscar el grupo seleccionado en la lista infoGroups
+                      final infoSelectedGroup = infoGroups.firstWhere(
+                        (final grupo) =>
+                            grupo.id == int.parse(_selectedGroupId.first),
+                      );
+                      // Primero se limpia y luego se agregan los horarios del grupo
+                      _schedules.clear();
+                      // Llamar método para agregar los horarios del grupo
+                      _addGroupSchedules(infoSelectedGroup);
+                    }
                   });
 
                   if (!context.mounted) {
                     return;
                   }
                   context.pop();
+                  _validatorButtonCreate();
                 },
                 infoShowCards: groups,
+                showAllDataInitially: true,
                 initialSelectedIDs: _selectedGroupId,
               );
             } else {
+              // Se muestran los participantes para los otros tipos de encuentro
               CustomPopUp.show(
                 context,
                 title: 'Agregar participantes',
@@ -378,14 +571,14 @@ class _CreateMeetingState extends State<CreateMeeting> {
                 },
 
                 showSearchBar: true,
-                infoShowCards: myParticipants,
+                infoShowCards: allUsers,
                 initialSelectedIDs: _selectedParticipantId,
               );
             }
           },
         ),
         // Espacio de selección del líder del encuentro
-        if (_selectedMeetType == 'Reunión administrativa') ...[
+        if (_selectedMeetType == '1') ...[
           const SizedBox(height: 15),
           CustomSelectionField(
             title: 'Líder del encuentro',
@@ -421,8 +614,9 @@ class _CreateMeetingState extends State<CreateMeeting> {
                   context.pop();
                   _validatorButtonCreate();
                 },
+                showSearchBar: true,
                 showButtonCard: true,
-                infoShowCards: myParticipants,
+                infoShowCards: allUsers,
                 initialSelectedIDs: _selectedLeaderId,
               );
             },
@@ -456,7 +650,7 @@ class _CreateMeetingState extends State<CreateMeeting> {
           return _buildScheduleWidget(index);
         }),
         // Botón "Agregar nuevo horario" después de todos los horarios
-        if (_selectedMeetType != 'Clases académicas' && _schedules.length < 3)
+        if (_selectedMeetType != '2' && _schedules.length < 3)
           CustomButton(
             color: TipoColores.pantone663C,
             colorIcon: TipoColores.pantoneBlackC,
@@ -484,7 +678,7 @@ class _CreateMeetingState extends State<CreateMeeting> {
             },
           ),
         // Espacio para decidir si se quiere generar acta
-        if (_selectedMeetType == 'Reunión administrativa') ...[
+        if (_selectedMeetType == '1') ...[
           const SizedBox(height: 15),
           Row(
             children: [
@@ -528,7 +722,12 @@ class _CreateMeetingState extends State<CreateMeeting> {
             width:
                 MediaQuery.of(context).size.width *
                 0.80, // 80% del ancho de la pantalla
-            onPressed: () {},
+            onPressed: () {
+              if (!context.mounted) {
+                return;
+              }
+              context.goNamed(RouteNames.myMeets);
+            },
           ),
       ],
     ],
@@ -538,14 +737,21 @@ class _CreateMeetingState extends State<CreateMeeting> {
   //                       Métodos visuales auxiliares                         *
   // ***************************************************************************
   ///---------------------------------------------------------------------------
-  /// ### Método para construir el widget de hora inicio y fin del encuentro.
+  /// ## Método para construir el widget de horario completo.
+  /// Se construye un widget que incluye:
+  /// * Fecha
+  /// * Hora inicio y hora fin
+  /// * Ubicación
+  /// * Si se repite o no
+  /// * Tiempo permitido para el registro de asistencia
+  /// - Si el tipo de encuentro es clase, solo se dejan editar los campos de fecha fin repetición y tiempo permitido
   ///---------------------------------------------------------------------------
   Widget _buildScheduleWidget(final int index) {
     final ScheduleData currentSchedule = _schedules[index];
 
     return Column(
       children: [
-        // Espacio de selección de la fecha del encuentro
+        // Espacio de titulo del horario
         Container(
           padding: const EdgeInsets.symmetric(vertical: 7, horizontal: 10),
           decoration: BoxDecoration(
@@ -555,6 +761,7 @@ class _CreateMeetingState extends State<CreateMeeting> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
+              // Titulo del horario
               Text(
                 'Horario ${index + 1}',
                 style: TextStyle(
@@ -569,7 +776,7 @@ class _CreateMeetingState extends State<CreateMeeting> {
                   icon: Icon(
                     Icons.close_rounded,
                     color: TipoColores.pantone7621C.value,
-                    size: 30, // Tamaño común para los iconos de acción
+                    size: 30,
                   ),
                   onPressed: () {
                     CustomAlertDialog.show(
@@ -604,6 +811,7 @@ class _CreateMeetingState extends State<CreateMeeting> {
         ),
         const Divider(),
         const SizedBox(height: 10),
+        // Espacio de selección de la fecha del encuentro
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
@@ -616,19 +824,29 @@ class _CreateMeetingState extends State<CreateMeeting> {
             ),
             const SizedBox(width: 10),
             _buildButtonDate(
+              initialDateString: isClass
+                  ? DateTime.now().toString()
+                  : 'Seleccionar fecha',
               date: currentSchedule.startDate,
-              onDatePressed: () => _pickDate(index, true),
+              onDatePressed: isClass ? null : () => _pickDate(index, true),
             ),
           ],
         ),
         const SizedBox(height: 10),
         const Divider(), // Línea divisoria
         const SizedBox(height: 10),
+        // Espacio de selección de la hora de inicio y hora final del encuentro
         _buildScheduleRow(
           context: context,
           label: 'Hora inicio',
+          initialTimeString: isClass
+              ? ScheduleParser.formatTimeNullable(
+                  currentSchedule.startTime,
+                  context: context,
+                )
+              : 'Seleccionar hora',
           time: currentSchedule.startTime,
-          onTimePressed: () => _pickTime(index, true),
+          onTimePressed: isClass ? null : () => _pickTime(index, true),
         ),
         const SizedBox(height: 10),
         const Divider(), // Línea divisoria
@@ -636,67 +854,82 @@ class _CreateMeetingState extends State<CreateMeeting> {
         _buildScheduleRow(
           context: context,
           label: 'Hora final',
+          initialTimeString: isClass
+              ? ScheduleParser.formatTimeNullable(
+                  currentSchedule.endTime,
+                  context: context,
+                )
+              : 'Seleccionar hora',
           time: currentSchedule.endTime,
-          onTimePressed: () => _pickTime(index, false),
+          onTimePressed: isClass ? null : () => _pickTime(index, false),
         ),
         const SizedBox(height: 10),
         const Divider(),
+        // Espacio de selección de la ubicación del encuentro
         CustomSelectionField(
           title: 'Ubicación',
           prefixIcon: Icons.location_on_outlined,
           displayValue: currentSchedule.selectedLocationName,
-          onPressed: () {
-            CustomPopUp.show(
-              context,
-              onCheck: (final List<Map<String, String>> selectedCards) {
-                setState(() {
-                  currentSchedule
-                    ..selectedLocationName = selectedCards.isNotEmpty
-                        ? selectedCards.first['textMain']
-                        : null
-                    ..selectedLocationID = selectedCards.isNotEmpty
-                        ? selectedCards.first['id']
-                        : null;
-                  _validatorButtonCreate();
-                });
-                if (!context.mounted) {
-                  return;
-                }
-                context.pop();
-              },
-              title: 'Seleccionar ubicación',
-              searchHintText: 'Escribe el nombre de la ubicación...',
-              showButtonCard: true,
-              showSearchBar: true,
-              infoShowCards: myLocations,
-              initialSelectedIDs: currentSchedule.selectedLocationID != null
-                  ? [currentSchedule.selectedLocationID!]
-                  : [],
-              onClose: () {
-                if (!context.mounted) {
-                  return;
-                }
-                context.pop();
-              },
-            );
-          },
+          onPressed: isClass
+              ? null
+              : () {
+                  CustomPopUp.show(
+                    context,
+                    onCheck: (final List<Map<String, String>> selectedCards) {
+                      setState(() {
+                        currentSchedule
+                          ..selectedLocationName = selectedCards.isNotEmpty
+                              ? selectedCards.first['textMain']
+                              : null
+                          ..selectedLocationID = selectedCards.isNotEmpty
+                              ? selectedCards.first['id']
+                              : null;
+                        _validatorButtonCreate();
+                      });
+                      if (!context.mounted) {
+                        return;
+                      }
+                      context.pop();
+                    },
+                    title: 'Seleccionar ubicación',
+                    searchHintText: 'Escribe el nombre de la ubicación...',
+                    showButtonCard: true,
+                    showSearchBar: true,
+                    showAllDataInitially: true,
+                    infoShowCards: locations,
+                    initialSelectedIDs:
+                        currentSchedule.selectedLocationID != null
+                        ? [currentSchedule.selectedLocationID!]
+                        : [],
+                    onClose: () {
+                      if (!context.mounted) {
+                        return;
+                      }
+                      context.pop();
+                    },
+                  );
+                },
         ),
         const SizedBox(height: 15),
         CustomDropdown(
           prefixIcon: Icons.repeat_rounded,
           title: 'Repetir',
           options: _optionsRepeat,
-          initialValue: currentSchedule.selectedRepeat,
-          onChanged: (final newValue) {
-            setState(() {
-              currentSchedule
-                ..selectedRepeat = newValue!
-                ..repeat = newValue != 'Nunca';
-              _validatorButtonCreate();
-            });
-          },
+          initialValue: isClass
+              ? '4'
+              : currentSchedule.selectedRepeat.toString(),
+          onChanged: isClass
+              ? null
+              : (final newValue) {
+                  setState(() {
+                    currentSchedule
+                      ..selectedRepeat = int.parse(newValue!)
+                      ..repeat = newValue != '1';
+                    _validatorButtonCreate();
+                  });
+                },
         ),
-        if (currentSchedule.repeat) ...[
+        if (currentSchedule.repeat || _selectedMeetType == '2') ...[
           const SizedBox(height: 15),
           CustomSelectionField(
             prefixIcon: Icons.event_rounded,
@@ -714,10 +947,10 @@ class _CreateMeetingState extends State<CreateMeeting> {
           prefixIcon: Icons.watch_later_outlined,
           title: 'Tiempo permitido para registrar asistencia',
           options: _optionsTime,
-          initialValue: currentSchedule.selectedTime,
-          onChanged: (final newValue) {
+          initialValue: currentSchedule.selectedTime.toString(),
+          onChanged: (final newId) {
             setState(() {
-              currentSchedule.selectedTime = newValue!;
+              currentSchedule.selectedTime = int.parse(newId!); // Guardar id
               _validatorButtonCreate();
             });
           },
@@ -731,16 +964,18 @@ class _CreateMeetingState extends State<CreateMeeting> {
   /// ### Método auxiliar para construir el botón de fecha.
   ///---------------------------------------------------------------------------
   Widget _buildButtonDate({
+    required final String initialDateString,
     required final DateTime? date,
-    required final VoidCallback onDatePressed,
+    required final VoidCallback? onDatePressed,
   }) {
     final String formattedDate = date != null
         ? _formatDate(date)
-        : 'Seleccionar fecha';
+        : initialDateString; // Formato YYYY-MM-DD
     return CustomButton(
       onPressed: onDatePressed,
       text: formattedDate,
       color: TipoColores.pantone634C,
+      disabledColor: TipoColores.pantone634C,
       width:
           MediaQuery.of(context).size.width *
           0.40, // 40% del ancho de la pantalla,
@@ -753,10 +988,9 @@ class _CreateMeetingState extends State<CreateMeeting> {
   Widget _buildScheduleRow({
     required final BuildContext context,
     required final String label,
-
+    required final String initialTimeString,
     required final TimeOfDay? time,
-
-    required final VoidCallback onTimePressed,
+    required final VoidCallback? onTimePressed,
   }) {
     // Definimos el estilo para los textos dentro del Row
     final TextStyle labelStyle = TextStyle(
@@ -766,7 +1000,7 @@ class _CreateMeetingState extends State<CreateMeeting> {
 
     final String formattedTime = time != null
         ? time.format(context)
-        : 'Seleccionar hora';
+        : initialTimeString;
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -776,6 +1010,7 @@ class _CreateMeetingState extends State<CreateMeeting> {
           onPressed: onTimePressed,
           text: formattedTime,
           color: TipoColores.pantone634C,
+          disabledColor: TipoColores.pantone634C,
           width:
               MediaQuery.of(context).size.width *
               0.40, // 40% del ancho de la pantalla,

@@ -26,6 +26,7 @@ class CustomPopUp extends StatefulWidget {
     this.isOneSelection = true,
     this.initialSelectedIDs = const [],
     this.searchHintText = 'Escribe un nombre o correo electrónico',
+    this.showAllDataInitially = false,
   });
 
   /// Título del pop-up.
@@ -70,6 +71,9 @@ class CustomPopUp extends StatefulWidget {
   /// Texto que se muestra en el buscador
   final String searchHintText;
 
+  /// Variable que indica si se muestran todos los datos incialmente o solo los seleccionados
+  final bool showAllDataInitially;
+
   @override
   // ignore: library_private_types_in_public_api
   _CustomPopUpState createState() => _CustomPopUpState();
@@ -91,6 +95,7 @@ class CustomPopUp extends StatefulWidget {
     final bool isOneSelection = true,
     final List<String> initialSelectedIDs = const [],
     final String searchHintText = 'Escribe un correo electrónico',
+    final bool showAllDataInitially = false,
   }) async => showDialog<void>(
     context: context,
     barrierDismissible: false,
@@ -109,6 +114,7 @@ class CustomPopUp extends StatefulWidget {
       isOneSelection: isOneSelection,
       initialSelectedIDs: initialSelectedIDs,
       searchHintText: searchHintText,
+      showAllDataInitially: showAllDataInitially,
     ),
   );
 }
@@ -143,13 +149,12 @@ class _CustomPopUpState extends State<CustomPopUp> {
       }
     }
 
-    // Si hay IDs seleccionados al inicio, se muestran solo esas tarjetas.
-    if (_selectedIndices.isNotEmpty) {
-      _filteredInformation = _getSelectedCardsInfo();
+    // Si se pide mostrar todos los datos inicialmente, se carga _allInformation.
+    // De lo contrario, se cargan solo los seleccionados.
+    if (widget.showAllDataInitially) {
+      _filteredInformation = _allInformation;
     } else {
-      // Si no hay IDs seleccionados, la lista filtrada se inicializa como vacía.
-      // Las tarjetas solo se mostrarán al buscar.
-      _filteredInformation = [];
+      _filteredInformation = _getSelectedCardsInfo();
     }
 
     // Se escuchan los cambios en el campo de búsqueda para filtrar la lista
@@ -198,15 +203,6 @@ class _CustomPopUpState extends State<CustomPopUp> {
           _selectedIndices.add(indexInAllInformation);
         }
       }
-
-      // Actualizamos la lista filtrada para que siempre muestre el estado correcto.
-      // Si la búsqueda no está vacía, se mantiene el filtro.
-      // Si la búsqueda está vacía, se muestran solo las seleccionadas.
-      if (_searchController.text.isEmpty) {
-        _filteredInformation = _getSelectedCardsInfo();
-      } else {
-        _filterListInformation();
-      }
     });
   }
 
@@ -247,9 +243,14 @@ class _CustomPopUpState extends State<CustomPopUp> {
 
     setState(() {
       if (query.isEmpty) {
-        // Si la búsqueda está vacía, mostramos las tarjetas seleccionadas
-        // o una lista vacía si no hay ninguna.
-        _filteredInformation = _getSelectedCardsInfo();
+        if (widget.showAllDataInitially) {
+          // Si no hay búsqueda y se pide mostrar todos los datos, mostramos toda la lista
+          _filteredInformation = _allInformation;
+        } else {
+          // Si no hay búsqueda y no se pide mostrar todos los datos,
+          // mostramos solo las tarjetas seleccionadas
+          _filteredInformation = _getSelectedCardsInfo();
+        }
       } else {
         // Si la búsqueda tiene texto, filtramos la lista completa
         _filteredInformation = _allInformation.where((final card) {
@@ -350,7 +351,7 @@ class _CustomPopUpState extends State<CustomPopUp> {
               // Obtenemos el id de la tarjeta actual en la lista filtrada
               final String? currentId = _filteredInformation[index]['id'];
 
-              // Verificar si este Id está en la lista de emails seleccionados
+              // Verificar si este Id está en la lista de textos seleccionados
               // Esto mantendrá la consistencia entre las listas filtradas y no filtradas
               final bool isSelected = _getSelectedId().contains(currentId);
 

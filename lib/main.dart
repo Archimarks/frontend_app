@@ -1,17 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/date_symbol_data_local.dart';
+import 'package:intl/intl.dart';
+
 
 // Importa configuraciones y utilidades centrales de la app
 import '../src/Core/Barrels/configs_barrel.dart';
-// Importa cubits base como conectividad y conexión a base de datos
-import 'src/Core/Barrels/base_cubit_barrel.dart';
 // Listener global para reaccionar a estados de los cubits desde cualquier parte de la app
 import 'app.dart';
+// Importa cubits base como conectividad y conexión a base de datos
+import 'src/Core/Barrels/base_cubit_barrel.dart';
 
 /// Punto de entrada principal de la aplicación
 void main() async {
   // Asegura que Flutter esté completamente inicializado antes de usar servicios asincrónicos
   WidgetsFlutterBinding.ensureInitialized();
+  await initializeDateFormatting(
+    'es',
+    '',
+  ); // Inicializa la localización para fechas en español
+  Intl.defaultLocale = 'es'; // Establece el locale por defecto a español
 
   // Inicializa almacenamiento local (SharedPreferences)
   await initStorage();
