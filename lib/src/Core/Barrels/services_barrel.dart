@@ -18,5 +18,9 @@ export '../../Utils/Service/repeticion_service.dart';
 export '../../Utils/Service/tiempo_service.dart';
 /// Servicio que trae las ubicaciones de la universidad
 export '../../Utils/Service/ubicacion_service.dart';
-/// Servicio que trae los usuarios de la universidad dependiendo de la palabra escrita
+/// Servicio que trae los usuarios de la universidad
 export '../../Utils/Service/usuarios_service.dart';
+/// Servicio que trae los tipos de eventos
+export '../../Utils/Service/type_events_service.dart';
+/// Servicio que trae los funcionarios
+export '../../Utils/Service/uni_workers_service.dart';

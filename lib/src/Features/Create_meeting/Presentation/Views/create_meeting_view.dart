@@ -95,11 +95,7 @@ class _CreateMeetingState extends State<CreateMeeting> {
   // ---------------------------------------------------------------------------
 
   /// Tipos de encuentros disponibles
-  final List<Map<String, String>> _encounterTypes = [
-    {'id': '1', 'text': 'Reunión administrativa'},
-    {'id': '2', 'text': 'Clases académicas'},
-    {'id': '3', 'text': 'Entrenamiento de equipos'},
-  ];
+  List<Map<String, String>> _encounterTypes = [];
 
   /// Roles de usuario invitados
   final List<Map<String, String>> _rolUser = [
@@ -139,6 +135,7 @@ class _CreateMeetingState extends State<CreateMeeting> {
     _asuntoController = TextEditingController();
     _descriptionController = TextEditingController();
     _loadUsers();
+    _loadTypeEvents();
     _loadGrupos();
     _loadUbicaciones();
     _loadRepeat();
@@ -156,13 +153,27 @@ class _CreateMeetingState extends State<CreateMeeting> {
   // *             Metodos Privados                     *
   // ****************************************************
 
+  /// Método que asigna los tipos de eventos a una lista local
+  Future<void> _loadTypeEvents() async {
+    try {
+      final data = await TypeEventsService().fetchTypeEvents();
+      setState(() {
+        _encounterTypes = data;
+      });
+      print('Tipos de encuentros: $_encounterTypes');
+      // ignore: avoid_catches_without_on_clauses
+    } catch (e) {
+      debugPrint('Error al traer los tipos de eventos: $e');
+    }
+  }
+
   /// Método que asigna los usuarios a una lista local
   Future<void> _loadUsers() async {
     try {
       final data = await UserService().fetchUsers();
       setState(() {
         allUsers = data;
-        print(allUsers);
+        print('Usuarios: $allUsers');
       });
       // ignore: avoid_catches_without_on_clauses
     } catch (e) {
@@ -188,6 +199,8 @@ class _CreateMeetingState extends State<CreateMeeting> {
               },
             )
             .toList();
+        print('Info grupos: $infoGroups');
+        print('Grupos: $groups');
       });
       // ignore: avoid_catches_without_on_clauses
     } catch (e) {
@@ -215,7 +228,7 @@ class _CreateMeetingState extends State<CreateMeeting> {
       setState(() {
         _optionsRepeat = data;
       });
-      print(_optionsRepeat);
+      print('Repeticion: $_optionsRepeat');
       // ignore: avoid_catches_without_on_clauses
     } catch (e) {
       debugPrint('Error al cargar las repeticiones: $e');
@@ -229,7 +242,7 @@ class _CreateMeetingState extends State<CreateMeeting> {
       setState(() {
         _optionsTime = data;
       });
-      print(_optionsTime);
+      print('Tiempos: $_optionsTime');
       // ignore: avoid_catches_without_on_clauses
     } catch (e) {
       debugPrint('Error al cargar los tiempos permitidos: $e');
@@ -433,7 +446,7 @@ class _CreateMeetingState extends State<CreateMeeting> {
             _selectedMeetType = newValue!;
             _selectedMeet =
                 true; // Actualiza el estado de selección del encuentro
-            isClass = _selectedMeetType == '2';
+            isClass = _selectedMeetType == '4';
 
             print(_addParticipants);
             // Limpiar horarios y demás estados relacionados
@@ -443,7 +456,7 @@ class _CreateMeetingState extends State<CreateMeeting> {
             _addParticipants = false;
 
             if (!isClass) {
-              // Si NO es clase, creo al menos un horario vacío para empezar a editar
+              // Si NO es clase, crear al menos un horario vacío para empezar a editar
               _schedules.add(ScheduleData());
             }
           });
@@ -451,7 +464,7 @@ class _CreateMeetingState extends State<CreateMeeting> {
         },
       ),
       if (_selectedMeet) ...[
-        if (_selectedMeetType == '3') ...[
+        if (_selectedMeetType == '5') ...[
           const SizedBox(height: 15),
           CustomDropdown(
             prefixIcon: Icons.sports_kabaddi_rounded,
@@ -491,7 +504,7 @@ class _CreateMeetingState extends State<CreateMeeting> {
         CustomButton(
           color: TipoColores.pantone663C,
           colorIcon: TipoColores.pantone634C,
-          text: _selectedMeetType == '2'
+          text: _selectedMeetType == '4'
               ? 'Seleccionar grupo'
               : 'Agregar participantes',
           icon: Icons.group_add_outlined,
@@ -499,7 +512,7 @@ class _CreateMeetingState extends State<CreateMeeting> {
               MediaQuery.of(context).size.width *
               0.75, // 75% del ancho de la pantalla,
           onPressed: () {
-            if (_selectedMeetType == '2') {
+            if (_selectedMeetType == '4') {
               // Se muestran los grupos si son clases académicas
               CustomPopUp.show(
                 context,
@@ -650,7 +663,7 @@ class _CreateMeetingState extends State<CreateMeeting> {
           return _buildScheduleWidget(index);
         }),
         // Botón "Agregar nuevo horario" después de todos los horarios
-        if (_selectedMeetType != '2' && _schedules.length < 3)
+        if (_selectedMeetType != '4' && _schedules.length < 3)
           CustomButton(
             color: TipoColores.pantone663C,
             colorIcon: TipoColores.pantoneBlackC,
@@ -825,7 +838,8 @@ class _CreateMeetingState extends State<CreateMeeting> {
             const SizedBox(width: 10),
             _buildButtonDate(
               initialDateString: isClass
-                  ? DateTime.now().toString()
+                  ? DateTime.now()
+                        .toString() //CORREGIR
                   : 'Seleccionar fecha',
               date: currentSchedule.startDate,
               onDatePressed: isClass ? null : () => _pickDate(index, true),
@@ -929,7 +943,7 @@ class _CreateMeetingState extends State<CreateMeeting> {
                   });
                 },
         ),
-        if (currentSchedule.repeat || _selectedMeetType == '2') ...[
+        if (currentSchedule.repeat || _selectedMeetType == '4') ...[
           const SizedBox(height: 15),
           CustomSelectionField(
             prefixIcon: Icons.event_rounded,

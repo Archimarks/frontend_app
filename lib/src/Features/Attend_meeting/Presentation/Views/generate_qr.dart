@@ -11,6 +11,7 @@ import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../Core/Barrels/enums_barrel.dart';
+import '../../../../Core/Barrels/services_barrel.dart';
 import '../../../../Core/Barrels/widgets_shared_barrel.dart';
 import '../../../../Core/Routes/route_names.dart';
 
@@ -25,43 +26,81 @@ class GenerateQR extends StatefulWidget {
 }
 
 class _GenerateQRState extends State<GenerateQR> {
-  String rolApp = '';
+  /// Variable que indica si es administrativo
+  bool isAdmin = false;
+
+  /// Variable que indica si está cargando la construcción del selector de delegado
+  bool loadingSelectDelegate = true;
+
   /// Texto para el QR (nombre del grupo - fecha actual)
   String _textQR = '';
+
+  /// ID del delegado seleccionado
   List<String> _selectedDelegateId = [];
-  String? _selectedDelegate; // Variable para almacenar al delegado seleccionado
-  final List<Map<String, String>> myParticipants = [
-    {
-      'id': '1',
-      'textMain': 'Fredy Antonio Verástegui González',
-      'textSecondary': 'f.verastegui@udla.edu.co',
-    },
-    {
-      'id': '2',
-      'textMain': 'Marcos Alejandro Collazos Marmolejo',
-      'textSecondary': 'marc.collazos@udla.edu.co',
-    },
-    {
-      'id': '3',
-      'textMain': 'Geraldine Perilla Valderrama',
-      'textSecondary': 'g.perilla@udla.edu.co',
-    },
-    // ... más participantes
-  ];
+
+  /// Variable para almacenar al delegado seleccionado
+  String? _selectedDelegate = 'Sin delegado';
+  List<Map<String, String>> _myParticipants = [];
 
   @override
   void initState() {
     super.initState();
-    getRolUsuario();
+    _initPage();
     final now = DateTime.now();
     _textQR = '${widget.title} - ${now.day}/${now.month}/${now.year}';
   }
 
+  // ****************************************************
+  // *             Metodos Privados                     *
+  // ****************************************************
+
+  /// Inicialización de la vista
+  Future<void> _initPage() async {
+    await getRolUsuario();
+    if (isAdmin) {
+      await _loadUniversityWorkers();
+    } else {
+      setState(() {
+        loadingSelectDelegate = false; // No es admin → no hay loading
+      });
+    }
+  }
+
   /// Obtener rol del usuario desde SharedPreferences
   Future<void> getRolUsuario() async {
+    String rolApp = '';
     final prefs = await SharedPreferences.getInstance();
-    rolApp = prefs.getString('rol')?.toLowerCase() ?? '';
+    //rolApp = prefs.getString('rol')?.toLowerCase() ?? '';
+    rolApp = 'ADMINISTRATIVO';
     debugPrint('Rol obtenido de preferencias: $rolApp');
+    if (!mounted) {
+      return;
+    }
+    setState(() {
+      isAdmin = rolApp == 'ADMINISTRATIVO';
+    });
+  }
+
+  /// Método que asigna los funcionarios a una lista local
+  Future<void> _loadUniversityWorkers() async {
+    try {
+      final data = await UniversityWorkersService().fetchUniversityWorkers();
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _myParticipants = data;
+        loadingSelectDelegate = false;
+      });
+      print(_myParticipants);
+      // ignore: avoid_catches_without_on_clauses
+    } catch (e) {
+      debugPrint('Error al traer los funcionarios: $e');
+      setState(() {
+        loadingSelectDelegate =
+            false; // <-- aunque falle, ya no debe mostrar el loader
+      });
+    }
   }
 
   @override
@@ -87,17 +126,36 @@ class _GenerateQRState extends State<GenerateQR> {
         backgroundColor: TipoColores.pantone356C.value,
         leadingIconColor: TipoColores.seasalt.value,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          children: [
-            // Contenido principal que puede desplazarse si es necesario
-            Expanded(child: SingleChildScrollView(child: _mainContent())),
-            // Widget inferior que permanece fijo abajo
-            if (rolApp == 'ADMINISTRATIVO') _selectDelegate(),
-          ],
-        ),
-      ),
+      body: loadingSelectDelegate
+          ? Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  CircularProgressIndicator(
+                    color: TipoColores.calPolyGreen.value,
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Cargando datos...',
+                    style: TextStyle(
+                      color: TipoColores.calPolyGreen.value,
+                      fontSize: 16,
+                    ),
+                  ),
+                ],
+              ),
+            )
+          : Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Column(
+                children: [
+                  // Contenido principal que puede desplazarse si es necesario
+                  Expanded(child: SingleChildScrollView(child: _mainContent())),
+                  // Widget inferior que permanece fijo abajo
+                  if (isAdmin) _selectDelegate(),
+                ],
+              ),
+            ),
     ),
   );
 
@@ -165,7 +223,7 @@ class _GenerateQRState extends State<GenerateQR> {
             context.pop();
           },
           showSearchBar: true,
-          infoShowCards: myParticipants,
+          infoShowCards: _myParticipants,
           initialSelectedIDs: _selectedDelegateId,
         );
       },

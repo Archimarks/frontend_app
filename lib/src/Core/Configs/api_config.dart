@@ -24,7 +24,7 @@ class ApiConfig {
 
   /// Instancia única de configuración.
   static const ApiConfig instance = ApiConfig._internal(
-    'http://192.168.1.7:5009',
+    'http://192.168.1.10:5009',
   );
 
   /// Retorna la URL para obtener un usuario por su correo electrónico.
@@ -54,6 +54,12 @@ class ApiConfig {
   // Traer tiempo permitido para asistencia
   String getTime() =>
       '$baseUrl/api/sqlserver/TiempoAsistencia';
+
+  // Traer tipos de eventos
+  String getTypeEvents() => '$baseUrl/api/oracle/TipoEvento/GetAll';
+
+  // Traer funcionarios activos de la universidad
+  String getUniversityWorkers() => '$baseUrl/api/oracle/Funcionario/GetAll';
 }
 
 /// Realizar llamadas HTTP GET a los endpoints de prueba de conexión de SQL Server y Oracle.
