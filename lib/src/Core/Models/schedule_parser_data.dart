@@ -116,4 +116,13 @@ class ScheduleParser {
     );
     return '$range (${parsed.location})';
   }
+
+  /// ### *Método que formatea la fecha*
+  static String formatDate(final DateTime date) {
+    String twoDigits(final int n) => n.toString().padLeft(2, '0');
+    final year = date.year;
+    final month = twoDigits(date.month);
+    final day = twoDigits(date.day);
+    return '$year-$month-$day';
+  }
 }

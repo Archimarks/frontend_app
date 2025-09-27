@@ -761,10 +761,11 @@ class _CreateMeetingState extends State<CreateMeeting> {
   ///---------------------------------------------------------------------------
   Widget _buildScheduleWidget(final int index) {
     final ScheduleData currentSchedule = _schedules[index];
-
     return Column(
       children: [
-        // Espacio de titulo del horario
+        // ---------------------------
+        // Título del horario
+        // ---------------------------
         Container(
           padding: const EdgeInsets.symmetric(vertical: 7, horizontal: 10),
           decoration: BoxDecoration(
@@ -774,7 +775,6 @@ class _CreateMeetingState extends State<CreateMeeting> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              // Titulo del horario
               Text(
                 'Horario ${index + 1}',
                 style: TextStyle(
@@ -783,8 +783,7 @@ class _CreateMeetingState extends State<CreateMeeting> {
                   fontSize: 16,
                 ),
               ),
-              if (_schedules.length >
-                  1) // Solo muestra el botón de eliminar si hay más de un horario
+              if (_schedules.length > 1)
                 IconButton(
                   icon: Icon(
                     Icons.close_rounded,
@@ -814,7 +813,7 @@ class _CreateMeetingState extends State<CreateMeeting> {
                         if (!context.mounted) {
                           return;
                         }
-                        context.pop(); // Cierra el diálogo sin hacer nada
+                        context.pop();
                       },
                     );
                   },
@@ -824,62 +823,65 @@ class _CreateMeetingState extends State<CreateMeeting> {
         ),
         const Divider(),
         const SizedBox(height: 10),
-        // Espacio de selección de la fecha del encuentro
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            Text(
-              'Fecha del encuentro',
-              style: TextStyle(
-                color: TipoColores.pantoneBlackC.value,
-                fontSize: 16,
-              ),
-            ),
-            const SizedBox(width: 10),
-            _buildButtonDate(
-              initialDateString: isClass
-                  ? DateTime.now()
-                        .toString() //CORREGIR
-                  : 'Seleccionar fecha',
-              date: currentSchedule.startDate,
-              onDatePressed: isClass ? null : () => _pickDate(index, true),
-            ),
-          ],
+        PickedDate(
+          title: 'Fecha del encuentro',
+          date: currentSchedule.startDate,
+          onPressed: isClass
+              ? null
+              : () async {
+                  final DateTime? picked = await PickedDate.showDate(context);
+                  if (picked != null) {
+                    setState(() {
+                      currentSchedule.startDate = picked;
+                      _validatorButtonCreate();
+                    });
+                  }
+                },
         ),
-        const SizedBox(height: 10),
-        const Divider(), // Línea divisoria
-        const SizedBox(height: 10),
-        // Espacio de selección de la hora de inicio y hora final del encuentro
-        _buildScheduleRow(
-          context: context,
-          label: 'Hora inicio',
-          initialTimeString: isClass
-              ? ScheduleParser.formatTimeNullable(
-                  currentSchedule.startTime,
-                  context: context,
-                )
-              : 'Seleccionar hora',
+        const SizedBox(height: 15),
+        // Hora inicio
+        PickedTime(
+          title: 'Hora inicio',
           time: currentSchedule.startTime,
-          onTimePressed: isClass ? null : () => _pickTime(index, true),
+          onPressed: isClass
+              ? null
+              : () async {
+                  final picked = await PickedTime.showTime(
+                    context,
+                    initialTime: currentSchedule.startTime,
+                  );
+                  if (picked != null) {
+                    setState(() {
+                      currentSchedule.startTime = picked;
+                      _validatorButtonCreate();
+                    });
+                  }
+                },
         ),
-        const SizedBox(height: 10),
-        const Divider(), // Línea divisoria
-        const SizedBox(height: 10),
-        _buildScheduleRow(
-          context: context,
-          label: 'Hora final',
-          initialTimeString: isClass
-              ? ScheduleParser.formatTimeNullable(
-                  currentSchedule.endTime,
-                  context: context,
-                )
-              : 'Seleccionar hora',
+        const SizedBox(height: 15),
+        // Hora final
+        PickedTime(
+          title: 'Hora final',
           time: currentSchedule.endTime,
-          onTimePressed: isClass ? null : () => _pickTime(index, false),
+          onPressed: isClass
+              ? null
+              : () async {
+                  final picked = await PickedTime.showTime(
+                    context,
+                    initialTime: currentSchedule.endTime,
+                  );
+                  if (picked != null) {
+                    setState(() {
+                      currentSchedule.endTime = picked;
+                      _validatorButtonCreate();
+                    });
+                  }
+                },
         ),
-        const SizedBox(height: 10),
-        const Divider(),
-        // Espacio de selección de la ubicación del encuentro
+        const SizedBox(height: 15),
+        // ---------------------------
+        // Ubicación
+        // ---------------------------
         CustomSelectionField(
           title: 'Ubicación',
           prefixIcon: Icons.location_on_outlined,
@@ -925,38 +927,53 @@ class _CreateMeetingState extends State<CreateMeeting> {
                 },
         ),
         const SizedBox(height: 15),
-        CustomDropdown(
-          prefixIcon: Icons.repeat_rounded,
-          title: 'Repetir',
-          options: _optionsRepeat,
-          initialValue: isClass
-              ? '4'
-              : currentSchedule.selectedRepeat.toString(),
-          onChanged: isClass
-              ? null
-              : (final newValue) {
-                  setState(() {
-                    currentSchedule
-                      ..selectedRepeat = int.parse(newValue!)
-                      ..repeat = newValue != '1';
-                    _validatorButtonCreate();
-                  });
-                },
+        // ---------------------------
+        // Repetir
+        // ---------------------------
+        SizedBox(
+          width: double.infinity, // 👈 ocupa todo el ancho posible
+          child: CustomDropdown(
+            prefixIcon: Icons.repeat_rounded,
+            title: 'Repetir',
+            options: _optionsRepeat,
+            initialValue: isClass
+                ? '19'
+                : currentSchedule.selectedRepeat.toString(),
+            onChanged: isClass
+                ? null
+                : (final newValue) {
+                    setState(() {
+                      currentSchedule
+                        ..selectedRepeat = int.parse(newValue!)
+                        ..repeat = newValue != '21';
+                      _validatorButtonCreate();
+                    });
+                  },
+          ),
         ),
+        // ---------------------------
+        // Fecha de finalización si hay repetición
+        // ---------------------------
         if (currentSchedule.repeat || _selectedMeetType == '4') ...[
           const SizedBox(height: 15),
-          CustomSelectionField(
-            prefixIcon: Icons.event_rounded,
+          PickedDate(
             title: 'Finalizar repetición',
-            displayValue: currentSchedule.endDate != null
-                ? _formatDate(currentSchedule.endDate!)
-                : DateTime.now().toIso8601String().substring(0, 10),
-            onPressed: () {
-              _pickDate(index, false);
+            date: currentSchedule.endDate,
+            onPressed: () async {
+              final DateTime? picked = await PickedDate.showDate(context);
+              if (picked != null) {
+                setState(() {
+                  currentSchedule.endDate = picked;
+                  _validatorButtonCreate();
+                });
+              }
             },
           ),
         ],
         const SizedBox(height: 15),
+        // ---------------------------
+        // Tiempo permitido asistencia
+        // ---------------------------
         CustomDropdown(
           prefixIcon: Icons.watch_later_outlined,
           title: 'Tiempo permitido para registrar asistencia',
@@ -964,7 +981,7 @@ class _CreateMeetingState extends State<CreateMeeting> {
           initialValue: currentSchedule.selectedTime.toString(),
           onChanged: (final newId) {
             setState(() {
-              currentSchedule.selectedTime = int.parse(newId!); // Guardar id
+              currentSchedule.selectedTime = int.parse(newId!);
               _validatorButtonCreate();
             });
           },
@@ -972,146 +989,5 @@ class _CreateMeetingState extends State<CreateMeeting> {
         const SizedBox(height: 15),
       ],
     );
-  }
-
-  ///---------------------------------------------------------------------------
-  /// ### Método auxiliar para construir el botón de fecha.
-  ///---------------------------------------------------------------------------
-  Widget _buildButtonDate({
-    required final String initialDateString,
-    required final DateTime? date,
-    required final VoidCallback? onDatePressed,
-  }) {
-    final String formattedDate = date != null
-        ? _formatDate(date)
-        : initialDateString; // Formato YYYY-MM-DD
-    return CustomButton(
-      onPressed: onDatePressed,
-      text: formattedDate,
-      color: TipoColores.pantone634C,
-      disabledColor: TipoColores.pantone634C,
-      width:
-          MediaQuery.of(context).size.width *
-          0.40, // 40% del ancho de la pantalla,
-    );
-  }
-
-  ///---------------------------------------------------------------------------
-  /// ### Método auxiliar para construir una fila de horario con fecha y hora.
-  ///---------------------------------------------------------------------------
-  Widget _buildScheduleRow({
-    required final BuildContext context,
-    required final String label,
-    required final String initialTimeString,
-    required final TimeOfDay? time,
-    required final VoidCallback? onTimePressed,
-  }) {
-    // Definimos el estilo para los textos dentro del Row
-    final TextStyle labelStyle = TextStyle(
-      color: TipoColores.pantoneBlackC.value,
-      fontSize: 16,
-    );
-
-    final String formattedTime = time != null
-        ? time.format(context)
-        : initialTimeString;
-
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceAround,
-      children: [
-        Text(label, style: labelStyle),
-        CustomButton(
-          onPressed: onTimePressed,
-          text: formattedTime,
-          color: TipoColores.pantone634C,
-          disabledColor: TipoColores.pantone634C,
-          width:
-              MediaQuery.of(context).size.width *
-              0.40, // 40% del ancho de la pantalla,
-        ),
-      ],
-    );
-  }
-
-  /// --------------------------------------------------------------------------
-  /// ### *Método que formatea la fecha*
-  /// --------------------------------------------------------------------------
-  String _formatDate(final DateTime date) {
-    String twoDigits(final int n) => n.toString().padLeft(2, '0');
-    final year = date.year;
-    final month = twoDigits(date.month);
-    final day = twoDigits(date.day);
-    return '$year-$month-$day';
-  }
-
-  /// --------------------------------------------------------------------------
-  /// ### Método para mostrar el selector de fecha.
-  /// --------------------------------------------------------------------------
-  Future<void> _pickDate(final int index, final bool isStart) async {
-    final ThemeData customTheme = Theme.of(context).copyWith(
-      colorScheme: ColorScheme.light(
-        surface: TipoColores.seasalt.value,
-        primary: TipoColores.pantone634C.value,
-        onPrimary: TipoColores.seasalt.value,
-        onSurfaceVariant: TipoColores.pantone634C.value,
-      ),
-    );
-
-    final DateTime? pickedDate = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime.now(),
-      lastDate: DateTime(2030),
-      builder: (final BuildContext context, final Widget? child) =>
-          Theme(data: customTheme, child: child!),
-    );
-
-    if (pickedDate != null) {
-      setState(() {
-        if (isStart) {
-          _schedules[index].startDate = pickedDate;
-        } else {
-          _schedules[index].endDate = pickedDate;
-        }
-        _validatorButtonCreate();
-      });
-    }
-  }
-
-  /// --------------------------------------------------------------------------
-  /// ### Método para mostrar el selector de hora.
-  ///---------------------------------------------------------------------------
-  Future<void> _pickTime(final int index, final bool isStart) async {
-    final ThemeData customTheme = Theme.of(context).copyWith(
-      colorScheme: ColorScheme.light(
-        primary: TipoColores.pantone634C.value,
-        onSurface: TipoColores.pantoneBlackC.value,
-        surface: TipoColores.seasalt.value,
-        onPrimary: TipoColores.seasalt.value,
-        onSecondary: TipoColores.seasalt.value,
-        secondary: TipoColores.pantone634C.value,
-      ),
-      timePickerTheme: TimePickerThemeData(
-        dialBackgroundColor: TipoColores.pantone663C.value,
-      ),
-    );
-
-    final TimeOfDay? pickedTime = await showTimePicker(
-      context: context,
-      initialTime: TimeOfDay.now(),
-      builder: (final BuildContext context, final Widget? child) =>
-          Theme(data: customTheme, child: child!),
-    );
-
-    if (pickedTime != null) {
-      setState(() {
-        if (isStart) {
-          _schedules[index].startTime = pickedTime;
-        } else {
-          _schedules[index].endTime = pickedTime;
-        }
-        _validatorButtonCreate();
-      });
-    }
   }
 }

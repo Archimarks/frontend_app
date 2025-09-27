@@ -50,7 +50,6 @@ class _CustomDropdownState extends State<CustomDropdown> {
 
   @override
   Widget build(final BuildContext context) {
-    // Definimos los estilos de texto usando el color proporcionado
     final TextStyle labelTextStyle = TextStyle(
       fontSize: 18,
       color: widget.iconColor.value,
@@ -58,46 +57,54 @@ class _CustomDropdownState extends State<CustomDropdown> {
 
     final TextStyle optionTextStyle = TextStyle(
       fontSize: 16,
-      color: TipoColores
-          .pantoneBlackC
-          .value, // Color por defecto para las opciones
+      color: TipoColores.pantoneBlackC.value,
       fontWeight: FontWeight.w400,
     );
 
-    // Helper function para crear el borde de línea inferior
     InputBorder buildUnderlineBorder({required final Color color}) =>
         UnderlineInputBorder(borderSide: BorderSide(color: color));
 
-    return DropdownButtonFormField<String>(
-      value: _selectedValue,
-      onChanged: widget.onChanged,
-      decoration: InputDecoration(
-        labelText: widget.title,
-        labelStyle: labelTextStyle,
-        prefixIcon: widget.prefixIcon != null
-            ? Icon(widget.prefixIcon, color: widget.iconColor.value)
-            : null,
-        filled: true,
-        fillColor: widget.dropdownColor.value,
-        border: UnderlineInputBorder(
-          borderSide: BorderSide(color: widget.borderColor.value),
-        ),
-        enabledBorder: UnderlineInputBorder(
-          borderSide: BorderSide(color: widget.borderColor.value),
-        ),
-        focusedBorder: buildUnderlineBorder(
-          color: widget.focusedBorderColor.value,
-        ),
-      ),
-      style: optionTextStyle,
-      items: widget.options
-          .map(
-            (final opt) => DropdownMenuItem<String>(
-              value: opt['id'],
-              child: Text(opt['text']!, style: optionTextStyle),
+    return Row(
+      children: [
+        Expanded(
+          child: DropdownButtonFormField<String>(
+            isExpanded: true,
+            initialValue: _selectedValue,
+            onChanged: widget.onChanged,
+            decoration: InputDecoration(
+              labelText: widget.title,
+              labelStyle: labelTextStyle,
+              prefixIcon: widget.prefixIcon != null
+                  ? Icon(widget.prefixIcon, color: widget.iconColor.value)
+                  : null,
+              filled: true,
+              fillColor: widget.dropdownColor.value,
+              border: UnderlineInputBorder(
+                borderSide: BorderSide(color: widget.borderColor.value),
+              ),
+              enabledBorder: UnderlineInputBorder(
+                borderSide: BorderSide(color: widget.borderColor.value),
+              ),
+              focusedBorder: buildUnderlineBorder(
+                color: widget.focusedBorderColor.value,
+              ),
             ),
-          )
-          .toList(),
+            style: optionTextStyle,
+            items: widget.options
+                .map(
+                  (final opt) => DropdownMenuItem<String>(
+                    value: opt['id'],
+                    child: Text(
+                      opt['text']!,
+                      style: optionTextStyle,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                )
+                .toList(),
+          ),
+        ),
+      ],
     );
   }
 }

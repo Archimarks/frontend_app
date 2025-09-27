@@ -9,13 +9,13 @@ import 'package:flutter/material.dart';
 class ScheduleData {
   ScheduleData({
     this.startDate,
-    this.startTime,
     this.endDate,
+    this.startTime,
     this.endTime,
-    this.selectedLocationName,
     this.selectedLocationID,
-    this.selectedRepeat = 1,
-    this.selectedTime = 3,
+    this.selectedRepeat = 21,
+    this.selectedTime = 2,
+    this.selectedLocationName,
     this.repeat = false,
   });
   DateTime? startDate;

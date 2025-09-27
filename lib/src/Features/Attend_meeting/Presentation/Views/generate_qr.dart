@@ -27,7 +27,7 @@ class GenerateQR extends StatefulWidget {
 
 class _GenerateQRState extends State<GenerateQR> {
   /// Variable que indica si es administrativo
-  bool isAdmin = false;
+  bool canSelectDelegate = false;
 
   /// Variable que indica si está cargando la construcción del selector de delegado
   bool loadingSelectDelegate = true;
@@ -57,7 +57,7 @@ class _GenerateQRState extends State<GenerateQR> {
   /// Inicialización de la vista
   Future<void> _initPage() async {
     await getRolUsuario();
-    if (isAdmin) {
+    if (canSelectDelegate) {
       await _loadUniversityWorkers();
     } else {
       setState(() {
@@ -70,14 +70,13 @@ class _GenerateQRState extends State<GenerateQR> {
   Future<void> getRolUsuario() async {
     String rolApp = '';
     final prefs = await SharedPreferences.getInstance();
-    //rolApp = prefs.getString('rol')?.toLowerCase() ?? '';
-    rolApp = 'ADMINISTRATIVO';
+    rolApp = prefs.getString('rol')?.toLowerCase() ?? '';
     debugPrint('Rol obtenido de preferencias: $rolApp');
     if (!mounted) {
       return;
     }
     setState(() {
-      isAdmin = rolApp == 'ADMINISTRATIVO';
+      canSelectDelegate = rolApp == 'ADMINISTRATIVO' || rolApp == 'DOCENTE';
     });
   }
 
@@ -152,7 +151,7 @@ class _GenerateQRState extends State<GenerateQR> {
                   // Contenido principal que puede desplazarse si es necesario
                   Expanded(child: SingleChildScrollView(child: _mainContent())),
                   // Widget inferior que permanece fijo abajo
-                  if (isAdmin) _selectDelegate(),
+                  if (canSelectDelegate) _selectDelegate(),
                 ],
               ),
             ),
