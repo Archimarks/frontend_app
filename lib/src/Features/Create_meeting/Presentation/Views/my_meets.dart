@@ -4,12 +4,16 @@
 /// * Descripción: Vista de encuentros creados.
 /// * Autores: Geraldine Perilla Valderrama & Marcos Alejandro Collazos Marmolejo
 /// ****************************************************************************
+// ignore_for_file: use_build_context_synchronously
+
 library;
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../Core/Barrels/enums_barrel.dart';
+import '../../../../Core/Barrels/models_barrel.dart';
+import '../../../../Core/Barrels/services_barrel.dart';
 import '../../../../Core/Barrels/widgets_shared_barrel.dart';
 import '../../../../Core/Routes/route_names.dart';
 
@@ -21,54 +25,55 @@ class MyMeets extends StatefulWidget {
 }
 
 class _MyMeetsState extends State<MyMeets> {
-  /// Variable para saber si hay encuentros creados
-  final List<Map<String, dynamic>> currentMeets = [
-    {
-      'id': 1,
-      'hour': TimeOfDay.now(),
-      'title': 'Clase diseño de base de datos',
-      'description': 'Clase diseño de base de datos lunes y martes...',
-    },
-    {
-      'id': 2,
-      'hour': TimeOfDay.now(),
-      'title': 'Clase administración de base de datos Grupo 1',
-      'description': 'Clase administración de base de datos martes y jueves...',
-    },
-    {
-      'id': 3,
-      'hour': TimeOfDay.now(),
-      'title': 'Clase administración de base de datos Grupo 2',
-      'description': 'Clase administración de base de datos lunes y jueves...',
-    },
-    {
-      'id': 4,
-      'hour': TimeOfDay.now(),
-      'title': 'Clase diseño de base de datos',
-      'description': 'Clase diseño de base de datos lunes y martes...',
-    },
-    {
-      'id': 5,
-      'hour': TimeOfDay.now(),
-      'title': 'Clase administración de base de datos Grupo 1',
-      'description': 'Clase administración de base de datos martes y jueves...',
-    },
-    {
-      'id': 6,
-      'hour': TimeOfDay.now(),
-      'title': 'Clase administración de base de datos Grupo 2',
-      'description': 'Clase administración de base de datos lunes y jueves...',
-    },
-    {
-      'id': 7,
-      'hour': TimeOfDay.now(),
-      'title': 'Clase diseño de base de datos',
-      'description': 'Clase diseño de base de datos lunes y martes...',
-    },
-  ];
+  /// Lista de encuentros creados por mí
+  List<MeetingModel> _meetings = [];
+  bool _isLoading = true;
+  final service = MeetingService();
+
+  @override
+  void initState() {
+    super.initState();
+    _loadMeetings();
+  }
+
+  /// Método que asigna los encuentros traídos a una lista local
+  Future<void> _loadMeetings() async {
+    final data = await service.fetchMeetings();
+    setState(() {
+      _meetings = data;
+      _isLoading = false;
+      print(_meetings.toString());
+    });
+  }
 
   /// Getter para verificar si hay encuentros
-  bool get hasMeets => currentMeets.isNotEmpty;
+  bool get hasMeets => _meetings.isNotEmpty;
+
+  /// Método local que se encarga de eliminar un encuentro a partir del ID
+  Future<bool> deleteMeetingforID(final int idEncuentro) async {
+    final bool response = await service.deleteMeeting(idEncuentro);
+
+    if (response) {
+      await _loadMeetings(); // vuelve a traer la lista de la API
+    }
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            response
+                ? 'Encuentro eliminado correctamente.'
+                : 'Ha ocurrido un error al eliminar el encuentro.',
+            style: TextStyle(color: TipoColores.seasalt.value),
+          ),
+          backgroundColor: response
+              ? TipoColores.calPolyGreen.value
+              : TipoColores.pantone7621C.value,
+        ),
+      );
+    }
+    return response;
+  }
 
   @override
   // ignore: prefer_expression_function_bodies
@@ -106,30 +111,37 @@ class _MyMeetsState extends State<MyMeets> {
             context.goNamed(RouteNames.createMeet);
           },
         ),
-        body: LayoutBuilder(
-          builder:
-              (
-                final BuildContext context,
-                final BoxConstraints viewportConstraints,
-              ) => SingleChildScrollView(
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(
-                    minHeight: viewportConstraints.maxHeight,
-                  ),
-                  child: IntrinsicHeight(
-                    child: Padding(
-                      padding: const EdgeInsets.all(15.0),
-                      child: _portraitLayout(),
-                    ),
-                  ),
+        body: _isLoading
+            ? Center(
+                child: CircularProgressIndicator(
+                  color: TipoColores.calPolyGreen.value,
                 ),
+              )
+            : LayoutBuilder(
+                builder:
+                    (
+                      final BuildContext context,
+                      final BoxConstraints viewportConstraints,
+                    ) => SingleChildScrollView(
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          minHeight: viewportConstraints.maxHeight,
+                        ),
+                        child: IntrinsicHeight(
+                          child: Padding(
+                            padding: const EdgeInsets.all(15.0),
+                            child: _portraitLayout(),
+                          ),
+                        ),
+                      ),
+                    ),
               ),
-        ),
       ),
     );
   }
 
-  Widget _portraitLayout() => hasMeets ? _showActiveMeets() : _hasntMeets();
+  Widget _portraitLayout() =>
+      hasMeets ? _showActiveMeets() : Center(child: _hasntMeets());
 
   /// ### Widget que muestra los encuentros existentes
   Widget _showActiveMeets() => Column(
@@ -137,19 +149,19 @@ class _MyMeetsState extends State<MyMeets> {
       Expanded(
         child: Column(
           children: [
-            ...currentMeets.asMap().entries.map((final entry) {
+            ..._meetings.asMap().entries.map((final entry) {
               final meet = entry.value; // Accedemos a la reunión actual
               // Variable para los datos del encuentro seleccionado
               final meetData = {
-                'title': meet['title'].toString(),
-                'hourAndDate': '${meet['hour'].hour}:${meet['hour'].minute}',
+                'title': meet.encuAsunto,
+                'hourAndDate': meet.encuRolDirigido,
               };
               return Column(
                 children: [
                   CustomMeetCard(
-                    hourAndDate: '${meet['hour'].hour}:${meet['hour'].minute}',
-                    title: meet['title'].toString(),
-                    description: meet['description'].toString(),
+                    hourAndDate: meet.encuRolDirigido,
+                    title: meet.encuAsunto,
+                    description: meet.encuDescripcion,
                     actionCard: () {
                       if (!mounted) {
                         return;
@@ -167,10 +179,8 @@ class _MyMeetsState extends State<MyMeets> {
                         confirmButtonText: 'Eliminar',
                         cancelButtonText: 'Cancelar',
                         colorButtonConfirm: TipoColores.pantone7621C,
-                        onConfirm: () {
-                          setState(() {
-                            currentMeets.removeAt(entry.key);
-                          });
+                        onConfirm: () async {
+                          await deleteMeetingforID(_meetings[entry.key].encuId);
                           if (!context.mounted) {
                             return;
                           }

@@ -10,23 +10,22 @@ import '../../Core/Configs/api_config.dart';
 
 /// Clase encargada de hacer la petición a la API para crear, eliminar, actualizar e insertar Encuentros
 class MeetingService {
-
   /// Método para crear un encuentro a partir de los datos de `MeetingModel`
   Future<bool> createMeeting(final MeetingModel encuentro) async {
     final baseUrl = ApiConfig.instance.postMeeting(encuentro);
     try {
       final response = await http.post(
         Uri.parse(baseUrl),
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: {'Content-Type': 'application/json'},
         body: jsonEncode(encuentro.toJson()),
       );
       if (response.statusCode == 200 || response.statusCode == 201) {
         debugPrint('✅ Encuentro creado correctamente: ${response.body}');
         return true;
       } else {
-        debugPrint('❌ Error al crear encuentro: ${response.statusCode} ${response.body}');
+        debugPrint(
+          '❌ Error al crear encuentro: ${response.statusCode} ${response.body}',
+        );
         return false;
       }
     } catch (e) {
@@ -35,30 +34,52 @@ class MeetingService {
     }
   }
 
-  /// Método que trae información de los encuentros
-  Future<List<Grupo>> fetchMeetings({
-    required final int pegeld,
-    final int periodo = 550,
-  }) async {
+  /// Método que trae todos los encuentros
+  Future<List<MeetingModel>> fetchMeetings() async {
     final baseUrl = ApiConfig.instance.getMeeting();
 
-    // Construir la URI con parámetros en query
-    final uri = Uri.parse(baseUrl).replace(
-      queryParameters: {
-        'pegeId': pegeld.toString(),
-        'periodo': periodo.toString(),
-      },
-    );
+    try {
+      final response = await http.get(
+        Uri.parse(baseUrl),
+        headers: {'Content-Type': 'application/json'},
+      );
 
-    final response = await http.get(uri);
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body);
 
-    if (response.statusCode == 200) {
-      final List<dynamic> data = json.decode(response.body);
+        // Mapear cada item del JSON a un objeto MeetingModel
+        return data.map((e) => MeetingModel.fromJson(e)).toList();
+      } else {
+        debugPrint('❌ Error al traer encuentros: ${response.body}');
+        return [];
+      }
+    } catch (e) {
+      debugPrint('⚠️ Excepción en fetchMeetings: $e');
+      return [];
+    }
+  }
 
-      // Retorna un mapa del modelo de grupos
-      return data.map((final json) => Grupo.fromJson(json)).toList();
-    } else {
-      throw Exception('Error al cargar grupos: ${response.statusCode}');
+  /// Método para eliminar un encuentro mediante el ID
+  Future <bool> deleteMeeting(final int idEncuentro) async {
+    final baseUrl = ApiConfig.instance.deleteMeeting(idEncuentro);
+    try {
+      final response = await http.delete(
+        Uri.parse(baseUrl),
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 204) {
+        debugPrint('✅ Encuentro eliminado correctamente');
+        return true;
+      } else {
+        debugPrint(
+          '❌ Error al eliminar encuentro: ${response.statusCode} ${response.body}',
+        );
+        return false;
+      }
+    } catch (e) {
+      debugPrint('⚠️ Excepción en deleteMeeting: $e');
+      return false;
     }
   }
 }

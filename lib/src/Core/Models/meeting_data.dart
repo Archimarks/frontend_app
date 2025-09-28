@@ -17,16 +17,16 @@ class MeetingModel {
 
   /// Crear objeto desde JSON
   factory MeetingModel.fromJson(final Map<String, dynamic> json) => MeetingModel(
-      encuId: json['encu_ID'] ?? 0,
-      encuTipoEncuentro: json['encu_TIPO_ENCUENTRO'] ?? '',
-      encuEsenId: json['encu_ESEN_ID'] ?? 0,
-      encuAsunto: json['encu_ASUNTO'] ?? '',
-      encuDescripcion: json['encu_DESCRIPCION'] ?? '',
-      encuDuracionEncuentro: json['encu_DURACION_ENCUENTRO'] ?? 0,
-      encuAsistencias: json['encu_ASISTENCIAS'] ?? 0,
-      encuInasistencias: json['encu_INASISTENCIAS'] ?? 0,
-      encuActas: json['encu_ACTAS'] ?? false,
-      encuRolDirigido: json['encu_ROL_DIRIGIDO'] ?? '',
+        encuId: json['encU_ID'] ?? 0,
+        encuTipoEncuentro: json['encU_TIPO_ENCUENTRO'] ?? '',
+        encuEsenId: json['encU_ESEN_ID'] ?? 0,
+        encuAsunto: json['encU_ASUNTO'] ?? '',
+        encuDescripcion: json['encU_DESCRIPCION'] ?? '',
+        encuDuracionEncuentro: json['encU_DURACION_ENCUENTRO'] ?? 0,
+        encuAsistencias: json['encU_ASISTENCIAS'] ?? 0,
+        encuInasistencias: json['encU_INASISTENCIAS'] ?? 0,
+        encuActas: json['encU_ACTAS'] ?? false,
+        encuRolDirigido: json['encU_ROL_DIRIGIDO'] ?? '',
       //creador: json['creador'] ?? 0,
     );
   final int encuId;

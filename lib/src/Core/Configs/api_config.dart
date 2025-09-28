@@ -61,6 +61,10 @@ class ApiConfig {
   String getMeeting() =>
       '$baseUrl/api/sqlserver/Encuentro';
 
+  /// Eliminar un encuentro
+  String deleteMeeting(final int id) =>
+      '$baseUrl/api/sqlserver/Encuentro/$id';
+
   /// Crear un encuentro a partir de los datos de la clase `MeetingModel`
   String postMeeting(final MeetingModel encuentro) =>
       '$baseUrl/api/sqlserver/Encuentro';
