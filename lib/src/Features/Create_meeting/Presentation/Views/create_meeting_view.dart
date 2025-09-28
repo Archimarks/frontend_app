@@ -43,14 +43,23 @@ class _CreateMeetingState extends State<CreateMeeting> {
   /// Indica el tipo de encuentro seleccionado
   String? _selectedMeetType;
 
+  /// Indica si el encuentro seleccionado es una reunión
+  bool isMeeting = false;
+
   /// Indica si el encuentro seleccionado es una clase
   bool isClass = false;
+
+  /// Indica si el encuentro seleccionado es un entrenamiento
+  bool isTraining = false;
 
   /// Indica si se seleccionó un rol de usuario
   bool _selectedRolUser = false;
 
   /// Tipo de rol de usuario seleccionado
   String? _selectedTypeRolUser;
+
+  /// Variable que guarda el último error de datos faltantes
+  String? _lastValidationError;
 
   /// Indica si se debe generar acta
   bool certificate = false;
@@ -91,18 +100,11 @@ class _CreateMeetingState extends State<CreateMeeting> {
   List<Map<String, String>> addedParticipants = [];
 
   // ---------------------------------------------------------------------------
-  // Listas temporales (luego serán reemplazadas por datos de la API)
+  // Listas de datos traídos de la API
   // ---------------------------------------------------------------------------
 
   /// Tipos de encuentros disponibles
   List<Map<String, String>> _encounterTypes = [];
-
-  /// Roles de usuario invitados
-  final List<Map<String, String>> _rolUser = [
-    {'id': '1', 'text': 'Docentes'},
-    {'id': '2', 'text': 'Administrativos'},
-    {'id': '3', 'text': 'Estudiantes'},
-  ];
 
   /// Opciones de tiempo asistencia para los encuentros
   List<Map<String, String>> _optionsTime = [];
@@ -123,8 +125,15 @@ class _CreateMeetingState extends State<CreateMeeting> {
   List<Grupo> infoGroups = [];
 
   // ---------------------------------------------------------------------------
-  // Horarios
+  // Listas locales de datos
   // ---------------------------------------------------------------------------
+
+  /// Roles de usuario invitados
+  final List<Map<String, String>> _rolUser = [
+    {'id': '1', 'text': 'Administrativos'},
+    {'id': '2', 'text': 'Docentes'},
+    {'id': '3', 'text': 'Estudiantes'},
+  ];
 
   /// Lista de horarios creados para el encuentro
   List<ScheduleData> _schedules = [];
@@ -150,7 +159,7 @@ class _CreateMeetingState extends State<CreateMeeting> {
   }
 
   // ****************************************************
-  // *             Metodos Privados                     *
+  // *        Metodos para asignación de datos          *
   // ****************************************************
 
   /// Método que asigna los tipos de eventos a una lista local
@@ -249,9 +258,11 @@ class _CreateMeetingState extends State<CreateMeeting> {
     }
   }
 
-  ///---------------------------------------------------------------------------
+  // ****************************************************
+  // *           Metodos locales de la vista            *
+  // ****************************************************
+
   /// ### Método para validar que los horarios agregados estén completos.
-  ///---------------------------------------------------------------------------
   String? _validateSchedules() {
     // Itera sobre la lista de horarios
     for (final schedule in _schedules) {
@@ -270,8 +281,10 @@ class _CreateMeetingState extends State<CreateMeeting> {
       }
 
       // 3. Comparar que la hora de inicio no sea posterior a la hora de finalización.
-      final int startTimeInMinutes = _toMinutes(schedule.startTime!);
-      final int endTimeInMinutes = _toMinutes(schedule.endTime!);
+      final int startTimeInMinutes = ScheduleParser.toMinutes(
+        schedule.startTime!,
+      );
+      final int endTimeInMinutes = ScheduleParser.toMinutes(schedule.endTime!);
       if (startTimeInMinutes >= endTimeInMinutes) {
         return 'La hora de inicio debe ser anterior a la hora de finalización.';
       }
@@ -294,7 +307,9 @@ class _CreateMeetingState extends State<CreateMeeting> {
       if (schedule.startDate != null &&
           schedule.startDate!.isAtSameMomentAs(today)) {
         final nowInMinutes = (now.hour * 60) + now.minute;
-        final startTimeInMinutes = _toMinutes(schedule.startTime!);
+        final startTimeInMinutes = ScheduleParser.toMinutes(
+          schedule.startTime!,
+        );
 
         // Compara la hora de inicio con la hora actual
         if (startTimeInMinutes < nowInMinutes) {
@@ -307,29 +322,35 @@ class _CreateMeetingState extends State<CreateMeeting> {
     return null;
   }
 
-  ///---------------------------------------------------------------------------
-  /// ### Método auxiliar para convertir TimeOfDay a minutos y compararlo
-  ///---------------------------------------------------------------------------
-  int _toMinutes(final TimeOfDay time) => time.hour * 60 + time.minute;
-
-  ///---------------------------------------------------------------------------
   /// ### Método que valida los campos y habilita el botón de crear encuentro
-  ///---------------------------------------------------------------------------
   void _validatorButtonCreate() {
     final String? validationError = _validateSchedules();
 
-    if (validationError != null && validationError.isNotEmpty) {
-      // Se muestra el SnackBar de advertencia cuando falta o está mal algún parámetro del horario
+    // Mostrar el SnackBar solo si:
+    // - Hay error
+    // - Y es diferente al último error mostrado
+    if (validationError != null &&
+        validationError.isNotEmpty &&
+        validationError != _lastValidationError) {
+      _lastValidationError =
+          validationError; // actualizar último error mostrado
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(validationError),
           backgroundColor: TipoColores.pantone7621C.value,
         ),
       );
+
       setState(() {
         _isCreateButtonEnabled = false;
       });
       return;
+    }
+
+    // Si ya no hay error, limpiar el flag
+    if (validationError == null) {
+      _lastValidationError = null;
     }
 
     // Validar que todos los campos obligatorios estén llenos
@@ -340,11 +361,8 @@ class _CreateMeetingState extends State<CreateMeeting> {
         (_descriptionController.text.trim().isNotEmpty &&
         _descriptionController.text != '');
     final bool isSchedulesValid = _validateSchedules() == null;
-    final bool isLeaderSelected =
-        _selectedMeetType != 'Reunión administrativa' ||
-        _selectedLeadingUser != null;
-    final bool isRolUserSelected =
-        _selectedMeetType != 'Entrenamiento de equipos' || _selectedRolUser;
+    final bool isLeaderSelected = !isMeeting || _selectedLeadingUser != null;
+    final bool isRolUserSelected = !isTraining || _selectedRolUser;
 
     setState(() {
       _isCreateButtonEnabled =
@@ -376,11 +394,12 @@ class _CreateMeetingState extends State<CreateMeeting> {
           if (parsed != null) {
             final schedule = ScheduleData(
               startDate: DateTime.now(),
+              dayName: dia,
               startTime: parsed.startTime,
               endTime: parsed.endTime,
               selectedLocationName: parsed.location,
               selectedLocationID: grupo.id.toString(),
-              selectedRepeat: 4, // Clase
+              selectedRepeat: 4, // Se repite semanalmente porque es clase
               repeat: true,
             );
 
@@ -391,6 +410,107 @@ class _CreateMeetingState extends State<CreateMeeting> {
     setState(() {
       _schedules = List.from(_schedules); // Forzar rebuild
     });
+  }
+
+  /// ### Método para manejar el cambio de tipo de encuentro que se seleccione
+  /// - Actualiza el estado de selección del encuentro
+  /// - Limpia horarios y demás variables relacionadas al encuentro
+  /// - Actualiza estados a las variables `isMeeting`, `isClass` y `isTraining`
+  void _onEncounterTypeChanged(final String? newValue) {
+    if (newValue == null) {
+      return;
+    }
+    setState(() {
+      _selectedMeetType = newValue;
+      _selectedMeet = true; // Actualiza el estado de selección del encuentro
+      isMeeting = _selectedMeetType == '1';
+      isClass = _selectedMeetType == '4';
+      isTraining = _selectedMeetType == '5';
+
+      // Limpiar horarios y demás estados relacionados
+      _schedules.clear();
+      _selectedGroupId.clear();
+      addedParticipants.clear();
+      _addParticipants = false;
+      if (!isClass) {
+        // Si NO es clase, crear al menos un horario vacío para empezar a editar
+        _schedules.add(ScheduleData());
+      }
+    });
+    _validatorButtonCreate();
+  }
+
+  /// ### Método para manejar la acción de agregar un nuevo horario
+  /// - Valida los campos actuales del horario con `_validateSchedules()`
+  /// - Si hay errores: muestra un `SnackBar` con el mensaje correspondiente
+  /// - Si no hay errores: agrega un nuevo objeto `ScheduleData` a la lista `_schedules`
+  ///   y actualiza el estado del botón de creación mediante `_validatorButtonCreate()`
+  void _onAddSchedulePressed(final BuildContext context) {
+    if (_validateSchedules() != null) {
+      // Si hay un error de validación en los campos del horario
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text(
+            'Faltan campos obligatorios en el horario o no son válidos.',
+          ),
+          backgroundColor: TipoColores.pantone7621C.value,
+        ),
+      );
+    } else {
+      // Si no hay errores, se agrega un nuevo horario.
+      setState(() {
+        _schedules.add(ScheduleData());
+        _validatorButtonCreate();
+      });
+    }
+  }
+
+  /// Método para crear un encuentro a partir de los datos ingresados en el formulario
+  Future<void> _createMeeting() async {
+    String? rolDirigido;
+    if (isTraining) {
+      rolDirigido = _selectedTypeRolUser;
+    } else if (isClass) {
+      rolDirigido = _rolUser.firstWhere(
+        (final rol) => rol['id'] == '3',
+      )['text']; // Estudiantes
+    } else if (isMeeting) {
+      rolDirigido = _rolUser.firstWhere(
+        (final rol) => rol['id'] == '1',
+      )['text']; // Administrativos
+    }
+    final service = MeetingService();
+
+    final currentMeeting = MeetingModel(
+      encuId: 0, // lo genera la BD
+      encuTipoEncuentro: _selectedMeetType!,
+      encuEsenId: 2, // Inactivo por defecto
+      encuAsunto: _asuntoController.text,
+      encuDescripcion: _descriptionController.text,
+      encuDuracionEncuentro: 0,
+      encuAsistencias: 0,
+      encuInasistencias: 0,
+      encuActas: certificate,
+      encuRolDirigido: rolDirigido!,
+    );
+
+    final created = await service.createMeeting(currentMeeting);
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            created
+                ? 'Encuentro creado correctamente.'
+                : 'Ha ocurrido un error al crear el encuentro.',
+            style: TextStyle(color: TipoColores.seasalt.value),
+          ),
+          backgroundColor: created
+              ? TipoColores.calPolyGreen.value
+              : TipoColores.pantone7621C.value,
+        ),
+      );
+    }
   }
 
   @override
@@ -433,6 +553,7 @@ class _CreateMeetingState extends State<CreateMeeting> {
     );
   }
 
+  /// ### Método que construye la vista
   Widget _portraitLayout() => Column(
     crossAxisAlignment: CrossAxisAlignment.stretch,
     children: [
@@ -441,30 +562,10 @@ class _CreateMeetingState extends State<CreateMeeting> {
         title: 'Tipo de encuentro',
         options: _encounterTypes,
         initialValue: _selectedMeetType,
-        onChanged: (final newValue) {
-          setState(() {
-            _selectedMeetType = newValue!;
-            _selectedMeet =
-                true; // Actualiza el estado de selección del encuentro
-            isClass = _selectedMeetType == '4';
-
-            print(_addParticipants);
-            // Limpiar horarios y demás estados relacionados
-            _schedules.clear();
-            _selectedGroupId.clear();
-            print(_addParticipants);
-            _addParticipants = false;
-
-            if (!isClass) {
-              // Si NO es clase, crear al menos un horario vacío para empezar a editar
-              _schedules.add(ScheduleData());
-            }
-          });
-          _validatorButtonCreate();
-        },
+        onChanged: _onEncounterTypeChanged,
       ),
       if (_selectedMeet) ...[
-        if (_selectedMeetType == '5') ...[
+        if (isTraining) ...[
           const SizedBox(height: 15),
           CustomDropdown(
             prefixIcon: Icons.sports_kabaddi_rounded,
@@ -504,15 +605,13 @@ class _CreateMeetingState extends State<CreateMeeting> {
         CustomButton(
           color: TipoColores.pantone663C,
           colorIcon: TipoColores.pantone634C,
-          text: _selectedMeetType == '4'
-              ? 'Seleccionar grupo'
-              : 'Agregar participantes',
+          text: isClass ? 'Seleccionar grupo' : 'Agregar participantes',
           icon: Icons.group_add_outlined,
           width:
               MediaQuery.of(context).size.width *
               0.75, // 75% del ancho de la pantalla,
           onPressed: () {
-            if (_selectedMeetType == '4') {
+            if (isClass) {
               // Se muestran los grupos si son clases académicas
               CustomPopUp.show(
                 context,
@@ -591,7 +690,7 @@ class _CreateMeetingState extends State<CreateMeeting> {
           },
         ),
         // Espacio de selección del líder del encuentro
-        if (_selectedMeetType == '1') ...[
+        if (isMeeting) ...[
           const SizedBox(height: 15),
           CustomSelectionField(
             title: 'Líder del encuentro',
@@ -663,35 +762,17 @@ class _CreateMeetingState extends State<CreateMeeting> {
           return _buildScheduleWidget(index);
         }),
         // Botón "Agregar nuevo horario" después de todos los horarios
-        if (_selectedMeetType != '4' && _schedules.length < 3)
+        if (!isClass && _schedules.length < 3)
           CustomButton(
             color: TipoColores.pantone663C,
             colorIcon: TipoColores.pantoneBlackC,
             text: 'Agregar nuevo horario',
             icon: Icons.calendar_month,
             width: MediaQuery.of(context).size.width * 0.90,
-            onPressed: () {
-              if (_validateSchedules() != null) {
-                // Si hay un error de validación en los campos del horario
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: const Text(
-                      'Faltan campos obligatorios en el horario o no son válidos.',
-                    ),
-                    backgroundColor: TipoColores.pantone7621C.value,
-                  ),
-                );
-              } else {
-                // Si no hay errores, se agrega un nuevo horario.
-                setState(() {
-                  _schedules.add(ScheduleData());
-                  _validatorButtonCreate();
-                });
-              }
-            },
+            onPressed: () => _onAddSchedulePressed(context),
           ),
         // Espacio para decidir si se quiere generar acta
-        if (_selectedMeetType == '1') ...[
+        if (isMeeting) ...[
           const SizedBox(height: 15),
           Row(
             children: [
@@ -735,10 +816,12 @@ class _CreateMeetingState extends State<CreateMeeting> {
             width:
                 MediaQuery.of(context).size.width *
                 0.80, // 80% del ancho de la pantalla
-            onPressed: () {
+            onPressed: () async {
+              await _createMeeting();
               if (!context.mounted) {
                 return;
               }
+              // ignore: use_build_context_synchronously
               context.goNamed(RouteNames.myMeets);
             },
           ),
@@ -763,9 +846,7 @@ class _CreateMeetingState extends State<CreateMeeting> {
     final ScheduleData currentSchedule = _schedules[index];
     return Column(
       children: [
-        // ---------------------------
         // Título del horario
-        // ---------------------------
         Container(
           padding: const EdgeInsets.symmetric(vertical: 7, horizontal: 10),
           decoration: BoxDecoration(
@@ -823,9 +904,12 @@ class _CreateMeetingState extends State<CreateMeeting> {
         ),
         const Divider(),
         const SizedBox(height: 10),
+        // Fecha del encuentro
         PickedDate(
           title: 'Fecha del encuentro',
           date: currentSchedule.startDate,
+          dayName: isClass ? currentSchedule.dayName : null,
+          showDay: isTraining,
           onPressed: isClass
               ? null
               : () async {
@@ -879,9 +963,7 @@ class _CreateMeetingState extends State<CreateMeeting> {
                 },
         ),
         const SizedBox(height: 15),
-        // ---------------------------
         // Ubicación
-        // ---------------------------
         CustomSelectionField(
           title: 'Ubicación',
           prefixIcon: Icons.location_on_outlined,
@@ -927,11 +1009,9 @@ class _CreateMeetingState extends State<CreateMeeting> {
                 },
         ),
         const SizedBox(height: 15),
-        // ---------------------------
         // Repetir
-        // ---------------------------
         SizedBox(
-          width: double.infinity, // 👈 ocupa todo el ancho posible
+          width: double.infinity,
           child: CustomDropdown(
             prefixIcon: Icons.repeat_rounded,
             title: 'Repetir',
@@ -951,10 +1031,8 @@ class _CreateMeetingState extends State<CreateMeeting> {
                   },
           ),
         ),
-        // ---------------------------
         // Fecha de finalización si hay repetición
-        // ---------------------------
-        if (currentSchedule.repeat || _selectedMeetType == '4') ...[
+        if (currentSchedule.repeat || isClass) ...[
           const SizedBox(height: 15),
           PickedDate(
             title: 'Finalizar repetición',
@@ -971,12 +1049,10 @@ class _CreateMeetingState extends State<CreateMeeting> {
           ),
         ],
         const SizedBox(height: 15),
-        // ---------------------------
         // Tiempo permitido asistencia
-        // ---------------------------
         CustomDropdown(
           prefixIcon: Icons.watch_later_outlined,
-          title: 'Tiempo permitido para registrar asistencia',
+          title: 'Tiempo para registrar asistencia',
           options: _optionsTime,
           initialValue: currentSchedule.selectedTime.toString(),
           onChanged: (final newId) {

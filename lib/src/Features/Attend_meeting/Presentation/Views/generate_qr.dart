@@ -76,7 +76,7 @@ class _GenerateQRState extends State<GenerateQR> {
       return;
     }
     setState(() {
-      canSelectDelegate = rolApp == 'ADMINISTRATIVO' || rolApp == 'DOCENTE';
+      canSelectDelegate = rolApp == 'administrativo' || rolApp == 'docente';
     });
   }
 

@@ -1,10 +1,10 @@
-// ignore_for_file: avoid_classes_with_only_static_members
+// ignore_for_file: avoid_classes_with_only_static_members, prefer_expression_function_bodies
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class ScheduleParserResult {
-
-/// Guardar el resultado del parseo realizado a atributos del grupo
+  /// Guardar el resultado del parseo realizado a atributos del grupo
   ScheduleParserResult({
     required this.startTime,
     required this.endTime,
@@ -16,7 +16,6 @@ class ScheduleParserResult {
 }
 
 class ScheduleParser {
-
   /// Convierte "1400" → TimeOfDay(14:00)
   static TimeOfDay parseHourString(final String text) {
     final hour = int.parse(text.substring(0, 2));
@@ -60,7 +59,10 @@ class ScheduleParser {
   /// Formatea un TimeOfDay a String.
   /// Si se pasa [context], usa time.format(context) (localizado).
   /// Si no, usa un formateo 12h manual "h:mm AM/PM".
-  static String formatTimeOfDay(final TimeOfDay time, {final BuildContext? context}) {
+  static String formatTimeOfDay(
+    final TimeOfDay time, {
+    final BuildContext? context,
+  }) {
     if (context != null) {
       return time.format(context);
     }
@@ -117,12 +119,32 @@ class ScheduleParser {
     return '$range (${parsed.location})';
   }
 
-  /// ### *Método que formatea la fecha*
+  /// Formatea la fecha en formato dd/MM/yyyy (para mostrar al usuario)
+  static String formatDateUi(final DateTime date) {
+    return DateFormat('dd/MM/yyyy').format(date);
+  }
+
+
+  /// ### *Método que formatea la fecha en formato yyyy-MM-dd*
   static String formatDate(final DateTime date) {
-    String twoDigits(final int n) => n.toString().padLeft(2, '0');
-    final year = date.year;
-    final month = twoDigits(date.month);
-    final day = twoDigits(date.day);
-    return '$year-$month-$day';
+    return DateFormat('yyyy-MM-dd').format(date);
+  }
+
+  /// Retorna el día de la semana en español
+  static String getDayName(final DateTime date) {
+    return DateFormat.EEEE().format(date);
+  }
+
+  /// ### Método para convertir TimeOfDay a minutos y compararlo
+  static int toMinutes(final TimeOfDay time) => time.hour * 60 + time.minute;
+
+  /// ### Calcula la duración en minutos entre hora inicio y hora fin
+  static int calculateDurationInMinutes(
+    final TimeOfDay start,
+    final TimeOfDay end,
+  ) {
+    final startMinutes = toMinutes(start);
+    final endMinutes = toMinutes(end);
+    return endMinutes - startMinutes;
   }
 }

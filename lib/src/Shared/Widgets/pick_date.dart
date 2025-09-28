@@ -6,11 +6,24 @@ import '../../Core/Models/schedule_parser_data.dart';
 
 /// Widget y lógica para seleccionar una fecha
 class PickedDate extends StatelessWidget {
+  const PickedDate({
+    super.key,
+    required this.title,
+    this.date,
+    this.onPressed,
+    this.showDay = false,
+    this.dayName,
+  });
 
-  const PickedDate({super.key, required this.title, this.date, this.onPressed});
   final String title;
   final DateTime? date;
   final VoidCallback? onPressed;
+
+  /// Indica si debe mostrarse como día de la semana
+  final bool showDay;
+
+  /// Nombre del día fijo (para clases)
+  final String? dayName;
 
   /// Método estático para mostrar el selector de fecha
   static Future<DateTime?> showDate(
@@ -33,17 +46,33 @@ class PickedDate extends StatelessWidget {
       initialDate: initialDate ?? DateTime.now(),
       firstDate: firstDate ?? DateTime.now(),
       lastDate: lastDate ?? DateTime(2030),
-      builder: (final BuildContext context, final Widget? child) => Theme(data: customTheme, child: child!),
+      builder: (final BuildContext context, final Widget? child) =>
+          Theme(data: customTheme, child: child!),
     );
   }
 
   @override
-  Widget build(final BuildContext context) => CustomSelectionField(
+  Widget build(final BuildContext context) {
+    String displayText;
+
+    if (dayName != null) {
+      // Caso de clase: siempre muestra el día fijo
+      displayText = dayName!;
+    } else if (date != null) {
+      // Caso de reunión o entrenamiento
+      displayText = showDay
+          ? ScheduleParser.getDayName(date!) // Entrenamiento
+          : ScheduleParser.formatDateUi(date!); // Reunión
+    } else {
+      displayText = 'Seleccionar fecha';
+    }
+
+    return CustomSelectionField(
       title: title,
       prefixIcon: Icons.calendar_today_rounded,
-      displayValue: date != null
-          ? ScheduleParser.formatDate(date!)
-          : 'Seleccionar fecha',
+      displayValue: displayText,
       onPressed: onPressed,
     );
+  }
 }
+

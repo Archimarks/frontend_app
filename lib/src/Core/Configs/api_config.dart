@@ -14,6 +14,8 @@ library;
 
 import 'package:http/http.dart' as http;
 
+import '../Barrels/models_barrel.dart';
+
 /// Clase que contiene la configuración de endpoints y URLs base para la API.
 class ApiConfig {
   /// Constructor privado para evitar instancias múltiples.
@@ -24,7 +26,7 @@ class ApiConfig {
 
   /// Instancia única de configuración.
   static const ApiConfig instance = ApiConfig._internal(
-    'http://192.168.1.10:5009',
+    'http://192.168.1.6:5009',
   );
 
   /// Retorna la URL para obtener un usuario por su correo electrónico.
@@ -37,28 +39,36 @@ class ApiConfig {
   /// Retorna la URL para probar la conexión con Oracle.
   String testConexionOracle() => '$baseUrl/api/_TestConexion/oracle';
 
-  // Traer usuarios
+  /// Traer usuarios
   String getUsuarios() => '$baseUrl/api/Usuario/todos';
 
-  // Traer grupos que tiene asignado un docente
+  /// Traer grupos que tiene asignado un docente
   String getGruposDocente() =>
       '$baseUrl/api/oracle/GrupoAsignado/TraerGruposAsignados';
 
-  // Traer ubicaciones
+  /// Traer ubicaciones
   String getUbicaciones() => '$baseUrl/api/oracle/ubicaciones';
 
-  // Traer tipos de repetición de los encuentros
+  /// Traer tipos de repetición de los encuentros
   String getRepeticion() =>
       '$baseUrl/api/sqlserver/Repeticion';
 
-  // Traer tiempo permitido para asistencia
+  /// Traer tiempo permitido para asistencia
   String getTime() =>
       '$baseUrl/api/sqlserver/TiempoAsistencia';
 
-  // Traer tipos de eventos
+  /// Traer todos los encuentros creados
+  String getMeeting() =>
+      '$baseUrl/api/sqlserver/Encuentro';
+
+  /// Crear un encuentro a partir de los datos de la clase `MeetingModel`
+  String postMeeting(final MeetingModel encuentro) =>
+      '$baseUrl/api/sqlserver/Encuentro';
+
+  /// Traer tipos de eventos
   String getTypeEvents() => '$baseUrl/api/oracle/TipoEvento/GetAll';
 
-  // Traer funcionarios activos de la universidad
+  /// Traer funcionarios activos de la universidad
   String getUniversityWorkers() => '$baseUrl/api/oracle/Funcionario/GetAll';
 }
 
