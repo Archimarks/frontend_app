@@ -15,17 +15,17 @@ class Grupo {
   });
 
   factory Grupo.fromJson(final Map<String, dynamic> json) => Grupo(
-    id: json['grupO_ID'],
-    materia: json['materia'],
-    grupo: json['grupo'],
-    periodo: json['periodo'],
-    lunes: json['lunes'],
-    martes: json['martes'],
-    miercoles: json['miercoles'],
-    jueves: json['jueves'],
-    viernes: json['viernes'],
-    sabado: json['sabado'],
-    domingo: json['domingo'],
+    id: json['GRUPO_ID'],
+    materia: json['MATERIA'],
+    grupo: json['GRUPO'],
+    periodo: json['PERIODO'],
+    lunes: json['LUNES'],
+    martes: json['MARTES'],
+    miercoles: json['MIERCOLES'],
+    jueves: json['JUEVES'],
+    viernes: json['VIERNES'],
+    sabado: json['SABADO'],
+    domingo: json['DOMINGO'],
   );
 
   final int id;

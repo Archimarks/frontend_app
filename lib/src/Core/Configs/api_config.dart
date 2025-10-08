@@ -14,8 +14,6 @@ library;
 
 import 'package:http/http.dart' as http;
 
-import '../Barrels/models_barrel.dart';
-
 /// Clase que contiene la configuración de endpoints y URLs base para la API.
 class ApiConfig {
   /// Constructor privado para evitar instancias múltiples.
@@ -26,7 +24,7 @@ class ApiConfig {
 
   /// Instancia única de configuración.
   static const ApiConfig instance = ApiConfig._internal(
-    'http://192.168.1.6:5009',
+    'http://192.168.1.8:5009',
   );
 
   /// Retorna la URL para obtener un usuario por su correo electrónico.
@@ -51,23 +49,25 @@ class ApiConfig {
 
   /// Traer tipos de repetición de los encuentros
   String getRepeticion() =>
-      '$baseUrl/api/sqlserver/Repeticion';
+      '$baseUrl/api/sqlserver/v1/repeticion';
 
   /// Traer tiempo permitido para asistencia
   String getTime() =>
-      '$baseUrl/api/sqlserver/TiempoAsistencia';
+      '$baseUrl/api/sqlserver/v1/tiempoasistencia';
 
-  /// Traer todos los encuentros creados
-  String getMeeting() =>
-      '$baseUrl/api/sqlserver/Encuentro';
+  /// Traer roles para crear el encuentro
+  String getRoleDirected() => '$baseUrl/api/sqlserver/v1/roldirigido';
+
+  /// Traer todos los encuentros creados por un usuario
+  String getMeeting(final int creadorId) =>
+      '$baseUrl/api/sqlserver/v1/encuentro/creador/$creadorId';
 
   /// Eliminar un encuentro
   String deleteMeeting(final int id) =>
       '$baseUrl/api/sqlserver/Encuentro/$id';
 
-  /// Crear un encuentro a partir de los datos de la clase `MeetingModel`
-  String postMeeting(final MeetingModel encuentro) =>
-      '$baseUrl/api/sqlserver/Encuentro';
+  /// Crear un encuentro a partir de los datos ingresados por el usuario
+  String postMeeting() => '$baseUrl/api/sqlserver/v1/encuentro';
 
   /// Traer tipos de eventos
   String getTypeEvents() => '$baseUrl/api/oracle/TipoEvento/GetAll';

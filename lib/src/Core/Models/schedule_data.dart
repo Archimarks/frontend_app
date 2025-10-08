@@ -13,7 +13,7 @@ class ScheduleData {
     this.startTime,
     this.endTime,
     this.selectedLocationID,
-    this.selectedRepeat = 21,
+    this.selectedRepeat = 1,
     this.selectedTime = 2,
     this.selectedLocationName,
     this.repeat = false,

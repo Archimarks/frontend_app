@@ -4,7 +4,11 @@
 /// * Descripción: Vista en donde se escanean los QR o se elije la asistencia manual.
 /// * Autores: Geraldine Perilla Valderrama & Marcos Alejandro Collazos Marmolejo
 /// ****************************************************************************
+// ignore_for_file: avoid_catches_without_on_clauses
+
 library;
+
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -25,108 +29,100 @@ class RegisterQR extends StatefulWidget {
 
 class _RegisterQRState extends State<RegisterQR> {
   String rolApp = '';
-  // Listas de QRs ya procesados
+
+  /// Códigos QR válidos
   final Set<String> validCodes = {};
+
+  /// Códigos QR incorrectos
   final Set<String> invalidCodes = {};
 
-  /// Método para procesar el resultado de un QR
+  /// Método para procesar el QR ya decodificado
   Map<String, dynamic> processQR(
-    final dynamic scannedData, // puede ser String o List<String>
+    final dynamic scannedData,
     final String expectedTitle,
   ) {
     try {
-      // 1. Asegurar de que siempre se trabaje con un String
-      String? scannedText;
+      // Obtener el "raw" del código para registrar
+      final raw = scannedData is String ? scannedData : jsonEncode(scannedData);
 
-      if (scannedData is String) {
-        scannedText = scannedData;
-      } else if (scannedData is List<String> && scannedData.isNotEmpty) {
-        scannedText = scannedData.last; // Siempre validar el último escaneo
-      }
-
-      if (scannedText == null || scannedText.isEmpty) {
-        return {'valid': false, 'message': 'El QR está vacío o no es válido'};
-      }
-
-      debugPrint('VALIDOS: ${validCodes.toString()}');
-      debugPrint('INVALIDOS: ${invalidCodes.toString()}');
-
-      // 2. Revisar si ya fue procesado antes
-      if (validCodes.contains(scannedText)) {
-        debugPrint('Este QR ya fue escaneado y validado correctamente');
+      // 0. Revisar si ya fue procesado antes
+      if (validCodes.contains(raw)) {
         return {
           'valid': false,
           'message': 'Este QR ya fue escaneado y validado correctamente',
         };
       }
-      if (invalidCodes.contains(scannedText)) {
-        debugPrint('Este QR ya fue escaneado y NO ES valido');
+      if (invalidCodes.contains(raw)) {
         return {
           'valid': false,
-          'message': 'Este QR ya fue escaneado pero es incorrecto',
+          'message': 'Este QR ya fue escaneado previamente y es inválido',
         };
       }
 
-      // 3. Dividir el texto del QR
-      final parts = scannedText.split(' - ');
-      if (parts.length != 2) {
-        invalidCodes.add(scannedText); // guardar como inválido
-        return {'valid': false, 'message': 'Formato inválido de QR'};
+      // 1. Validar que el QR venga como Map
+      if (scannedData is! Map<String, dynamic>) {
+        invalidCodes.add(raw);
+        return {'valid': false, 'message': 'El QR escaneado no es válido'};
+      }
+      final qrData = scannedData;
+
+      // 2. Extraer datos
+      final title = qrData['titulo']?.toString();
+      final dateString = qrData['fecha']?.toString();
+      final correo = qrData['correo']?.toString();
+
+      if (title == null || dateString == null) {
+        invalidCodes.add(raw);
+        return {
+          'valid': false,
+          'message': 'El QR no contiene los datos requeridos',
+        };
       }
 
-      final String title = parts[0].trim();
-      final String dateString = parts[1].trim();
-
-      // 4. Validar la fecha
-      final dateParts = dateString.split('/');
-      if (dateParts.length != 3) {
-        invalidCodes.add(scannedText);
+      // 3. Validar fecha
+      late final DateTime qrDate;
+      try {
+        qrDate = DateTime.parse(dateString);
+      } catch (_) {
+        invalidCodes.add(raw);
         return {'valid': false, 'message': 'Fecha inválida en el QR'};
       }
 
-      final int day = int.tryParse(dateParts[0]) ?? 0;
-      final int month = int.tryParse(dateParts[1]) ?? 0;
-      final int year = int.tryParse(dateParts[2]) ?? 0;
-
-      final qrDate = DateTime(year, month, day);
       final now = DateTime.now();
-
-      // 5. Comparar la fecha (solo día, mes y año)
-      final bool isToday =
+      final isToday =
           qrDate.year == now.year &&
           qrDate.month == now.month &&
           qrDate.day == now.day;
 
       if (!isToday) {
-        invalidCodes.add(scannedText);
+        invalidCodes.add(raw);
         return {
           'valid': false,
           'message': 'El QR no corresponde a la fecha de hoy',
         };
       }
 
-      // 6. Validar el nombre del encuentro
+      // 4. Validar título
       if (title != expectedTitle) {
-        invalidCodes.add(scannedText);
-        debugPrint('ESCANEO DONDE NO ES');
-        debugPrint(invalidCodes.toString());
+        invalidCodes.add(raw);
         return {
           'valid': false,
           'message': 'El QR no pertenece a este encuentro',
         };
       }
 
-      // Si todo está bien, se marca como válido
-      validCodes.add(scannedText);
+      // ✅ Todo correcto → agregar a válidos
+      validCodes.add(raw);
       return {
         'valid': true,
         'title': title,
-        'date': qrDate,
+        'date': qrDate.toIso8601String().split('T').first, // yyyy-MM-dd
+        if (correo != null) 'correo': correo,
         'message': 'QR válido',
       };
-      // ignore: avoid_catches_without_on_clauses
-    } catch (e) {
-      return {'valid': false, 'message': 'Error al procesar el QR: $e'};
+    } catch (e, st) {
+      debugPrint('Error en processQR: $e\n$st');
+      return {'valid': false, 'message': 'Error inesperado al procesar el QR'};
     }
   }
 
@@ -157,9 +153,7 @@ class _RegisterQRState extends State<RegisterQR> {
         padding: const EdgeInsets.all(20.0),
         child: Column(
           children: [
-            // Contenido principal que puede desplazarse si es necesario
             Expanded(child: SingleChildScrollView(child: _mainContent())),
-            // Widget inferior que permanece fijo abajo
             _selectManualRegister(),
           ],
         ),
@@ -194,7 +188,7 @@ class _RegisterQRState extends State<RegisterQR> {
             // QR válido
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text(' Asistencia registrada para ${result['title']}'),
+                content: Text('Asistencia registrada para ${result['title']}'),
                 backgroundColor: TipoColores.calPolyGreen.value,
               ),
             );
@@ -218,7 +212,7 @@ class _RegisterQRState extends State<RegisterQR> {
     ],
   );
 
-  /// Espacio de botón para asistencia manualmente y cantidad de registrados
+  /// Espacio de botón para asistencia manual y cantidad de registrados
   Widget _selectManualRegister() => Column(
     mainAxisSize: MainAxisSize.min,
     crossAxisAlignment: CrossAxisAlignment.stretch,

@@ -20,8 +20,8 @@ class TypeEventsService {
       return data
           .map<Map<String, String>>(
             (final type) => {
-              'id': type['evtI_ID'].toString(),
-              'text': type['evtI_DECRIPCION'],
+              'id': type['EVTI_ID'].toString(),
+              'text': type['EVTI_DECRIPCION'],
             },
           )
           .toList();

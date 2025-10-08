@@ -11,7 +11,7 @@ import '../../Core/Models/grupos_data.dart';
 class GruposService {
   /// Método que trae información de los grupos del docente
   Future<List<Grupo>> fetchGruposDocente({
-    required final int pegeld,
+    required final String pegeld,
     final int periodo = 550,
   }) async {
     final baseUrl = ApiConfig.instance.getGruposDocente();

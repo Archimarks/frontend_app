@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../Core/Barrels/enums_barrel.dart';
 import '../../Core/Barrels/widgets_shared_barrel.dart';
-import '../../Core/Models/schedule_parser_data.dart';
+import '../../Core/Helpers/schedule_parser_data.dart';
 
 /// Widget y lógica para seleccionar una fecha
 class PickedDate extends StatelessWidget {

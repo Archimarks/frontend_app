@@ -1,10 +1,10 @@
 /// Modelo para manejar los atributos/datos de los encuentros
 class MeetingModel {
-
   MeetingModel({
     required this.encuId,
     required this.encuTipoEncuentro,
     required this.encuEsenId,
+    required this.encuIdGrupo,
     required this.encuAsunto,
     required this.encuDescripcion,
     required this.encuDuracionEncuentro,
@@ -12,25 +12,32 @@ class MeetingModel {
     required this.encuInasistencias,
     required this.encuActas,
     required this.encuRolDirigido,
-    //required this.creador,
+    required this.encuLiderEncuentro,
+    required this.encuEstado,
+    required this.creador,
   });
 
   /// Crear objeto desde JSON
-  factory MeetingModel.fromJson(final Map<String, dynamic> json) => MeetingModel(
-        encuId: json['encU_ID'] ?? 0,
-        encuTipoEncuentro: json['encU_TIPO_ENCUENTRO'] ?? '',
-        encuEsenId: json['encU_ESEN_ID'] ?? 0,
-        encuAsunto: json['encU_ASUNTO'] ?? '',
-        encuDescripcion: json['encU_DESCRIPCION'] ?? '',
-        encuDuracionEncuentro: json['encU_DURACION_ENCUENTRO'] ?? 0,
-        encuAsistencias: json['encU_ASISTENCIAS'] ?? 0,
-        encuInasistencias: json['encU_INASISTENCIAS'] ?? 0,
-        encuActas: json['encU_ACTAS'] ?? false,
-        encuRolDirigido: json['encU_ROL_DIRIGIDO'] ?? '',
-      //creador: json['creador'] ?? 0,
-    );
+  factory MeetingModel.fromJson(final Map<String, dynamic> json) =>
+      MeetingModel(
+        encuId: json['ENCU_ID'] ?? 0,
+        encuEsenId: json['ENCU_ESENID'] ?? 0,
+        encuRolDirigido: json['ENCU_ROLDIRIGIDOID'] ?? '',
+        encuTipoEncuentro: json['ENCU_TIPOENCUENTRO'] ?? '',
+        encuIdGrupo: json['ENCU_IDGRUPO'] ?? 0,
+        encuAsunto: json['ENCU_ASUNTO'] ?? '',
+        encuDescripcion: json['ENCU_DESCRIPCION'] ?? '',
+        encuDuracionEncuentro: json['ENCU_DURACIONTOTALENCUENTRO'] ?? 0,
+        encuAsistencias: json['ENCU_ASISTENCIAS'] ?? 0,
+        encuInasistencias: json['ENCU_INASISTENCIAS'] ?? 0,
+        creador: json['ENCU_CREADOPOR'] ?? 0,
+        encuLiderEncuentro: json['ENCU_LIDERENCUENTRO'] ?? 0,
+        encuActas: json['ENCU_ACTAS'] ?? false,
+        encuEstado: json['ENCU_ESTADO'] ?? '',
+      );
   final int encuId;
   final String encuTipoEncuentro;
+  final int encuIdGrupo;
   final int encuEsenId;
   final String encuAsunto;
   final String encuDescripcion;
@@ -39,20 +46,25 @@ class MeetingModel {
   final int encuInasistencias;
   final bool encuActas;
   final String encuRolDirigido;
-  //final int creador;
+  final String encuLiderEncuentro;
+  final String encuEstado;
+  final int creador;
 
   /// Convertir objeto a JSON
   Map<String, dynamic> toJson() => {
-      'encu_ID': encuId,
-      'encu_TIPO_ENCUENTRO': encuTipoEncuentro,
-      'encu_ESEN_ID': encuEsenId,
-      'encu_ASUNTO': encuAsunto,
-      'encu_DESCRIPCION': encuDescripcion,
-      'encu_DURACION_ENCUENTRO': encuDuracionEncuentro,
-      'encu_ASISTENCIAS': encuAsistencias,
-      'encu_INASISTENCIAS': encuInasistencias,
-      'encu_ACTAS': encuActas,
-      'encu_ROL_DIRIGIDO': encuRolDirigido,
-      //'creador': creador,
-    };
+    'ENCU_ID': encuId,
+    'ENCU_ESENID': encuEsenId,
+    'ENCU_ROLDIRIGIDOID': encuRolDirigido,
+    'ENCU_TIPOENCUENTRO': encuTipoEncuentro,
+    'ENCU_IDGRUPO': encuIdGrupo,
+    'ENCU_ASUNTO': encuAsunto,
+    'ENCU_DESCRIPCION': encuDescripcion,
+    'ENCU_DURACIONTOTALENCUENTRO': encuDuracionEncuentro,
+    'ENCU_ASISTENCIAS': encuAsistencias,
+    'ENCU_INASISTENCIAS': encuInasistencias,
+    'ENCU_CREADOPOR': creador,
+    'ENCU_LIDERENCUENTRO': encuLiderEncuentro,
+    'ENCU_ESTADO': encuEstado,
+    'ENCU_ACTAS': encuActas,
+  };
 }

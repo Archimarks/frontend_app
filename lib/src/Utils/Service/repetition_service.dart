@@ -20,8 +20,8 @@ class RepeatService {
       return data
           .map<Map<String, String>>(
             (final time) => {
-              'id': time['repE_ID'].toString(),
-              'text': time['repE_NOMBRE_REPETICION'].toString(),
+              'id': time['REPE_ID'].toString(),
+              'text': time['REPE_NOMBREREPETICION'].toString(),
             },
           )
           .toList();

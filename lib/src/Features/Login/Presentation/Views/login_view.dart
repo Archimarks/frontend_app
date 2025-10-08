@@ -205,12 +205,12 @@ class _LoginButton extends StatelessWidget {
                             debugPrint('Usuario encontrado: $data');
 
                             // Guardar cada campo por separado
-                            await saveString('pege', data['pege'].toString());
-                            await saveString('email', data['email']);
-                            await saveString('nombre', data['nombre']);
+                            await saveString('pege', data['PEGE'].toString());
+                            await saveString('email', data['EMAIL']);
+                            await saveString('nombre', data['NOMBRE']);
                             await saveString(
                               'rol',
-                              data['rol'].toString().toLowerCase(),
+                              data['ROL'].toString().toLowerCase(),
                             );
                             if (!context.mounted) {
                               return;

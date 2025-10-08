@@ -124,7 +124,6 @@ class ScheduleParser {
     return DateFormat('dd/MM/yyyy').format(date);
   }
 
-
   /// ### *Método que formatea la fecha en formato yyyy-MM-dd*
   static String formatDate(final DateTime date) {
     return DateFormat('yyyy-MM-dd').format(date);

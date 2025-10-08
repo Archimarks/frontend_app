@@ -14,6 +14,7 @@ library;
 
 import 'package:go_router/go_router.dart';
 
+import '../../Features/Admin_module/Presentation/admin_module_view.dart';
 import '../../Features/Attend_meeting/Presentation/Views/attend_meeting_view.dart';
 import '../../Features/Attend_meeting/Presentation/Views/generate_qr.dart';
 import '../../Features/Create_meeting/Presentation/Views/create_meeting_view.dart';
@@ -41,6 +42,12 @@ GoRoute(
     path: '/home',
     name: RouteNames.home,
     builder: (final context, final state) => const Home(),
+  ),
+
+GoRoute(
+    path: '/adminModule',
+    name: RouteNames.adminModule,
+    builder: (final context, final state) => const AdminModule(),
   ),
 
 GoRoute(
@@ -119,7 +126,6 @@ GoRoute(
       final meetData = state.extra as Map<String, dynamic>;
       final title = meetData['title']!;
       final description = meetData['description']!;
-
       return InfoMeet(title: title, description: description);
     },
   ),

@@ -19,6 +19,9 @@ abstract class RouteNames {
   /// Nombre de la ruta para la vista de Home.
   static const home = 'home';
 
+  /// Nombre de la ruta para la vista del módulo de administrador.
+  static const adminModule = 'adminModule';
+
   /// Nombre de la ruta para la vista de encuentros creados.
   static const myMeets = 'myMeets';
 

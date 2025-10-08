@@ -60,7 +60,7 @@
       "codigoCard": 6,
       "titulo": "Configuraciones root",
       "descripcion": "Edición de variables.",
-      "route": "rootConfig",
+      "route": "adminModule",
       "rol": {
         "administrador": true,
         "docente": false,

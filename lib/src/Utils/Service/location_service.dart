@@ -1,7 +1,9 @@
 // ignore_for_file: avoid_dynamic_calls
 
 import 'dart:convert';
+
 import 'package:http/http.dart' as http;
+
 import '../../Core/Configs/api_config.dart';
 
 /// Clase encargada de hacer la petición a la API para traer las ubicaciones
@@ -20,8 +22,8 @@ class UbicacionService {
             (final ubicacion) => {
               // Se construye un id para cada ubicación
               'id':
-                  '${ubicacion['localidadId'].toString()}${ubicacion['espacioFisicoId'].toString()}${ubicacion['recursoFisicoId'].toString()}',
-              'textMain': ubicacion['nombreCompleto'] ?? 'Sin nombre',
+                  '${ubicacion['LocalidadId'].toString()}${ubicacion['EspacioFisicoId'].toString()}${ubicacion['RecursoFisicoId'].toString()}',
+              'textMain': ubicacion['NombreCompleto'] ?? 'Sin nombre',
             },
           )
           .toList();

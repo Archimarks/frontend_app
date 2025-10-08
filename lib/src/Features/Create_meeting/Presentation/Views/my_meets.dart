@@ -10,7 +10,9 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../../Core/Barrels/configs_barrel.dart';
 import '../../../../Core/Barrels/enums_barrel.dart';
 import '../../../../Core/Barrels/models_barrel.dart';
 import '../../../../Core/Barrels/services_barrel.dart';
@@ -38,11 +40,12 @@ class _MyMeetsState extends State<MyMeets> {
 
   /// Método que asigna los encuentros traídos a una lista local
   Future<void> _loadMeetings() async {
-    final data = await service.fetchMeetings();
+    final creadorIdString = getString('pege');
+    final creadorId = int.tryParse(creadorIdString ?? '') ?? 0;
+    final data = await service.fetchMeetings(creadorId);
     setState(() {
       _meetings = data;
       _isLoading = false;
-      print(_meetings.toString());
     });
   }
 

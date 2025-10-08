@@ -20,9 +20,9 @@ class UserService {
       return data
           .map<Map<String, String>>(
             (final user) => {
-              'id': user['pege'].toString(),
-              'textMain': user['nombre'],
-              'textSecondary': user['email'],
+              'id': user['PEGE'].toString(),
+              'textMain': user['NOMBRE'],
+              'textSecondary': user['EMAIL'],
             },
           )
           .toList();

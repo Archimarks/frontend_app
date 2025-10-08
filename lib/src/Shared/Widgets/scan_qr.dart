@@ -1,3 +1,7 @@
+// ignore_for_file: avoid_catches_without_on_clauses
+
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
@@ -10,14 +14,14 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 
 class ScanQr extends StatefulWidget {
   const ScanQr({super.key, required this.onScan});
-  final Function(List<String>) onScan;
+  final Function(Map<String, dynamic>) onScan;
 
   @override
   ScanQrState createState() => ScanQrState();
 }
 
 class ScanQrState extends State<ScanQr> {
-  List<String> scannedCodes = [];
+  final Set<String> scannedCodes = {};
 
   @override
   Widget build(final BuildContext context) => Center(
@@ -28,12 +32,24 @@ class ScanQrState extends State<ScanQr> {
         borderRadius: BorderRadius.circular(16),
         child: MobileScanner(
           onDetect: (final capture) {
-            final barcodes = capture.barcodes;
-            for (final barcode in barcodes) {
+            for (final barcode in capture.barcodes) {
               final code = barcode.rawValue;
               if (code != null && !scannedCodes.contains(code)) {
                 setState(() => scannedCodes.add(code));
-                widget.onScan(scannedCodes);
+
+                try {
+                  // Intentar decodificar como JSON
+                  final Map<String, dynamic> jsonData =
+                      jsonDecode(code) as Map<String, dynamic>;
+                  widget.onScan(jsonData);
+                } catch (_) {
+                  // Si no es JSON válido, devolver un "mapa inválido"
+                  widget.onScan({
+                    'valid': false,
+                    'message': 'El QR no contiene un JSON válido',
+                    'raw': code, // opcional: para mostrar qué llegó
+                  });
+                }
               }
             }
           },

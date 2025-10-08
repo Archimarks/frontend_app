@@ -21,8 +21,8 @@ class TimeService {
       return data
           .map<Map<String, String>>(
             (final time) => {
-              'id': time['tiaS_ID'].toString(),
-              'text': '${time['tiaS_TIEMPO_ESTABLECIDO'].toString()} minutos',
+              'id': time['TIAS_ID'].toString(),
+              'text': '${time['TIAS_TIEMPOESTABLECIDO'].toString()} minutos',
             },
           )
           .toList();

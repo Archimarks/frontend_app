@@ -6,13 +6,17 @@
 /// ****************************************************************************
 library;
 
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../Core/Barrels/enums_barrel.dart';
 import '../../../../Core/Barrels/services_barrel.dart';
 import '../../../../Core/Barrels/widgets_shared_barrel.dart';
+import '../../../../Core/Configs/app_storage.dart';
 import '../../../../Core/Routes/route_names.dart';
 
 class GenerateQR extends StatefulWidget {
@@ -35,6 +39,9 @@ class _GenerateQRState extends State<GenerateQR> {
   /// Texto para el QR (nombre del grupo - fecha actual)
   String _textQR = '';
 
+  /// Correo del usuario
+  String _correo = '';
+
   /// ID del delegado seleccionado
   List<String> _selectedDelegateId = [];
 
@@ -46,13 +53,27 @@ class _GenerateQRState extends State<GenerateQR> {
   void initState() {
     super.initState();
     _initPage();
-    final now = DateTime.now();
-    _textQR = '${widget.title} - ${now.day}/${now.month}/${now.year}';
+    _generateTextQR();
   }
 
   // ****************************************************
   // *             Metodos Privados                     *
   // ****************************************************
+
+  /// Método para crear el texto que se pasa para generar el QR
+  void _generateTextQR() {
+    final now = DateTime.now();
+    final formattedDate = DateFormat('yyyy-MM-dd').format(now);
+
+    final payload = {
+      'correo': _correo,
+      'titulo': widget.title,
+      'fecha': formattedDate,
+    };
+
+    _textQR = jsonEncode(payload); // genera el JSON limpio
+  }
+
 
   /// Inicialización de la vista
   Future<void> _initPage() async {
@@ -71,6 +92,7 @@ class _GenerateQRState extends State<GenerateQR> {
     String rolApp = '';
     final prefs = await SharedPreferences.getInstance();
     rolApp = prefs.getString('rol')?.toLowerCase() ?? '';
+    _correo = prefs.getString('email')?.toLowerCase() ?? '';
     debugPrint('Rol obtenido de preferencias: $rolApp');
     if (!mounted) {
       return;

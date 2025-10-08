@@ -4,19 +4,20 @@
 /// * Descripción: Vista de crear encuentros.
 /// * Autores: Geraldine Perilla Valderrama & Marcos Alejandro Collazos Marmolejo
 /// ****************************************************************************
-// ignore_for_file: unrelated_type_equality_checks
+// ignore_for_file: unrelated_type_equality_checks, use_build_context_synchronously, avoid_catches_without_on_clauses
 
 library;
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 
 import '../../../../Core/Barrels/configs_barrel.dart';
 import '../../../../Core/Barrels/enums_barrel.dart';
 import '../../../../Core/Barrels/models_barrel.dart';
 import '../../../../Core/Barrels/services_barrel.dart';
 import '../../../../Core/Barrels/widgets_shared_barrel.dart';
-import '../../../../Core/Models/schedule_parser_data.dart';
+import '../../../../Core/Helpers/schedule_parser_data.dart';
 import '../../../../Core/Routes/route_names.dart';
 
 class CreateMeeting extends StatefulWidget {
@@ -129,11 +130,7 @@ class _CreateMeetingState extends State<CreateMeeting> {
   // ---------------------------------------------------------------------------
 
   /// Roles de usuario invitados
-  final List<Map<String, String>> _rolUser = [
-    {'id': '1', 'text': 'Administrativos'},
-    {'id': '2', 'text': 'Docentes'},
-    {'id': '3', 'text': 'Estudiantes'},
-  ];
+  List<Map<String, String>> _rolUser = [];
 
   /// Lista de horarios creados para el encuentro
   List<ScheduleData> _schedules = [];
@@ -149,6 +146,7 @@ class _CreateMeetingState extends State<CreateMeeting> {
     _loadUbicaciones();
     _loadRepeat();
     _loadTime();
+    _loadRoleDirected();
   }
 
   @override
@@ -169,8 +167,7 @@ class _CreateMeetingState extends State<CreateMeeting> {
       setState(() {
         _encounterTypes = data;
       });
-      print('Tipos de encuentros: $_encounterTypes');
-      // ignore: avoid_catches_without_on_clauses
+      debugPrint('Tipos de encuentros: $_encounterTypes');
     } catch (e) {
       debugPrint('Error al traer los tipos de eventos: $e');
     }
@@ -184,7 +181,6 @@ class _CreateMeetingState extends State<CreateMeeting> {
         allUsers = data;
         print('Usuarios: $allUsers');
       });
-      // ignore: avoid_catches_without_on_clauses
     } catch (e) {
       debugPrint('Error al cargar los usuarios: $e');
     }
@@ -195,9 +191,8 @@ class _CreateMeetingState extends State<CreateMeeting> {
     final pege = getString('pege') ?? '';
 
     try {
-      final data = await GruposService().fetchGruposDocente(
-        pegeld: int.parse(pege),
-      );
+      final data = await GruposService().fetchGruposDocente(pegeld: pege);
+
       setState(() {
         infoGroups = data;
         groups = data
@@ -208,10 +203,9 @@ class _CreateMeetingState extends State<CreateMeeting> {
               },
             )
             .toList();
-        print('Info grupos: $infoGroups');
-        print('Grupos: $groups');
+        debugPrint('Info grupos: $infoGroups');
+        debugPrint('Grupos: $groups');
       });
-      // ignore: avoid_catches_without_on_clauses
     } catch (e) {
       debugPrint('Error al cargar los grupos: $e');
     }
@@ -224,7 +218,6 @@ class _CreateMeetingState extends State<CreateMeeting> {
       setState(() {
         locations = data;
       });
-      // ignore: avoid_catches_without_on_clauses
     } catch (e) {
       debugPrint('Error al cargar ubicaciones: $e');
     }
@@ -238,7 +231,6 @@ class _CreateMeetingState extends State<CreateMeeting> {
         _optionsRepeat = data;
       });
       print('Repeticion: $_optionsRepeat');
-      // ignore: avoid_catches_without_on_clauses
     } catch (e) {
       debugPrint('Error al cargar las repeticiones: $e');
     }
@@ -251,10 +243,22 @@ class _CreateMeetingState extends State<CreateMeeting> {
       setState(() {
         _optionsTime = data;
       });
-      print('Tiempos: $_optionsTime');
-      // ignore: avoid_catches_without_on_clauses
+      debugPrint('Tiempos: $_optionsTime');
     } catch (e) {
       debugPrint('Error al cargar los tiempos permitidos: $e');
+    }
+  }
+
+  /// Método que asigna los roles dirigidos a una lista local
+  Future<void> _loadRoleDirected() async {
+    try {
+      final data = await RoleDirectedService().fetchRoleDirected();
+      setState(() {
+        _rolUser = data;
+      });
+      debugPrint('Roles dirigidos: $_rolUser');
+    } catch (e) {
+      debugPrint('Error al cargar los roles dirigidos: $e');
     }
   }
 
@@ -381,13 +385,13 @@ class _CreateMeetingState extends State<CreateMeeting> {
     // Variable para saber los días del horario del grupo
     final _ =
         {
-          'lunes': grupo.lunes,
-          'martes': grupo.martes,
-          'miercoles': grupo.miercoles,
-          'jueves': grupo.jueves,
-          'viernes': grupo.viernes,
-          'sabado': grupo.sabado,
-          'domingo': grupo.domingo,
+          'LUNES': grupo.lunes,
+          'MARTES': grupo.martes,
+          'MIERCOLES': grupo.miercoles,
+          'JUEVES': grupo.jueves,
+          'VIERNES': grupo.viernes,
+          'SABADO': grupo.sabado,
+          'DOMINGO': grupo.domingo,
         }..forEach((final dia, final rawHorario) {
           final parsed = ScheduleParser.parseScheduleString(rawHorario);
 
@@ -399,7 +403,7 @@ class _CreateMeetingState extends State<CreateMeeting> {
               endTime: parsed.endTime,
               selectedLocationName: parsed.location,
               selectedLocationID: grupo.id.toString(),
-              selectedRepeat: 4, // Se repite semanalmente porque es clase
+              selectedRepeat: 2, // Se repite semanalmente porque es clase
               repeat: true,
             );
 
@@ -466,35 +470,126 @@ class _CreateMeetingState extends State<CreateMeeting> {
   }
 
   /// Método para crear un encuentro a partir de los datos ingresados en el formulario
-  Future<void> _createMeeting() async {
-    String? rolDirigido;
+Future<void> _createMeeting() async {
+    final creadorIdString = getString('pege');
+    final creadorNombre = getString('nombre');
+    final creadorCorreo = getString('email');
+    final creadorId = int.tryParse(creadorIdString ?? '') ?? 0;
+
+    setState(() {
+      addedParticipants.add({
+        'id': creadorId.toString(),
+        'textMain': creadorNombre ?? '',
+        'textSecondary': creadorCorreo ?? '',
+      });
+    });
+
+    String? targetId;
+
+    // Determinar el rol según tipo
     if (isTraining) {
-      rolDirigido = _selectedTypeRolUser;
+      targetId = _selectedTypeRolUser;
     } else if (isClass) {
-      rolDirigido = _rolUser.firstWhere(
-        (final rol) => rol['id'] == '3',
-      )['text']; // Estudiantes
+      targetId = '1'; // Estudiantes
     } else if (isMeeting) {
-      rolDirigido = _rolUser.firstWhere(
-        (final rol) => rol['id'] == '1',
-      )['text']; // Administrativos
+      targetId = '3'; // Administrativos
     }
+
     final service = MeetingService();
 
-    final currentMeeting = MeetingModel(
-      encuId: 0, // lo genera la BD
-      encuTipoEncuentro: _selectedMeetType!,
-      encuEsenId: 2, // Inactivo por defecto
-      encuAsunto: _asuntoController.text,
-      encuDescripcion: _descriptionController.text,
-      encuDuracionEncuentro: 0,
-      encuAsistencias: 0,
-      encuInasistencias: 0,
-      encuActas: certificate,
-      encuRolDirigido: rolDirigido!,
-    );
+    // Construcción del objeto Encuentro
+    final encuentroData = {
+      'ENCU_ESENID': 1,
+      'ENCU_ROLDIRIGIDOID': int.tryParse(targetId ?? '0') ?? 1,
+      'ENCU_TIPOENCUENTRO': int.tryParse(_selectedMeetType ?? '0') ?? 1,
+      'ENCU_IDGRUPO':
+          int.tryParse(
+            (_selectedGroupId.isNotEmpty) ? _selectedGroupId.first : '0',
+          ) ??
+          0,
+      'ENCU_ASUNTO': _asuntoController.text.trim(),
+      'ENCU_DESCRIPCION': _descriptionController.text.trim(),
+      'ENCU_DURACIONTOTALENCUENTRO': 0,
+      'ENCU_ASISTENCIAS': 0,
+      'ENCU_INASISTENCIAS': 0,
+      'ENCU_CREADOPOR': creadorId,
+      'ENCU_LIDERENCUENTRO':
+          int.tryParse(
+            (_selectedLeaderId.isNotEmpty)
+                ? _selectedLeaderId.first
+                : _selectedLeaderId.toString(),
+          ) ??
+          0,
+      'ENCU_ACTAS': certificate,
+      'ENCU_ESTADO': true,
+    };
 
-    final created = await service.createMeeting(currentMeeting);
+    // Construcción del arreglo Horarios (formato exacto que espera el backend)
+    final horarios = _schedules.map((final sch) {
+      final fechaInicio = sch.startDate != null
+          ? DateFormat("yyyy-MM-dd'T'HH:mm:ss").format(sch.startDate!)
+          : DateFormat("yyyy-MM-dd'T'HH:mm:ss").format(DateTime.now());
+      final fechaFin = sch.endDate != null
+          ? DateFormat("yyyy-MM-dd'T'HH:mm:ss").format(sch.endDate!)
+          : DateFormat("yyyy-MM-dd'T'HH:mm:ss").format(DateTime.now());
+
+      final horaInicio = sch.startTime != null
+          ? "${sch.startTime!.hour.toString().padLeft(2, '0')}:${sch.startTime!.minute.toString().padLeft(2, '0')}:00"
+          : '00:00:00';
+      final horaFin = sch.endTime != null
+          ? "${sch.endTime!.hour.toString().padLeft(2, '0')}:${sch.endTime!.minute.toString().padLeft(2, '0')}:00"
+          : '00:00:00';
+
+      return {
+        'HORA_FECHAINICIO': fechaInicio,
+        'HORA_FECHAFIN': fechaFin,
+        'HORA_HORAINICIO': horaInicio,
+        'HORA_HORAFIN': horaFin,
+        'HORA_DURACION': (sch.startTime != null && sch.endTime != null)
+            ? ScheduleParser.calculateDurationInMinutes(
+                sch.startTime!,
+                sch.endTime!,
+              )
+            : 0,
+        'HORA_UBICACION': sch.selectedLocationName ?? 'Sin ubicación',
+      };
+    }).toList();
+
+    // Construcción de los participantes
+    final participantes = addedParticipants.map((final participant) {
+      final id = int.tryParse(participant['id'] ?? '0') ?? 0;
+      final liderId = int.tryParse(
+        (_selectedLeaderId.isNotEmpty)
+            ? _selectedLeaderId.first
+            : _selectedLeaderId.toString(),
+      );
+
+      return {
+        'PART_PARTICIPANTEPEGE': id,
+        'PART_NOMBRECOMPLETO': participant['textMain'] ?? '',
+        'PART_CORREO': participant['textSecondary'] ?? '',
+        'PART_ROLID': (id == creadorId)
+            ? 4
+            : (id == liderId)
+            ? 1
+            : 2,
+        'PART_REGISTRADOPOR': creadorId,
+        'PART_ESTADO': 1,
+      };
+    }).toList();
+
+    // JSON final
+    final encuentroJson = {
+      'Encuentro': {
+        'Encuentro': encuentroData,
+        'Horarios': horarios,
+        'Participantes': participantes,
+      },
+    };
+    print(encuentroJson);
+
+    // Enviar al backend
+    final created = await service.createMeeting(encuentroJson);
 
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -512,6 +607,7 @@ class _CreateMeetingState extends State<CreateMeeting> {
       );
     }
   }
+
 
   @override
   // ignore: prefer_expression_function_bodies
@@ -821,7 +917,6 @@ class _CreateMeetingState extends State<CreateMeeting> {
               if (!context.mounted) {
                 return;
               }
-              // ignore: use_build_context_synchronously
               context.goNamed(RouteNames.myMeets);
             },
           ),
@@ -1008,6 +1103,19 @@ class _CreateMeetingState extends State<CreateMeeting> {
                   );
                 },
         ),
+        // Texto para confirmar ubicación
+        if ((isMeeting || isTraining) &&
+            currentSchedule.selectedLocationName != null) ...[
+          const SizedBox(height: 5),
+          Text(
+            'Confirmar ubicación con la mesa de servicios ubicada en el piso 2 '
+            'del bloque 7 del Campus Porvenir.',
+            style: TextStyle(
+              fontSize: 12,
+              color: TipoColores.pantone7621C.value,
+            ),
+          ),
+        ],
         const SizedBox(height: 15),
         // Repetir
         SizedBox(
@@ -1017,7 +1125,7 @@ class _CreateMeetingState extends State<CreateMeeting> {
             title: 'Repetir',
             options: _optionsRepeat,
             initialValue: isClass
-                ? '19'
+                ? '1'
                 : currentSchedule.selectedRepeat.toString(),
             onChanged: isClass
                 ? null

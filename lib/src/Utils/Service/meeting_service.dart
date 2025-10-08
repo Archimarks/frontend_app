@@ -11,13 +11,14 @@ import '../../Core/Configs/api_config.dart';
 /// Clase encargada de hacer la petición a la API para crear, eliminar, actualizar e insertar Encuentros
 class MeetingService {
   /// Método para crear un encuentro a partir de los datos de `MeetingModel`
-  Future<bool> createMeeting(final MeetingModel encuentro) async {
-    final baseUrl = ApiConfig.instance.postMeeting(encuentro);
+  Future<bool> createMeeting(final Map<String, dynamic> encuentroCompleto,
+  ) async {
+    final baseUrl = ApiConfig.instance.postMeeting();
     try {
       final response = await http.post(
         Uri.parse(baseUrl),
         headers: {'Content-Type': 'application/json'},
-        body: jsonEncode(encuentro.toJson()),
+        body: jsonEncode(encuentroCompleto),
       );
       if (response.statusCode == 200 || response.statusCode == 201) {
         debugPrint('✅ Encuentro creado correctamente: ${response.body}');
@@ -34,9 +35,9 @@ class MeetingService {
     }
   }
 
-  /// Método que trae todos los encuentros
-  Future<List<MeetingModel>> fetchMeetings() async {
-    final baseUrl = ApiConfig.instance.getMeeting();
+  /// Método que trae todos los encuentros creados por el usuario
+  Future<List<MeetingModel>> fetchMeetings(final int creadorId) async {
+    final baseUrl = ApiConfig.instance.getMeeting(creadorId);
 
     try {
       final response = await http.get(
@@ -48,7 +49,7 @@ class MeetingService {
         final List<dynamic> data = jsonDecode(response.body);
 
         // Mapear cada item del JSON a un objeto MeetingModel
-        return data.map((e) => MeetingModel.fromJson(e)).toList();
+        return data.map((final e) => MeetingModel.fromJson(e)).toList();
       } else {
         debugPrint('❌ Error al traer encuentros: ${response.body}');
         return [];
