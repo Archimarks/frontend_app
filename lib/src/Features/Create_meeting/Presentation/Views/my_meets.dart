@@ -10,13 +10,13 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../Core/Barrels/configs_barrel.dart';
 import '../../../../Core/Barrels/enums_barrel.dart';
 import '../../../../Core/Barrels/models_barrel.dart';
 import '../../../../Core/Barrels/services_barrel.dart';
 import '../../../../Core/Barrels/widgets_shared_barrel.dart';
+import '../../../../Core/Helpers/schedule_parser_data.dart';
 import '../../../../Core/Routes/route_names.dart';
 
 class MyMeets extends StatefulWidget {
@@ -130,11 +130,9 @@ class _MyMeetsState extends State<MyMeets> {
                         constraints: BoxConstraints(
                           minHeight: viewportConstraints.maxHeight,
                         ),
-                        child: IntrinsicHeight(
-                          child: Padding(
-                            padding: const EdgeInsets.all(15.0),
-                            child: _portraitLayout(),
-                          ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(15.0),
+                          child: _portraitLayout(),
                         ),
                       ),
                     ),
@@ -149,61 +147,73 @@ class _MyMeetsState extends State<MyMeets> {
   /// ### Widget que muestra los encuentros existentes
   Widget _showActiveMeets() => Column(
     children: [
-      Expanded(
-        child: Column(
-          children: [
-            ..._meetings.asMap().entries.map((final entry) {
-              final meet = entry.value; // Accedemos a la reunión actual
-              // Variable para los datos del encuentro seleccionado
-              final meetData = {
-                'title': meet.encuAsunto,
-                'hourAndDate': meet.encuRolDirigido,
-              };
-              return Column(
-                children: [
-                  CustomMeetCard(
-                    hourAndDate: meet.encuRolDirigido,
-                    title: meet.encuAsunto,
-                    description: meet.encuDescripcion,
-                    actionCard: () {
-                      if (!mounted) {
+      ListView.builder(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        itemCount: _meetings.length,
+        itemBuilder: (final context, final index) {
+          final meet = _meetings[index];
+
+          // Si el encuentro tiene horarios, se toma el primero
+          final firstHorario = meet.horarios.isNotEmpty
+              ? meet.horarios.first
+              : null;
+
+          final String hourAndDate = (firstHorario != null)
+              ? '${firstHorario.startTime != null ? firstHorario.startTime!.format(context) : ''} - ${firstHorario.endTime != null ? firstHorario.endTime!.format(context) : ''}.'
+                    ' ${ScheduleParser.getDayName(firstHorario.startDate!)}. (${firstHorario.startDate != null ? ScheduleParser.formatDateUi(firstHorario.startDate!) : ''})'
+              : 'Sin horario definido';
+
+          final meetData = {
+            'title': meet.asunto,
+            'description': meet.descripcion,
+            'hourAndDate': hourAndDate,
+            'id': meet.id,
+          };
+
+          return Column(
+            children: [
+              CustomMeetCard(
+                title: meet.asunto,
+                description: meet.descripcion,
+                hourAndDate: hourAndDate,
+                actionCard: () {
+                  if (!mounted) {
+                    return;
+                  }
+                  debugPrint('Enviando datos: $meetData');
+                  context.goNamed(RouteNames.generateQR, extra: meetData);
+                },
+                showButtonDelete: true,
+                onDeletePressed: () {
+                  CustomAlertDialog.show(
+                    context,
+                    title: 'Eliminar encuentro',
+                    message:
+                        '¿Está seguro que desea eliminar este encuentro? Esta acción no se puede deshacer.',
+                    confirmButtonText: 'Eliminar',
+                    cancelButtonText: 'Cancelar',
+                    colorButtonConfirm: TipoColores.pantone7621C,
+                    onConfirm: () async {
+                      await deleteMeetingforID(meet.id);
+                      if (!context.mounted) {
                         return;
                       }
-                      debugPrint('Enviando datos: $meetData');
-                      context.goNamed(RouteNames.generateQR, extra: meetData);
+                      context.pop();
                     },
-                    showButtonDelete: true,
-                    onDeletePressed: () {
-                      CustomAlertDialog.show(
-                        context,
-                        title: 'Eliminar encuentro',
-                        message:
-                            '¿Está seguro que desea eliminar este encuentro? Esta acción no se puede deshacer.',
-                        confirmButtonText: 'Eliminar',
-                        cancelButtonText: 'Cancelar',
-                        colorButtonConfirm: TipoColores.pantone7621C,
-                        onConfirm: () async {
-                          await deleteMeetingforID(_meetings[entry.key].encuId);
-                          if (!context.mounted) {
-                            return;
-                          }
-                          context.pop();
-                        },
-                        onCancel: () {
-                          if (!context.mounted) {
-                            return;
-                          }
-                          context.pop();
-                        },
-                      );
+                    onCancel: () {
+                      if (!context.mounted) {
+                        return;
+                      }
+                      context.pop();
                     },
-                  ),
-                  const SizedBox(height: 15),
-                ],
-              );
-            }),
-          ],
-        ),
+                  );
+                },
+              ),
+              const SizedBox(height: 15),
+            ],
+          );
+        },
       ),
     ],
   );

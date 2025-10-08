@@ -10,7 +10,6 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 
 import '../../../../Core/Barrels/configs_barrel.dart';
 import '../../../../Core/Barrels/enums_barrel.dart';
@@ -179,7 +178,6 @@ class _CreateMeetingState extends State<CreateMeeting> {
       final data = await UserService().fetchUsers();
       setState(() {
         allUsers = data;
-        print('Usuarios: $allUsers');
       });
     } catch (e) {
       debugPrint('Error al cargar los usuarios: $e');
@@ -230,7 +228,6 @@ class _CreateMeetingState extends State<CreateMeeting> {
       setState(() {
         _optionsRepeat = data;
       });
-      print('Repeticion: $_optionsRepeat');
     } catch (e) {
       debugPrint('Error al cargar las repeticiones: $e');
     }
@@ -524,36 +521,8 @@ Future<void> _createMeeting() async {
       'ENCU_ESTADO': true,
     };
 
-    // Construcción del arreglo Horarios (formato exacto que espera el backend)
-    final horarios = _schedules.map((final sch) {
-      final fechaInicio = sch.startDate != null
-          ? DateFormat("yyyy-MM-dd'T'HH:mm:ss").format(sch.startDate!)
-          : DateFormat("yyyy-MM-dd'T'HH:mm:ss").format(DateTime.now());
-      final fechaFin = sch.endDate != null
-          ? DateFormat("yyyy-MM-dd'T'HH:mm:ss").format(sch.endDate!)
-          : DateFormat("yyyy-MM-dd'T'HH:mm:ss").format(DateTime.now());
-
-      final horaInicio = sch.startTime != null
-          ? "${sch.startTime!.hour.toString().padLeft(2, '0')}:${sch.startTime!.minute.toString().padLeft(2, '0')}:00"
-          : '00:00:00';
-      final horaFin = sch.endTime != null
-          ? "${sch.endTime!.hour.toString().padLeft(2, '0')}:${sch.endTime!.minute.toString().padLeft(2, '0')}:00"
-          : '00:00:00';
-
-      return {
-        'HORA_FECHAINICIO': fechaInicio,
-        'HORA_FECHAFIN': fechaFin,
-        'HORA_HORAINICIO': horaInicio,
-        'HORA_HORAFIN': horaFin,
-        'HORA_DURACION': (sch.startTime != null && sch.endTime != null)
-            ? ScheduleParser.calculateDurationInMinutes(
-                sch.startTime!,
-                sch.endTime!,
-              )
-            : 0,
-        'HORA_UBICACION': sch.selectedLocationName ?? 'Sin ubicación',
-      };
-    }).toList();
+    // Construcción del arreglo Horarios
+    final horarios = _schedules.map((final sch) => sch.toJson()).toList();
 
     // Construcción de los participantes
     final participantes = addedParticipants.map((final participant) {
@@ -586,7 +555,6 @@ Future<void> _createMeeting() async {
         'Participantes': participantes,
       },
     };
-    print(encuentroJson);
 
     // Enviar al backend
     final created = await service.createMeeting(encuentroJson);

@@ -16,7 +16,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../Core/Barrels/enums_barrel.dart';
 import '../../../../Core/Barrels/services_barrel.dart';
 import '../../../../Core/Barrels/widgets_shared_barrel.dart';
-import '../../../../Core/Configs/app_storage.dart';
 import '../../../../Core/Routes/route_names.dart';
 
 class GenerateQR extends StatefulWidget {
@@ -113,7 +112,6 @@ class _GenerateQRState extends State<GenerateQR> {
         _myParticipants = data;
         loadingSelectDelegate = false;
       });
-      print(_myParticipants);
       // ignore: avoid_catches_without_on_clauses
     } catch (e) {
       debugPrint('Error al traer los funcionarios: $e');
